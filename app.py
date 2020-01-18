@@ -26,7 +26,10 @@ import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
-cred = credentials.Certificate("C:/Users/Manomay/Desktop/Portal/Angular/Mantra_Portals/backend/secret/portals-2edf2-firebase-adminsdk-aljih-9a4318b0c8.json")
+DATA_DIR = os.getenv("DATA_DIR", default="E:\\Saxons_folders")
+SECRET_DIR = os.getenv("SECRET_DIR", default="secret")
+
+cred = credentials.Certificate(os.path.join(SECRET_DIR, "portals-2edf2-firebase-adminsdk-aljih-9a4318b0c8.json"))
 firebase_admin.initialize_app(cred)
 db1 = firestore.client()
 
@@ -278,7 +281,7 @@ def get_security_question():
 
 @app.route('/setsecurityquestion', methods=['GET', 'POST', 'OPTIONS'])
 @cross_origin(
-    origins=['https://angularproject-5c26e.firebaseapp.com', 'http://localhost:4200', 
+    origins=['https://angularproject-5c26e.firebaseapp.com', 'http://localhost:4200',
             'http://183.82.0.186:812',
              'http://192.168.2.146:812'], allow_headers=['Content-Type', 'Authorization', 'User', 'Ipaddress'])
 def security_question():
@@ -1090,7 +1093,7 @@ def file_explorer():
                 auth1 = jwt.decode(auth1, key='secret')
                 data = json.loads(str(request.data, encoding='utf-8'))
 
-                path = "E:\\Saxons_folders\\" + data["request_folder"] + "\\"
+                path = os.path.join(DATA_DIR, data["request_folder"])
                 folders = {}
                 object_to_send = []
                 id = 1
@@ -1184,15 +1187,15 @@ def file_explorer():
             'http://192.168.2.146:812'], allow_headers=['Content-Type', 'Authorization', 'User', 'Ipaddress'])
 def download():
     if request.method == "POST":
-        root = "E:\\Saxons_folders\\"
+        root = DATA_DIR
         data = json.loads(str(request.data, encoding='utf-8'))
         print("-------------")
         print(data)
-        root += data["request_folder"] + "\\"
-        path_ = "E:/Saxons_folders/" + data["request_folder"] + "/"
+        root = os.path.join(root, data["request_folder"])
+        path_ = os.path.join(DATA_DIR, data["request_folder"])
         paths = list(data["path"])
         print(paths)
-        return send_file(path_ + paths[0]), 200
+        return send_file(os.path.join(path_, paths[0])), 200
 
 
 @app.route("/file_explorer_open", methods=['GET', 'POST', 'OPTIONS'])
@@ -1204,12 +1207,12 @@ def file_explorer_open():
         if 'Authorization' in request.headers.keys() and token_verify(token=request.headers["Authorization"],
                                                                       ip=request.headers["Ipaddress"],
                                                                       user=request.headers["User"]):
-            root = "E:\\Saxons_folders\\"
+            root = DATA_DIR
             data = json.loads(str(request.data, encoding='utf-8'))
             print("-------------")
             print(data)
-            root += data["request_folder"] + "\\"
-            path_ = "E:/Saxons_folders/" + data["request_folder"] + "/"
+            root = os.path.join(root, data["request_folder"])
+            path_ = os.path.join(DATA_DIR, data["request_folder"])
             paths = list(data["path"])
             print(paths)
 
@@ -1247,7 +1250,7 @@ def file_explorer_open():
         print(request.headers)
         path = request.args.get('path')
         print(path)
-        return send_file('E:/Saxons_folders/' + path), 200
+        return send_file(os.path.join(DATA_DIR, path)), 200
 
 
 @app.route("/file_explorer_operation", methods=['GET', 'POST', 'OPTIONS'])
@@ -1263,7 +1266,7 @@ def file_explorer_operation():
             try:
                 auth1 = request.headers["Authorization"]
                 auth1 = jwt.decode(auth1, key='secret')
-                path = 'E:/Saxons_folders/'
+                path = DATA_DIR
                 file = request.files['file']
                 print("----------------")
                 print(request.form["request_type"])
@@ -1278,13 +1281,13 @@ def file_explorer_operation():
                     formtype = request.form["formType"]
                     userid = request.form["employerusername"]
                     employer = request.form["employer"]
-                    path += "Employers/"
+                    path = os.path.join(root, "Employers")
                     if not os.path.exists(path):
                         os.mkdir(path)
-                    path += userid + "/"
+                    path = os.path.join(path, userid)
                     if not os.path.exists(path):
                         os.mkdir(path)
-                    path += "contribution" + "/"
+                    path = os.path.join(path, "contribution")
                     if not os.path.exists(path):
                         os.mkdir(path)
                     if 'file' in request.files:
@@ -1313,7 +1316,7 @@ def file_explorer_operation():
                                                               "filename": filename,
                                                               })
 
-                        path += str(token[1].id) + "/"
+                        path = os.path.join(path, str(token[1].id))
                         if not os.path.exists(path):
                             os.mkdir(path)
                         file.save(os.path.join(path, filename))
@@ -1326,7 +1329,7 @@ def file_explorer_operation():
                         print("hello")
                         try:
                             foldername = request.form["foldername"]
-                            path += foldername
+                            path = os.path.join(path, foldername)
                             filename = secure_filename(file.filename)
                             print(filename)
                             filename = str(datetime.today().strftime("%Y%m%d %H%M%S.%f") + filename)
@@ -1368,28 +1371,28 @@ def file_explorer_operations():
                     data = json.loads(str(request.data, encoding='utf-8'))
                     operation = data["operation"]
                     print(operation)
-                    path = 'E:/Saxons_folders/' + data["request_folder"] + "/"
+                    path = os.path.join(DATA_DIR, data["request_folder"])
                     if operation == "move":
 
-                        destination = path + data["destination"][0]
+                        destination = os.path.join(path, data["destination"][0])
                         try:
                             for i in range(len(data["source"])):
-                                source = path + data["source"][i]
+                                source = os.path.join(path, data["source"][i])
                                 shutil.move(source, destination)
                             return jsonify({"result": "Success"}), 200
                         except Exception as e:
                             print(str(e))
                             return jsonify({"error": "Something wrong happened"}), 500
                     elif operation == "copy":
-                        destination = path + data["destination"][0]
+                        destination = os.path.join(path, data["destination"][0])
                         try:
                             for i in range(len(data["source"])):
-                                source = path + data["source"][i]
+                                source = os.path.join(path, data["source"][i])
                                 print(source)
                                 print(destination)
                                 len_of_source = len(source.split("/"))
                                 if os.path.isdir(source):
-                                    shutil.copytree(source, destination + "/" + source.split("/")[len_of_source - 1])
+                                    shutil.copytree(source, os.path.join(destination, source.split("/")[len_of_source - 1]))
                                 elif os.path.isfile(source):
                                     shutil.copy(source, destination)
                                 else:
@@ -1408,15 +1411,15 @@ def file_explorer_operations():
                         result = []
                         try:
                             for i in range(len(list(data["source"]))):
-                                source = path + data["source"][i]
-                                destination = path + data["destination"][i]
+                                source = os.path.join(path, data["source"][i])
+                                destination = os.path.join(path, data["destination"][i])
                                 os.rename(source, destination)
                             return jsonify({"result": "Success"}), 200
                         except Exception as e:
                             print(str(e))
                             return jsonify({"error": "Something wrong happened"}), 500
                     elif operation == "delete":
-                        source = path + data["source"][0]
+                        source = os.path.join(path, data["source"][0])
                         print(source)
                         try:
                             if os.path.isdir(source):
@@ -1438,7 +1441,7 @@ def file_explorer_operations():
                         return jsonify({"result": "Success"}), 200
                         # return send_file(os.path.join(path, filename))
                     elif operation == "createnewfolder":
-                        folder_path = path + data["source"]
+                        folder_path = os.path.join(path, data["source"])
                         try:
                             os.mkdir(folder_path)
                             return jsonify({"result": "Success"}), 200
@@ -1495,7 +1498,7 @@ def build_excel():
 
 
 def delete_excel(filename):
-    time.sleep(5)
+    time.sleep(5) #??!!
     print("deleting file" + filename)
     os.remove(filename)
 
