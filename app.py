@@ -563,11 +563,11 @@ def send_enrollment_form():
              'http://192.168.2.146:812'], allow_headers=['Content-Type', 'Authorization', 'User', 'Ipaddress'])
 def deleteenrollmentfile():
     if request.method == "POST":
-        base_path = 'E:/Saxons_folders/Employers/'
+        base_path = os.path.join(DATA_DIR, 'Employers')
         data = json.loads(str(request.get_data(), encoding='utf-8'))
         employer = data["employerid"]
         path = data["path"]
-        base_path += employer + "/" + path
+        base_path = os.path.join(base_path, employer, path)
         if os.path.exists(base_path) and os.path.isfile(base_path):
             try:
                 os.remove(base_path)
@@ -590,7 +590,7 @@ def save_enrollment():
         member_email = request.form.get("email")
         type = request.form.get("request_type")
         employer_id = request.form.get("employerusername")
-        path = 'E:/Saxons_folders/'
+        path = DATA_DIR
         msgtext = ""
         msg = MIMEMultipart()
         msg['from'] = "venkatesh"
@@ -635,17 +635,17 @@ def save_enrollment():
                 file = request.files["file"]
                 filename = secure_filename(file.filename)
                 print(filename)
-                path += "Employers/"
+                path = os.path.join(path, 'Employers')
                 if not os.path.exists(path):
                     os.mkdir(path)
-                path += employer_id + "/"
+                path = os.path.join(path, employer_id)
                 print(employer_id)
                 if not os.path.exists(path):
                     os.mkdir(path)
-                path += "enrollment" + "/"
+                path = os.path.join(path, "enrollment")
                 if not os.path.exists(path):
                     os.mkdir(path)
-                path += request.form["tokenID"] + "/"
+                path = os.path.join(path, request.form["tokenID"])
                 if not os.path.exists(path):
                     os.mkdir(path)
                 file.save(os.path.join(path, filename))
@@ -674,16 +674,16 @@ def save_enrollment():
                 file = request.files["file"]
                 filename = secure_filename(file.filename)
                 print(filename)
-                path += "Employers/"
+                path = os.path.join(path, "Employers/")
                 if not os.path.exists(path):
                     os.mkdir(path)
-                path += employer_id + "/"
+                path = os.path.join(path, employer_id)
                 if not os.path.exists(path):
                     os.mkdir(path)
-                path += "enrollment" + "/"
+                path = os.path.join(path, "enrollment")
                 if not os.path.exists(path):
                     os.mkdir(path)
-                path += request.form["tokenID"] + "/"
+                path = os.path.join(path, request.form["tokenID"])
                 if not os.path.exists(path):
                     os.mkdir(path)
                 file.save(os.path.join(path, filename))
@@ -1178,7 +1178,7 @@ def file_explorer():
         auth1 = jwt.decode(auth1, key='secret')
         print(request+" get requesttt")
         data = json.loads(str(request.data, encoding='utf-8'))
-        return send_file('E:/Saxons_folders/' + data["request_folder"]), 200
+        return send_file(os.path.join(DATA_DIR, data["request_folder"])), 200
 
 
 @app.route("/download_file", methods=["POST", "OPTIONS"])
