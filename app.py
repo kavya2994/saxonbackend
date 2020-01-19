@@ -6,7 +6,6 @@ import threading
 import time
 import zipfile
 import threading
-
 from flask import Flask, render_template, url_for, request, redirect, Response, session, flash, send_from_directory, \
     send_file, abort, jsonify, logging, make_response
 from flask_cors import CORS, cross_origin
@@ -25,9 +24,13 @@ from encrypt_pass import Encryption
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+from dotenv import load_dotenv
+
+load_dotenv(verbose=True)
 
 DATA_DIR = os.getenv("DATA_DIR", default="E:\\Saxons_folders")
 SECRET_DIR = os.getenv("SECRET_DIR", default="secret")
+CONNECTION_STRING = os.getenv("CONNECTION_STRING")
 
 cred = credentials.Certificate(os.path.join(SECRET_DIR, "portals-2edf2-firebase-adminsdk-aljih-9a4318b0c8.json"))
 firebase_admin.initialize_app(cred)
@@ -1539,3 +1542,4 @@ if __name__ == '__main__':
     # app.run(host='192.168.2.146', port=811, threaded=True)
     http_server = WSGIServer(('0.0.0.0', 811), app)  # , keyfile='sslkeys/server.key', certfile='sslkeys/server.crt')
     http_server.serve_forever()
+
