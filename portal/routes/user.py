@@ -8,6 +8,8 @@ from flask import Blueprint, jsonify, request, abort
 from flask_cors import cross_origin
 from ..helpers import randomStringwithDigitsAndSymbols, token_verify
 from ..encryption import Encryption
+from ..models import db
+from ..models.users import Users
 
 
 user_blueprint = Blueprint('user_blueprint', __name__, template_folder='templates')
@@ -20,7 +22,7 @@ def check_user():
     if request.method == "POST":
         data = json.loads(str(request.data, encoding='utf-8'))
         username = data["username"]
-        user_details = db1.collection("users").document(username).get().to_dict()
+        user_details = Users.query.filter_by(Username=username).first()
         if user_details is not None:
             return jsonify({
                 "result": True
@@ -36,8 +38,8 @@ def check_user():
              'http://192.168.2.146:812'], allow_headers=['Content-Type', 'Authorization', 'Ipaddress', 'User'])
 def create_user():
     if request.method == "POST":
-        if "Authorization" in request.headers.keys() and token_verify(token=request.headers["Authorization"], ip=request.headers["Ipaddress"], user=request.headers["User"]):
-            try:
+        try:
+            if "Authorization" in request.headers.keys() and token_verify(token=request.headers["Authorization"], ip=request.headers["Ipaddress"], user=request.headers["User"]):
                 auth = request.headers["Authorization"]
                 auth1 = jwt.decode(auth, key='secret')
                 if auth1["role"] == "admin" and token_verify(token=request.headers["Authorization"], ip=request.headers["Ipaddress"], user=request.headers["User"]):
@@ -48,19 +50,20 @@ def create_user():
                     role = data["role"]
                     session_expiry = data["session_expiry"]
                     password = randomStringwithDigitsAndSymbols(10)
-                    enc_pass = enc.encrypt(password)
-                    userexist = db1.collection("users").document(username).get().to_dict()
+                    enc_pass = Encryption().encrypt(password)
+                    userexist = Users.query.filter_by(Username=username).first()
                     if userexist is None:
-                        db1.collection("users").document(username).update({"email": email,
-                                                                           "password": enc_pass,
-                                                                           "role": role,
-                                                                           "status": "active",
-                                                                           "temppass": True,
-                                                                           "username": username,
-                                                                           "displayname": displayname,
-                                                                           "sessionExpiry": session_expiry,
-                                                                           "userCreatedTime": datetime.utcnow()
-                                                                           })
+                        new_user = Users(Email=email,
+                                            Password=enc_pass,
+                                            Role=role,
+                                            Status="active",
+                                            TemporaryPassword=True,
+                                            Username=username,
+                                            DisplayName=displayname,
+                                            SessionExpiry=session_expiry,
+                                            UserCreatedTime=datetime.utcnow())
+                        db.session.add(new_user)
+                        db.session.commit()
                         msg_text = MIMEText('<p>Dear %s</p>'
                                             '<p>Your account is created please use this password %s to log in</p>'
                                             % (displayname, password))
@@ -78,14 +81,14 @@ def create_user():
                         return jsonify({"result": "Success"}), 200
                     else:
                         return jsonify({"error": "Username already exists"}), 409
-            except jwt.DecodeError:
+            else:
                 return jsonify({"error": "Not Authorized"}), 401
-            except jwt.ExpiredSignatureError:
-                return jsonify({"error": "Not Authorized"}), 401
-            except Exception as e:
-                print(str(e))
-                return jsonify({"error": "Not Authorized"}), 401
-        else:
+        except jwt.DecodeError:
+            return jsonify({"error": "Not Authorized"}), 401
+        except jwt.ExpiredSignatureError:
+            return jsonify({"error": "Not Authorized"}), 401
+        except Exception as e:
+            print(str(e))
             return jsonify({"error": "Not Authorized"}), 401
 
 
@@ -99,7 +102,7 @@ def get_security_question():
     if request.method == "POST":
         data = json.loads(str(request.data, encoding='utf-8'))
         username = data["username"]
-        user_details = db1.collection("users").document(username).get().to_dict()
+        user_details = Users.query.filter_by(Username=username).first()
         if user_details is not None:
             sec_question = user_details["securityQuestion"]
             print(sec_question)
@@ -135,7 +138,7 @@ def security_question():
                 securityquestion = data["securityQuestion"]
                 answer = data["answer"]
                 db1.collection("users").document(username).update({"securityQuestion": securityquestion,
-                                                                   "answer": enc.encrypt(answer)})
+                                                                   "answer": Encryption().encrypt(answer)})
                 return jsonify({"result": "success"}), 200
             except KeyError as e:
                 print(str(e))
@@ -167,10 +170,12 @@ def change():
                 old_pass = data["old_password"]
                 new_pass = data["new_password"]
                 if username is not None:
-                    userinfo = db1.collection("users").document(username).get().to_dict()
-                    if userinfo["password"] == enc.encrypt(old_pass):
-                        pass_encoded = enc.encrypt(new_pass)
-                        db1.collection("users").document(username).update({"password": pass_encoded, "temppass": False})
+                    userinfo = Users.query.filter_by(Username=username).first()
+                    if userinfo["Password"] == Encryption().encrypt(old_pass):
+                        pass_encoded = Encryption().encrypt(new_pass)
+                        userinfo.Password = pass_encoded
+                        userinfo.TemporaryPassword = False
+                        db.session.commit()
                         return jsonify({"result": "Password changed successfully"}), 200
                     else:
                         return jsonify({"error": "Password not match"}), 401
@@ -205,7 +210,7 @@ def login_cred_mail():
         smtpObj = smtplib.SMTP_SSL('smtp.gmail.com', port=465)
         # smtpObj.set_debuglevel(1)
         password = randomStringwithDigitsAndSymbols()
-        pass_encypt = enc.encrypt(password)
+        pass_encypt = Encryption().encrypt(password)
         msg = MIMEMultipart()
         msg['subject'] = "Welcome to Pension Management portal"
         msg['from'] = "venkatesh"
@@ -298,11 +303,11 @@ def reset_pass_():
             change_pass = True
         elif request_type == "securityquestion":
             answer = data["answer"]
-            userdata = db1.collection("users").document(id).get().to_dict()
-            if userdata["answer"] == enc.encrypt(answer):
+            userdata = Users.query.filter_by(Username=id).first()
+            if userdata["answer"] == Encryption().encrypt(answer):
                 change_pass = True
         elif request_type == "email":
-            userdata = db1.collection("users").document(id).get().to_dict()
+            userdata = Users.query.filter_by(Username=id).first()
             print(userdata)
             if userdata is not None and userdata["email"] == mail:
                 change_pass = True
@@ -310,13 +315,13 @@ def reset_pass_():
         if change_pass:
             try:
                 password = randomStringwithDigitsAndSymbols()
-                pass_encypt = enc.encrypt(password)
+                pass_encypt = Encryption().encrypt(password)
                 msgtext = MIMEText('<p>Your password has been reset. The temporary password is: %s</p>'
                                    '<p>Please log into your system as soon as possible to set your new password.</p>'
                                    % password, 'html')
                 msg.attach(msgtext)
                 smtpObj.login('venkateshvyyerram@gmail.com', "mynameisvenkatesh")
-                db1.collection('users').document(id).update({"password": pass_encypt, "temppass": True})
+                db1.collection('users').document(id).update({"password": pass_encypt, "TemporaryPassword": True})
                 smtpObj.sendmail("venkateshvyyerram@gmail.com", mail, msg.as_string())
                 return jsonify({"result": "Success"}), 200
             except Exception as e:

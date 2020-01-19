@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 from flask import Blueprint, request, jsonify
 from flask_cors import cross_origin
 from ..encryption import Encryption
+from ..models.users import Users
 
 
 auth_blueprint = Blueprint('auth_blueprint', __name__, template_folder='templates')
@@ -59,12 +60,13 @@ def login():
             print(data)
             user = data['username']
             password = data["password"]
-            userinfo = db1.collection("users").document(user).get().to_dict()
+            # userinfo = db1.collection("users").document(user).get().to_dict()
+            userinfo = Users.query.filter_by(Username=user).first()
             encrypt_password = Encryption().encrypt(password)
             print(userinfo)
             # print(list(userinfo.keys()))
             # print(userinfo["password"])
-            if userinfo["password"] == encrypt_password and str(userinfo["status"]).lower() == "active":
+            if userinfo != None and userinfo["password"] == encrypt_password and str(userinfo["status"]).lower() == "active":
                 if "temppass" in userinfo.keys():
                     # print(request.form)
                     name = userinfo["displayname"]
