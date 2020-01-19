@@ -1,0 +1,36 @@
+from . import db
+
+
+class Enrollmentform(db.Model):
+    FormID = db.Column(db.Integer, primary_key=True, nullable=False)
+    SecurityQuestionID = db.Column(db.Integer)
+
+    EmployerName = db.Column(db.String(255))
+    EmployerID = db.Column(db.String(255))
+    InitiatedDate = db.Column(db.String(255))
+    AlreadyEnrolled = db.Column(db.String(255))
+    Status = db.Column(db.String(255))
+    FirstName = db.Column(db.String(255))
+    MiddleName = db.Column(db.String(255))
+    LastName = db.Column(db.String(255))
+    DOB = db.Column(db.String(255))
+    Title = db.Column(db.String(255))
+    MaritalStatus = db.Column(db.String(255))
+    MailingAddress = db.Column(db.String(255))
+    AddressLine2 = db.Column(db.String(255))
+    District = db.Column(db.String(255))
+    PostalCode = db.Column(db.String(255))
+    Country = db.Column(db.String(255))
+    EmailAddress = db.Column(db.String(255))
+    Telephone = db.Column(db.String(255))
+    StartDateofContribution = db.Column(db.String(255))
+    StartDateofEmployment = db.Column(db.String(255))
+    ConfirmationStatus = db.Column(db.String(255))
+    SignersName = db.Column(db.String(255))
+    Signature = db.Column(db.String(255))
+    Estimatedannualincomerange = db.Column(db.String(255))
+    ImmigrationStatus = db.Column(db.String(255))
+    PendingFrom = db.Column(db.String(255))
+    SpouseName = db.Column(db.String(255))
+    SpouseDOB = db.Column(db.String(255))
+

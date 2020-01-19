@@ -8,7 +8,6 @@ from flask import Blueprint, jsonify, request, abort
 from flask_cors import cross_origin
 from ..helpers import randomStringwithDigitsAndSymbols, token_verify
 from ..encryption import Encryption
-from ..models.user import User
 
 
 user_blueprint = Blueprint('user_blueprint', __name__, template_folder='templates')
