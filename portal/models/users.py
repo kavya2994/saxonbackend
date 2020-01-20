@@ -2,6 +2,8 @@ from . import db
 
 
 class Users(db.Model):
+    __bind_key__ = 'writeonly'
+
     Username = db.Column(db.String(255), primary_key=True, nullable=False)
     MemberID = db.Column(db.Integer) #, db.ForeignKey('tag.id'))
     SecurityQuestionID = db.Column(db.Integer)
@@ -16,3 +18,17 @@ class Users(db.Model):
     Role = db.Column(db.String(255))
     Status = db.Column(db.String(255))
     UserCreatedTime = db.Column(db.String(255))
+
+
+#  {'Pass': '28634',
+#   'answer': 'hello',
+#   'displayname': 'Member124',
+#   'email': 'helloo@gmail.com',
+#   'member_id': '28634',
+#   'password': 'xyz',
+#   'role': 'member',
+#   'securityQuestion': '2',
+#   'status': 'active',
+#   'temppass': False,
+#   'type': 'member',
+#   'username': '28634'},

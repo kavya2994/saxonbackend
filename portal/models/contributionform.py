@@ -2,6 +2,8 @@ from . import db
 
 
 class Contributionform(db.Model):
+    __bind_key__ = 'writeonly'
+
     FormID = db.Column(db.Integer, primary_key=True, nullable=False)
 
     EmployerName = db.Column(db.String(255))

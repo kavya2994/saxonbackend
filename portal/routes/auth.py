@@ -60,7 +60,6 @@ def login():
             print(data)
             user = data['username']
             password = data["password"]
-            # userinfo = db1.collection("users").document(user).get().to_dict()
             userinfo = Users.query.filter_by(Username=user).first()
             encrypt_password = Encryption().encrypt(password)
             print(userinfo)

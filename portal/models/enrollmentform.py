@@ -2,6 +2,8 @@ from . import db
 
 
 class Enrollmentform(db.Model):
+    __bind_key__ = 'writeonly'
+
     FormID = db.Column(db.Integer, primary_key=True, nullable=False)
     SecurityQuestionID = db.Column(db.Integer)
 
@@ -34,3 +36,33 @@ class Enrollmentform(db.Model):
     SpouseName = db.Column(db.String(255))
     SpouseDOB = db.Column(db.String(255))
 
+
+#  {'address': '',
+#   'addressLine2': '',
+#   'comments': '',
+#   'country': '',
+#   'district': '',
+#   'dob': '',
+#   'email': 'deepika.bharatula@manomay.biz',
+#   'employerComments': '',
+#   'employername': 'Saxon Pensions',
+#   'employernumber': 'saxon',
+#   'file': '',
+#   'formCreatedDate': {'nanoseconds': 936510000, 'seconds': 1575456023},
+#   'formType': 'Enrollment',
+#   'immigrationstatus': '',
+#   'incomerange': '',
+#   'isExistingMember': 'false',
+#   'maidenName': '',
+#   'maritalstatus': 'false',
+#   'memberLastName': '',
+#   'memberfirstName': 'T5',
+#   'middlename': '',
+#   'pendingFrom': 'reviewermanager',
+#   'phoneNumber': '',
+#   'postalcode': '',
+#   'startdate': '2019-12-03T18:30:00.000Z',
+#   'startemployment': '2019-12-03T18:30:00.000Z',
+#   'status': 'pending',
+#   'title': '',
+#   'tokenID': 'JsijaNKnK9GhUEVHm54S'},

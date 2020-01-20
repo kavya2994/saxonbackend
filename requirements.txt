@@ -5,6 +5,7 @@ cffi==1.13.2
 chardet==3.0.4
 Click==7.0
 cryptography==2.8
+cx-Oracle==7.3.0
 firebase-admin==3.2.1
 Flask==1.1.1
 Flask-Cors==3.0.8

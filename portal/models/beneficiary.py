@@ -2,6 +2,8 @@ from . import db
 
 
 class Beneficiary(db.Model):
+    __bind_key__ = 'writeonly'
+
     BeneficiaryID = db.Column(db.Integer, primary_key=True, nullable=False)
     EnrollmentformID = db.Column(db.Integer)
 
