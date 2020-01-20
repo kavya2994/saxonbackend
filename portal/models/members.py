@@ -4,8 +4,9 @@ from . import db
 class Members(db.Model):
     __bind_key__ = 'readonly'
 
-    Username = db.Column(db.String(255), primary_key=True, nullable=False)
+    username = db.Column(db.String(255), primary_key=True, nullable=False)
 
+    employers = db.Column(db.String(255))
     Country = db.Column(db.String(255))
     DOB = db.Column(db.String(255))
     Date_of_Employement = db.Column(db.String(255))
@@ -16,10 +17,10 @@ class Members(db.Model):
     Pobox = db.Column(db.String(255))
     displayname = db.Column(db.String(255))
     email = db.Column(db.String(255))
-    employers = db.Column(db.String(255))
     member_id = db.Column(db.String(255))
     sessionTime = db.Column(db.String(255))
     status = db.Column(db.String(255))
+
 
 # [{'Country': 'Cayman Islands',
 #   'DOB': '22-AUG-95',

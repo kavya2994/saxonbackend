@@ -4,7 +4,7 @@ from . import db
 class Employers(db.Model):
     __bind_key__ = 'readonly'
 
-    Username = db.Column(db.String(255), primary_key=True, nullable=False)
+    username = db.Column(db.String(255), primary_key=True, nullable=False)
 
     displayname = db.Column(db.String(255))
     email = db.Column(db.String(255))
@@ -13,7 +13,8 @@ class Employers(db.Model):
     sessionTime = db.Column(db.String(255))
     status = db.Column(db.String(255))
 
-# [{'displayname': 'Manomay cs',
+# [{
+#   'displayname': 'Manomay cs',
 #   'email': 'deepika.bharatula@manomay.biz',
 #   'employer_id': 'manomay',
 #   'managedEmployers': [<google.cloud.firestore_v1.document.DocumentReference object at 0x108562610>],

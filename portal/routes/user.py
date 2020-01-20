@@ -10,6 +10,7 @@ from ..helpers import randomStringwithDigitsAndSymbols, token_verify
 from ..encryption import Encryption
 from ..models import db
 from ..models.users import Users
+from ..models.security_question import SecurityQuestion
 
 
 user_blueprint = Blueprint('user_blueprint', __name__, template_folder='templates')
@@ -106,16 +107,8 @@ def get_security_question():
         if user_details is not None:
             sec_question = user_details["securityQuestion"]
             print(sec_question)
-            question = db1.collection("securityQuestions").where("id", "==", str(sec_question)).stream()
-
-            question_ = ""
-
-            for doc in question:
-                print(doc)
-                question_ = doc.to_dict()["question"]
-                print(question_)
-
-            return jsonify({"question": question_, "email": user_details["email"]}), 200
+            question = SecurityQuestion.query.get(sec_question)
+            return jsonify({"question": question.question, "email": user_details["email"]}), 200
         else:
             return jsonify({"error": "user doesn't exist"}), 400
     else:
@@ -134,11 +127,12 @@ def security_question():
                 auth = request.headers["Authorization"]
                 auth = jwt.decode(auth, key='secret')
                 data = json.loads(str(request.data, encoding='utf-8'))
-                username = data["username"]
-                securityquestion = data["securityQuestion"]
-                answer = data["answer"]
-                db1.collection("users").document(username).update({"securityQuestion": securityquestion,
-                                                                   "answer": Encryption().encrypt(answer)})
+
+                user = Users.query.get(data["username"])
+                user.securityQuestionID = data["securityQuestion"]
+                user.securityAnswer = Encryption().encrypt(data["answer"])
+                db.session.commit()
+
                 return jsonify({"result": "success"}), 200
             except KeyError as e:
                 print(str(e))
@@ -321,7 +315,12 @@ def reset_pass_():
                                    % password, 'html')
                 msg.attach(msgtext)
                 smtpObj.login('venkateshvyyerram@gmail.com', "mynameisvenkatesh")
-                db1.collection('users').document(id).update({"password": pass_encypt, "TemporaryPassword": True})
+
+                user = Users.query.get(id)
+                user.password = pass_encypt
+                user.TemporaryPassword = True
+                db.session.commit()
+
                 smtpObj.sendmail("venkateshvyyerram@gmail.com", mail, msg.as_string())
                 return jsonify({"result": "Success"}), 200
             except Exception as e:

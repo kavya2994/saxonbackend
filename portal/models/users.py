@@ -6,19 +6,18 @@ class Users(db.Model):
 
     Username = db.Column(db.String(255), primary_key=True, nullable=False)
     MemberID = db.Column(db.Integer) #, db.ForeignKey('tag.id'))
-    SecurityQuestionID = db.Column(db.Integer)
+    securityQuestionID = db.Column(db.Integer)
 
-    Password = db.Column(db.String(255))
+    password = db.Column(db.String(255))
     TemporaryPassword = db.Column(db.String(255))
     Email = db.Column(db.String(255))
     DisplayName = db.Column(db.String(255))
     SessionExpiry = db.Column(db.String(255))
     PhoneNumber = db.Column(db.String(255))
-    SecurityAnswer = db.Column(db.String(255))
+    securityAnswer = db.Column(db.String(255))
     Role = db.Column(db.String(255))
     Status = db.Column(db.String(255))
     UserCreatedTime = db.Column(db.String(255))
-
 
 #  {'Pass': '28634',
 #   'answer': 'hello',

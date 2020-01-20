@@ -9,6 +9,9 @@ from flask import Blueprint, jsonify, request
 from flask_cors import cross_origin
 from werkzeug.utils import secure_filename
 from ..helpers import token_verify
+from ..models.enrollmentform import Enrollmentform
+from ..models.token import Token
+from ..models import db
 
 
 enrollment_blueprint = Blueprint('enrollment_blueprint', __name__, template_folder='templates')
@@ -48,17 +51,58 @@ def send_enrollment_form():
                         if str(employer_id)[-2:].__contains__("HR"):
                             employernumber = str(employer_id)[:-2]
                         print(employernumber)
-                        myform_enroll = db1.collection("myforms").add(data)
-                        token_data = db1.collection("Tokens").add(
-                            {"id": myform_enroll[1].id, "initiatedBy": employer_id, "tokenStatus": "active",
-                             # "tokenType": "enrollment",
-                             "formCreatedDate": datetime.utcnow(),
-                             "pendingFrom": "member",
-                             "formType": "Enrollment",
-                             "status": "pending",
-                             "employernumber": employernumber,
-                             "memberfirstName": member_name})
-                        token = token_data[1].id
+
+                        new_enrollment = Enrollmentform(
+                            EmployerName=data["EmployerName"],
+                            EmployerID=data["EmployerID"],
+                            InitiatedDate=data["InitiatedDate"],
+                            AlreadyEnrolled=data["AlreadyEnrolled"],
+                            Status=data["Status"],
+                            FirstName=data["FirstName"],
+                            MiddleName=data["MiddleName"],
+                            LastName=data["LastName"],
+                            DOB=data["DOB"],
+                            Title=data["Title"],
+                            MaritalStatus=data["MaritalStatus"],
+                            MailingAddress=data["MailingAddress"],
+                            AddressLine2=data["AddressLine2"],
+                            District=data["District"],
+                            PostalCode=data["PostalCode"],
+                            Country=data["Country"],
+                            EmailAddress=data["EmailAddress"],
+                            Telephone=data["Telephone"],
+                            StartDateofContribution=data["StartDateofContribution"],
+                            StartDateofEmployment=data["StartDateofEmployment"],
+                            ConfirmationStatus=data["ConfirmationStatus"],
+                            SignersName=data["SignersName"],
+                            Signature=data["Signature"],
+                            Estimatedannualincomerange=data["Estimatedannualincomerange"],
+                            ImmigrationStatus=data["ImmigrationStatus"],
+                            pendingFrom=data["PendingFrom"],
+                            SpouseName=data["SpouseName"],
+                            SpouseDOB=data["SpouseDOB"],
+                        )
+
+                        db.session.add(new_enrollment)
+                        db.session.commit()
+
+                        token_data = Token(
+                            FormID=new_enrollment.id,
+                            FormCreatedDate=datetime.utcnow(),
+                            FormStatus="pending",
+                            FormType="Enrollment",
+                            InitiatedBy=employer_id,
+                            # InitiatedDate=
+                            PendingFrom="member",
+                            TokenStatus="active",
+                            EmployerID=employernumber,
+                            # OlderTokenID=
+                        )
+
+                        db.session.add(token_data)
+                        db.session.commit()
+
+                        token = token_data.id
                         msgtext = MIMEText(
                             '<p>**This is an auto-generated e-mail message. Please do not reply to this message. **</p>'
                             '<p>Dear %s</p>'
@@ -115,9 +159,9 @@ def deleteenrollmentfile():
 def save_enrollment():
     if request.method == "POST":
         member_name = request.form.get("membername")
-        token = request.form.get("tokenID")
+        tokenID = request.form.get("tokenID")
         member_email = request.form.get("email")
-        type = request.form.get("request_type")
+        request_type = request.form.get("request_type")
         employer_id = request.form.get("employerusername")
         path = DATA_DIR
         msgtext = ""
@@ -125,7 +169,9 @@ def save_enrollment():
         msg['from'] = "venkatesh"
         msg['to'] = member_name
         smtpObj = smtplib.SMTP_SSL('smtp.gmail.com', port=465)
-        if type == "member_submission":
+        token_data = Token.query.get(tokenID)
+
+        if request_type == "member_submission":
             msg['subject'] = "Your Enrollment has been submitted"
             msgtext = MIMEText('<p>**This is an auto-generated e-mail message.'
                                ' Please do not reply to this message. **</p>'
@@ -134,16 +180,29 @@ def save_enrollment():
                                'You will receive notification once your form has been processed</p>' % (
                                    member_name, datetime.utcnow().strftime("%Y-%m-%d")),
                                'html')
-            member_token_data = db1.collection("Tokens").document(token).get().to_dict()
-            new_token_data = member_token_data
-            new_token_data["pendingFrom"] = "employer"
-            new_token_data["oldToken"] = token
-            new_token_data["status"] = "pending"
-            new_token_data["tokenStatus"] = "active"
-            db1.collection("Tokens").document(token).update({"tokenStatus": "inactive", "status": "submitted"})
-            db1.collection("myforms").document(member_token_data["id"]).update({"pendingFrom": "employer"})
-            new_token = db1.collection("Tokens").add(new_token_data)
-            print(new_token[1].id)
+
+            token_data.TokenStatus = "inactive"
+            token_data.FormStatus = "submitted"
+
+            enrollform = Enrollmentform.query.get(token_data["FormID"])
+            enrollform.PendingFrom = "employer"
+            db.session.commit()
+
+            new_token = Token(FormID=token_data["FormID"],
+                            FormCreatedDate=token_data["FormCreatedDate"],
+                            FormStatus="pending",
+                            FormType=token_data["FormType"],
+                            InitiatedBy=token_data["InitiatedBy"],
+                            # InitiatedDate=
+                            PendingFrom="employer",
+                            TokenStatus="active",
+                            EmployerID=token_data["EmployerID"],
+                            OlderTokenID=tokenID,
+                        )
+            db.session.add(new_token)
+            db.session.commit()
+            print(new_token.id)
+
             try:
                 msg.attach(msgtext)
                 smtpObj.login('venkateshvyyerram@gmail.com', "mynameisvenkatesh")
@@ -155,7 +214,7 @@ def save_enrollment():
                 file.writelines(str(datetime.utcnow()) + "/n" + str(e) + "/n")
                 file.close()
                 return jsonify({"error": "Something wrong happened while sending the mail"}), 500
-        elif type == "save_formData":
+        elif request_type == "save_formData":
             print("savingformdata")
             print(request.form["enrollmentFormData"])
             enroll_form_data = json.loads(request.form.get("enrollmentFormData"))
@@ -181,8 +240,7 @@ def save_enrollment():
                 enroll_form_data["filename"] = filename
 
             # getting id from tokens
-            print(token)
-            token_data = db1.collection("Tokens").document(token).get().to_dict()
+            print(tokenID)
             print(token_data)
             print(request.form["enrollmentFormData"])
             print(token_data["id"])
@@ -193,9 +251,12 @@ def save_enrollment():
             # print(enroll_form_data["memberLastName"])
             if not formcreateddate == "":
                 str(formcreateddate).split(" ")
-            db1.collection("myforms").document(token_data["id"]).update(enroll_form_data)
+
+            enrollform = Enrollmentform.query.get(token_data["FormID"])
+            enroll_form_data.DOB = enroll_form_data["dob"]
+
             return jsonify({"result": "success"}), 200
-        elif type == "employer_submission":
+        elif request_type == "employer_submission":
             enroll_form_data = json.loads(request.form.get("enrollmentFormData"))
             print(enroll_form_data)
             if 'file' in request.files:
@@ -218,9 +279,12 @@ def save_enrollment():
                 file.save(os.path.join(path, filename))
                 enroll_form_data["filename"] = filename
             enroll_form_data["pendingFrom"] = "reviewermanager"
-            token_data = db1.collection("Tokens").document(token).get().to_dict()
-            db1.collection("Tokens").document(token).update({"pendingFrom": "reviewermanager"})
-            db1.collection("myforms").document(token_data["id"]).update(enroll_form_data)
+            token_data.pendingFrom = "reviewermanager"
+            enrollform = Enrollmentform.query.filter_by(tokenID=token_data["TokenID"]).first()
+            for column_name in [column.key for column in Enrollmentform.__table__.columns]:
+                if column_name in enroll_form_data:
+                    enrollform[column_name] = enroll_form_data[column_name]
+            db.session.commit()
             return jsonify({"result": "success"}), 200
 
 
@@ -231,10 +295,10 @@ def save_enrollment():
 def send_enrollment():
     if request.method == "GET":
         token = request.args["token"]
-        tokendata = db1.collection("Tokens").document(token).get().to_dict()
+        tokendata = Token.query.get(token)
         print(tokendata)
         if tokendata is not None and "id" in tokendata.keys():
-            formdata = db1.collection("myforms").document(tokendata["id"]).get().to_dict()
+            formdata = Enrollmentform.query.filter_by(tokenID=tokendata["id"]).first()
             print(formdata)
             return jsonify({"result": formdata}), 200
         else:
@@ -246,17 +310,17 @@ def send_enrollment():
         member_name = data["membername"]
         token = data["tokenID"]
         member_email = data["email"]
-        type = data["request_type"]
+        request_type = data["request_type"]
         msgtext = ""
         msg = MIMEMultipart()
         msg['from'] = "venkatesh"
         msg['to'] = member_name
         smtpObj = smtplib.SMTP_SSL('smtp.gmail.com', port=465)
-        if type == "remainder":
+        if request_type == "remainder":
             notify = data["notify"]
             try:
-                token_data = db1.collection("Tokens").document(token).get().to_dict()
-                form_data = db1.collection("myforms").document(token_data["id"]).get().to_dict()
+                token_data = Token.query.get(token)
+                form_data = Enrollmentform.query.filter_by(tokenID=token_data["id"]).first()
                 if "formCreatedDate" in form_data.keys():
                     # init_time = datetime.strptime(form_data["formCreatedDate"], "%d%m%Y %H:%M:%S.%f")
                     # time = (datetime.utcnow() - form_data["formCreatedDate"]).days
@@ -284,7 +348,6 @@ def send_enrollment():
                     #             notify = True
                     if notify:
                         msg.attach(msgtext)
-                        db1.collection("myforms").document(token_data["id"]).update({"notifytime": datetime.utcnow()})
                         smtpObj.login('venkateshvyyerram@gmail.com', "mynameisvenkatesh")
                         smtpObj.sendmail("venkateshvyyerram@gmail.com", member_email, msg.as_string())
                         return jsonify({"result": "success"}), 200
@@ -302,7 +365,7 @@ def send_enrollment():
                 file.close()
                 return jsonify({"error": "Something wrong happened"}), 500
 
-        elif type == "approval_confirmation":
+        elif request_type == "approval_confirmation":
             msg['subject'] = "Your Enrollment has been submitted"
             msgtext = MIMEText('<p>**This is an auto-generated e-mail message.'
                                ' Please do not reply to this message. **</p>'
@@ -310,7 +373,11 @@ def send_enrollment():
                                '<p>Your Enrollment has been processed </p>' % (
                                    member_name),
                                'html')
-            db1.collection("Tokens").document(token).update({"status": "approved"})
+
+            tkn = Token.query.get(token)
+            tkn.status = "approved"
+            db.session.commit()
+
             try:
                 msg.attach(msgtext)
                 smtpObj.login('venkateshvyyerram@gmail.com', "mynameisvenkatesh")
@@ -322,7 +389,8 @@ def send_enrollment():
                 file.writelines(str(datetime.utcnow()) + str(e))
                 file.close()
                 return jsonify({"error": "Something wrong happened while sending the mail"}), 500
-        elif type == "rejected":
+
+        elif request_type == "rejected":
             msg['subject'] = "Your Enrollment has been rejected"
             msgtext = MIMEText('<p>**This is an auto-generated e-mail message.'
                                ' Please do not reply to this message. **</p>'

@@ -4,9 +4,9 @@ from . import db
 class Comments(db.Model):
     __bind_key__ = 'writeonly'
 
-    CommentID = db.Column(db.Integer, primary_key=True, nullable=False)
-    FormID = db.Column(db.Integer)
+    id = db.Column(db.Integer, primary_key=True, nullable=False)
+    formID = db.Column(db.Integer)
 
-    Role = db.Column(db.String(255))
-    Comment = db.Column(db.String(255))
-    Date = db.Column(db.String(255))
+    role = db.Column(db.String(255))
+    comment = db.Column(db.String(255))
+    date = db.Column(db.String(255))

@@ -7,6 +7,9 @@ from email.mime.text import MIMEText
 from flask import Blueprint, jsonify, request
 from flask_cors import cross_origin
 from ..helpers import token_verify
+from ..models import db
+from ..models.terminationform import Terminationform
+from ..models.token import Token
 
 
 enrollment_blueprint = Blueprint('enrollment_blueprint', __name__, template_folder='templates')
@@ -47,17 +50,43 @@ def send_termination_form():
                         if str(employer_id)[-2:].__contains__("HR"):
                             employernumber = str(employer_id)[:-2]
                         print(employernumber)
-                        myform_enroll = db1.collection("myforms").add(data)
-                        token_data = db1.collection("Tokens").add(
-                            {"id": myform_enroll[1].id, "initiatedBy": employer_id, "tokenStatus": "active",
-                             # "tokenType": "enrollment",
-                             "formCreatedDate": datetime.utcnow(),
-                             "pendingFrom": "member",
-                             "formType": "termination",
-                             "status": "pending",
-                             "employernumber": employernumber,
-                             "memberfirstName": member_name
-                             })
+
+                        myform_enroll = Terminationform()
+                        for column_name in [column.key for column in Terminationform.__table__.columns]:
+                            if column_name in data:
+                                myform_enroll[column_name] = data[column_name]
+                        db.session.add(myform_enroll)
+                        db.session.commit()
+
+                        token_data = Token(
+                            FormID=column_name.id,
+                            FormCreatedDate=datetime.utcnow(),
+                            FormStatus="pending",
+                            FormType="termination",
+                            InitiatedBy=employer_id,
+                            # InitiatedDate=,
+                            PendingFrom="member",
+                            TokenStatus="active",
+                            EmployerID=employernumber,
+                            # OlderTokenID=,
+                        )
+
+                        db.session.add(token_data)
+                        db.session.commit()
+
+                        # token_data = db1.collection("Tokens").add({
+                        #     # "id": myform_enroll[1].id,
+                        #     # "initiatedBy": employer_id,
+                        #     # "tokenStatus": "active",
+                        #     # "tokenType": "enrollment",
+                        #     # "formCreatedDate": datetime.utcnow(),
+                        #     # "pendingFrom": "member",
+                        #     # "formType": "termination",
+                        #     # "status": "pending",
+                        #     # "employernumber": employernumber,
+                        #     # "memberfirstName": member_name
+                        #     })
+
                         token = token_data[1].id
                         msgtext = MIMEText(
                             '<p>**This is an auto-generated e-mail message. Please do not reply to this message. **</p>'
@@ -103,7 +132,7 @@ def send_termination():
         smtpObj = smtplib.SMTP_SSL('smtp.gmail.com', port=465)
         if type == "remainder":
             notify = data["notify"]
-            token = data["tokenID"]
+            tokenID = data["tokenID"]
             try:
                 msg['subject'] = "Please complete your Silver Thatch Pensions Employment Termination Form"
                 msgtext = MIMEText('<p>**This is an auto-generated e-mail message.'
@@ -123,10 +152,6 @@ def send_termination():
 
                 if notify:
                     msg.attach(msgtext)
-                    token_data = db1.collection("Tokens").document(token).get().to_dict()
-                    db1.collection("myforms").document(token_data["id"]).update({
-                        "notifytime": datetime.utcnow()
-                    })
                     smtpObj.login('venkateshvyyerram@gmail.com', "mynameisvenkatesh")
                     smtpObj.sendmail("venkateshvyyerram@gmail.com", member_email, msg.as_string())
                     return jsonify({"result": "success"}), 200

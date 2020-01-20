@@ -11,6 +11,8 @@ from flask_cors import cross_origin
 from werkzeug.utils import secure_filename
 from xlutils.copy import copy
 from ..helpers import token_verify, delete_excel
+from ..models import db
+from ..models.token import Token
 
 
 file_blueprint = Blueprint('file_blueprint', __name__, template_folder='templates')
@@ -251,21 +253,22 @@ def file_explorer_operation():
                         #                                          "formCreatedDate": datetime.utcnow(), "status": "pending",
                         #                                          "pendingFrom": "reviewer"})
                         # print(myforms[1].id)
-                        token = db1.collection("Tokens").add({"initiatedBy": userid,
-                                                              "startDate": start_date,
-                                                              "endDate": end_date,
-                                                              "employername": employer,
-                                                              "employernumber": userid,
-                                                              "formType": formtype,
-                                                              "formCreatedDate": datetime.utcnow(),
-                                                              "tokenStatus": "active",
-                                                              "status": "pending",
-                                                              "tokenType": "contribution",
-                                                              "pendingFrom": "reviewer",
-                                                              "filename": filename,
-                                                              })
+                        token = Token(
+                            # FormID=,
+                            FormCreatedDate=datetime.utcnow(),
+                            FormStatus="pending",
+                            FormType=formtype,
+                            InitiatedBy=userid,
+                            # InitiatedDate=,
+                            PendingFrom="reviewer",
+                            TokenStatus="active",
+                            EmployerID=userid,
+                            # OlderTokenID=,
+                        )
+                        db.session.add(token)
+                        db.session.commit()
 
-                        path = os.path.join(path, str(token[1].id))
+                        path = os.path.join(path, str(token.id))
                         if not os.path.exists(path):
                             os.mkdir(path)
                         file.save(os.path.join(path, filename))
@@ -429,8 +432,10 @@ def build_excel():
 
         w_sheet.write(9, 1, employer_name)
         w_sheet.write(9, 5, employer_username)
-        empuser = db1.collection("members").where("employers", "array_contains",
-                                                  db1.collection("employers").document(employer_username)).stream()
+
+        employers = db1.collection("employers").document(employer_username)
+        empuser = db1.collection("members").where("employers", "array_contains", employers).stream()
+
         i = 16
         for doc in empuser:
             print(doc.to_dict())

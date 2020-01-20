@@ -4,25 +4,25 @@ from . import db
 class Terminationform(db.Model):
     __bind_key__ = 'writeonly'
 
-    FormID = db.Column(db.Integer, primary_key=True, nullable=False)
+    id = db.Column(db.Integer, primary_key=True, nullable=False)
 
-    EmployerName = db.Column(db.String(255))
-    Date = db.Column(db.String(255))
-    MemberName = db.Column(db.String(255))
-    MemberNumber = db.Column(db.String(255))
-    EmailAddress = db.Column(db.String(255))
-    Finaldateofemployment = db.Column(db.String(255))
-    ReasonforTermination = db.Column(db.String(255))
-    LastDeduction = db.Column(db.String(255))
-    Address = db.Column(db.String(255))
-    AddressLine2 = db.Column(db.String(255))
-    District = db.Column(db.String(255))
-    PostalCode = db.Column(db.String(255))
-    Country = db.Column(db.String(255))
-    Estimatedannualincomerange = db.Column(db.String(255))
-    Status = db.Column(db.String(255))
-    EmployerID = db.Column(db.String(255))
-    PendingFrom = db.Column(db.String(255))
+    employername = db.Column(db.String(255))
+    date = db.Column(db.String(255))
+    memberName = db.Column(db.String(255))
+    employernumber = db.Column(db.String(255))
+    email = db.Column(db.String(255))
+    finaldateofemployment = db.Column(db.String(255))
+    reasonforTermination = db.Column(db.String(255))
+    lastDeduction = db.Column(db.String(255))
+    address = db.Column(db.String(255))
+    addressLine2 = db.Column(db.String(255))
+    district = db.Column(db.String(255))
+    postalcode = db.Column(db.String(255))
+    country = db.Column(db.String(255))
+    incomerange = db.Column(db.String(255))
+    status = db.Column(db.String(255))
+    employerID = db.Column(db.String(255))
+    pendingFrom = db.Column(db.String(255))
 
 
 #  {'address': '503, Cherry Street Apartment',
