@@ -44,7 +44,7 @@ def file_explorer():
                 auth1 = jwt.decode(auth1, key='secret')
                 data = json.loads(str(request.data, encoding='utf-8'))
 
-                path = os.path.join(DATA_DIR, data["request_folder"])
+                path = os.path.join(app.config['DATA_DIR'], data["request_folder"])
                 folders = {}
                 object_to_send = []
                 id = 1
@@ -129,7 +129,7 @@ def file_explorer():
         auth1 = jwt.decode(auth1, key='secret')
         print(request+" get requesttt")
         data = json.loads(str(request.data, encoding='utf-8'))
-        return send_file(os.path.join(DATA_DIR, data["request_folder"])), 200
+        return send_file(os.path.join(app.config['DATA_DIR'], data["request_folder"])), 200
 
 
 @file_blueprint.route("/download_file", methods=["POST", "OPTIONS"])
@@ -138,12 +138,12 @@ def file_explorer():
             'http://192.168.2.146:812'], allow_headers=['Content-Type', 'Authorization', 'User', 'Ipaddress'])
 def download():
     if request.method == "POST":
-        root = DATA_DIR
+        root = app.config['DATA_DIR']
         data = json.loads(str(request.data, encoding='utf-8'))
         print("-------------")
         print(data)
         root = os.path.join(root, data["request_folder"])
-        path_ = os.path.join(DATA_DIR, data["request_folder"])
+        path_ = os.path.join(app.config['DATA_DIR'], data["request_folder"])
         paths = list(data["path"])
         print(paths)
         return send_file(os.path.join(path_, paths[0])), 200
@@ -158,12 +158,12 @@ def file_explorer_open():
         if 'Authorization' in request.headers.keys() and token_verify(token=request.headers["Authorization"],
                                                                       ip=request.headers["Ipaddress"],
                                                                       user=request.headers["User"]):
-            root = DATA_DIR
+            root = app.config['DATA_DIR']
             data = json.loads(str(request.data, encoding='utf-8'))
             print("-------------")
             print(data)
             root = os.path.join(root, data["request_folder"])
-            path_ = os.path.join(DATA_DIR, data["request_folder"])
+            path_ = os.path.join(app.config['DATA_DIR'], data["request_folder"])
             paths = list(data["path"])
             print(paths)
 
@@ -201,7 +201,7 @@ def file_explorer_open():
         print(request.headers)
         path = request.args.get('path')
         print(path)
-        return send_file(os.path.join(DATA_DIR, path)), 200
+        return send_file(os.path.join(app.config['DATA_DIR'], path)), 200
 
 
 @file_blueprint.route("/file_explorer_operation", methods=['GET', 'POST', 'OPTIONS'])
@@ -217,7 +217,7 @@ def file_explorer_operation():
             try:
                 auth1 = request.headers["Authorization"]
                 auth1 = jwt.decode(auth1, key='secret')
-                path = DATA_DIR
+                path = app.config['DATA_DIR']
                 file = request.files['file']
                 print("----------------")
                 print(request.form["request_type"])
@@ -323,7 +323,7 @@ def file_explorer_operations():
                     data = json.loads(str(request.data, encoding='utf-8'))
                     operation = data["operation"]
                     print(operation)
-                    path = os.path.join(DATA_DIR, data["request_folder"])
+                    path = os.path.join(app.config['DATA_DIR'], data["request_folder"])
                     if operation == "move":
 
                         destination = os.path.join(path, data["destination"][0])

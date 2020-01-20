@@ -5,7 +5,7 @@ import smtplib
 from datetime import datetime
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request, current_app as app
 from flask_cors import cross_origin
 from werkzeug.utils import secure_filename
 from ..helpers import token_verify
@@ -136,7 +136,7 @@ def send_enrollment_form():
              'http://192.168.2.146:812'], allow_headers=['Content-Type', 'Authorization', 'User', 'Ipaddress'])
 def deleteenrollmentfile():
     if request.method == "POST":
-        base_path = os.path.join(DATA_DIR, 'Employers')
+        base_path = os.path.join(app.config['DATA_DIR'], 'Employers')
         data = json.loads(str(request.get_data(), encoding='utf-8'))
         employer = data["employerid"]
         path = data["path"]
@@ -163,7 +163,7 @@ def save_enrollment():
         member_email = request.form.get("email")
         request_type = request.form.get("request_type")
         employer_id = request.form.get("employerusername")
-        path = DATA_DIR
+        path = app.config['DATA_DIR']
         msgtext = ""
         msg = MIMEMultipart()
         msg['from'] = "venkatesh"
