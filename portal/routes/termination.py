@@ -59,33 +59,20 @@ def send_termination_form():
                         db.session.commit()
 
                         token_data = Token(
-                            FormID=column_name.id,
-                            FormCreatedDate=datetime.utcnow(),
-                            FormStatus="pending",
-                            FormType="termination",
-                            InitiatedBy=employer_id,
-                            # InitiatedDate=,
-                            PendingFrom="member",
-                            TokenStatus="active",
-                            EmployerID=employernumber,
-                            # OlderTokenID=,
+                            formID=column_name.id,
+                            formCreatedDate=datetime.utcnow(),
+                            formStatus="pending",
+                            formType="termination",
+                            initiatedBy=employer_id,
+                            # initiatedDate=,
+                            pendingFrom="member",
+                            tokenStatus="active",
+                            employerID=employernumber,
+                            # olderTokenID=,
                         )
 
                         db.session.add(token_data)
                         db.session.commit()
-
-                        # token_data = db1.collection("Tokens").add({
-                        #     # "id": myform_enroll[1].id,
-                        #     # "initiatedBy": employer_id,
-                        #     # "tokenStatus": "active",
-                        #     # "tokenType": "enrollment",
-                        #     # "formCreatedDate": datetime.utcnow(),
-                        #     # "pendingFrom": "member",
-                        #     # "formType": "termination",
-                        #     # "status": "pending",
-                        #     # "employernumber": employernumber,
-                        #     # "memberfirstName": member_name
-                        #     })
 
                         token = token_data[1].id
                         msgtext = MIMEText(

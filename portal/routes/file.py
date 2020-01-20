@@ -254,16 +254,16 @@ def file_explorer_operation():
                         #                                          "pendingFrom": "reviewer"})
                         # print(myforms[1].id)
                         token = Token(
-                            # FormID=,
-                            FormCreatedDate=datetime.utcnow(),
-                            FormStatus="pending",
-                            FormType=formtype,
-                            InitiatedBy=userid,
-                            # InitiatedDate=,
-                            PendingFrom="reviewer",
-                            TokenStatus="active",
-                            EmployerID=userid,
-                            # OlderTokenID=,
+                            # formID=,
+                            formCreatedDate=datetime.utcnow(),
+                            formStatus="pending",
+                            formType=formtype,
+                            initiatedBy=userid,
+                            # initiatedDate=,
+                            pendingFrom="reviewer",
+                            tokenStatus="active",
+                            employerID=userid,
+                            # olderTokenID=,
                         )
                         db.session.add(token)
                         db.session.commit()

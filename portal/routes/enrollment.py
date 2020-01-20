@@ -87,16 +87,16 @@ def send_enrollment_form():
                         db.session.commit()
 
                         token_data = Token(
-                            FormID=new_enrollment.id,
-                            FormCreatedDate=datetime.utcnow(),
-                            FormStatus="pending",
-                            FormType="Enrollment",
-                            InitiatedBy=employer_id,
-                            # InitiatedDate=
-                            PendingFrom="member",
-                            TokenStatus="active",
-                            EmployerID=employernumber,
-                            # OlderTokenID=
+                            formID=new_enrollment.id,
+                            formCreatedDate=datetime.utcnow(),
+                            formStatus="pending",
+                            formType="Enrollment",
+                            initiatedBy=employer_id,
+                            # initiatedDate=
+                            pendingFrom="member",
+                            tokenStatus="active",
+                            employerID=employernumber,
+                            # olderTokenID=
                         )
 
                         db.session.add(token_data)
@@ -188,16 +188,16 @@ def save_enrollment():
             enrollform.PendingFrom = "employer"
             db.session.commit()
 
-            new_token = Token(FormID=token_data["FormID"],
-                            FormCreatedDate=token_data["FormCreatedDate"],
-                            FormStatus="pending",
-                            FormType=token_data["FormType"],
-                            InitiatedBy=token_data["InitiatedBy"],
-                            # InitiatedDate=
-                            PendingFrom="employer",
-                            TokenStatus="active",
-                            EmployerID=token_data["EmployerID"],
-                            OlderTokenID=tokenID,
+            new_token = Token(formID=token_data["FormID"],
+                            formCreatedDate=token_data["FormCreatedDate"],
+                            formStatus="pending",
+                            formType=token_data["FormType"],
+                            initiatedBy=token_data["InitiatedBy"],
+                            # initiatedDate=
+                            pendingFrom="employer",
+                            tokenStatus="active",
+                            employerID=token_data["EmployerID"],
+                            olderTokenID=tokenID,
                         )
             db.session.add(new_token)
             db.session.commit()

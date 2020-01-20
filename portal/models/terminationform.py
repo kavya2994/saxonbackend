@@ -7,11 +7,11 @@ class Terminationform(db.Model):
     id = db.Column(db.Integer, primary_key=True, nullable=False)
 
     employername = db.Column(db.String(255))
-    date = db.Column(db.String(255))
+    date = db.Column(db.DateTime)
     memberName = db.Column(db.String(255))
     employernumber = db.Column(db.String(255))
     email = db.Column(db.String(255))
-    finaldateofemployment = db.Column(db.String(255))
+    finaldateofemployment = db.Column(db.DateTime)
     reasonforTermination = db.Column(db.String(255))
     lastDeduction = db.Column(db.String(255))
     address = db.Column(db.String(255))

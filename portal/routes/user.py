@@ -54,15 +54,15 @@ def create_user():
                     enc_pass = Encryption().encrypt(password)
                     userexist = Users.query.filter_by(Username=username).first()
                     if userexist is None:
-                        new_user = Users(Email=email,
-                                            Password=enc_pass,
-                                            Role=role,
-                                            Status="active",
-                                            TemporaryPassword=True,
-                                            Username=username,
-                                            DisplayName=displayname,
-                                            SessionExpiry=session_expiry,
-                                            UserCreatedTime=datetime.utcnow())
+                        new_user = Users(username=username,
+                                            email=email,
+                                            password=enc_pass,
+                                            role=role,
+                                            status="active",
+                                            temporaryPassword=True,
+                                            displayName=displayname,
+                                            sessionExpiry=session_expiry,
+                                            userCreatedTime=datetime.utcnow())
                         db.session.add(new_user)
                         db.session.commit()
                         msg_text = MIMEText('<p>Dear %s</p>'
@@ -165,10 +165,10 @@ def change():
                 new_pass = data["new_password"]
                 if username is not None:
                     userinfo = Users.query.filter_by(Username=username).first()
-                    if userinfo["Password"] == Encryption().encrypt(old_pass):
+                    if userinfo["password"] == Encryption().encrypt(old_pass):
                         pass_encoded = Encryption().encrypt(new_pass)
-                        userinfo.Password = pass_encoded
-                        userinfo.TemporaryPassword = False
+                        userinfo.password = pass_encoded
+                        userinfo.temporaryPassword = False
                         db.session.commit()
                         return jsonify({"result": "Password changed successfully"}), 200
                     else:
@@ -318,7 +318,7 @@ def reset_pass_():
 
                 user = Users.query.get(id)
                 user.password = pass_encypt
-                user.TemporaryPassword = True
+                user.temporaryPassword = True
                 db.session.commit()
 
                 smtpObj.sendmail("venkateshvyyerram@gmail.com", mail, msg.as_string())

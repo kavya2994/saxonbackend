@@ -4,20 +4,20 @@ from . import db
 class Users(db.Model):
     __bind_key__ = 'writeonly'
 
-    Username = db.Column(db.String(255), primary_key=True, nullable=False)
-    MemberID = db.Column(db.Integer) #, db.ForeignKey('tag.id'))
+    username = db.Column(db.String(255), primary_key=True, nullable=False)
+    memberID = db.Column(db.Integer) #, db.ForeignKey('tag.id'))
     securityQuestionID = db.Column(db.Integer)
 
     password = db.Column(db.String(255))
-    TemporaryPassword = db.Column(db.String(255))
-    Email = db.Column(db.String(255))
-    DisplayName = db.Column(db.String(255))
-    SessionExpiry = db.Column(db.String(255))
-    PhoneNumber = db.Column(db.String(255))
+    temporaryPassword = db.Column(db.String(255))
+    email = db.Column(db.String(255))
+    displayName = db.Column(db.String(255))
+    sessionExpiry = db.Column(db.String(255))
+    phoneNumber = db.Column(db.String(255))
     securityAnswer = db.Column(db.String(255))
-    Role = db.Column(db.String(255))
-    Status = db.Column(db.String(255))
-    UserCreatedTime = db.Column(db.String(255))
+    role = db.Column(db.String(255))
+    status = db.Column(db.String(255))
+    userCreatedTime = db.Column(db.String(255))
 
 #  {'Pass': '28634',
 #   'answer': 'hello',
