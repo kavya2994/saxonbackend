@@ -4,7 +4,8 @@ from portal import create_app
 
 def get_config_file_path():
     env = os.getenv("FLASK_ENV", default="dev")
-    absolute_path = os.path.abspath(os.path.join('config', f'{env}.py'))
+    base = os.path.dirname(os.path.abspath(__file__))
+    absolute_path = os.path.abspath(os.path.join(base, 'config', env + '.py'))
     return absolute_path
 
 
