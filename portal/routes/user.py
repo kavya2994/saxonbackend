@@ -106,7 +106,7 @@ def get_security_question():
             sec_question_id = user_details["SecurityQuestionID"]
             print(sec_question)
             question = SecurityQuestion.query.get(sec_question_id)
-            return jsonify({"question": question.question, "email": user_details["email"]}), 200
+            return jsonify({"question": question.Question, "email": user_details["Email"]}), 200
         else:
             return jsonify({"error": "user doesn't exist"}), 400
     else:

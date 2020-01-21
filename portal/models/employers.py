@@ -4,14 +4,14 @@ from . import db
 class Employers(db.Model):
     __bind_key__ = 'readonly'
 
-    username = db.Column(db.String(255), primary_key=True, nullable=False)
+    Username = db.Column(db.String(255), primary_key=True, nullable=False)
 
-    displayname = db.Column(db.String(255))
-    email = db.Column(db.String(255))
-    employer_id = db.Column(db.String(255))
-    managedEmployers = db.Column(db.String(255))
-    sessionTime = db.Column(db.String(255))
-    status = db.Column(db.String(255))
+    Displayname = db.Column(db.String(255))
+    Email = db.Column(db.String(255))
+    Employer_id = db.Column(db.String(255))
+    ManagedEmployers = db.Column(db.String(255))
+    SessionTime = db.Column(db.String(255))
+    Status = db.Column(db.String(255))
 
 # [{
 #   'displayname': 'Manomay cs',

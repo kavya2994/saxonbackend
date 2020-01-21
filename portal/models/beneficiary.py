@@ -4,12 +4,12 @@ from . import db
 class Beneficiary(db.Model):
     __bind_key__ = 'writeonly'
 
-    id = db.Column(db.Integer, primary_key=True, nullable=False)
-    enrollmentformID = db.Column(db.Integer)
+    BeneficiaryID = db.Column(db.Integer, primary_key=True, nullable=False)
+    BeneficiaryEnrollmentformID = db.Column(db.Integer)
 
-    beneficiaryFirstName = db.Column(db.String(255))
-    beneficiaryLastName = db.Column(db.String(255))
-    beneficiaryDOB = db.Column(db.String(255))
-    relationship = db.Column(db.String(255))
-    role = db.Column(db.String(255))
-    phoneNumber = db.Column(db.String(255))
+    BeneficiaryBeneficiaryFirstName = db.Column(db.String(255))
+    BeneficiaryBeneficiaryLastName = db.Column(db.String(255))
+    BeneficiaryBeneficiaryDOB = db.Column(db.String(255))
+    BeneficiaryRelationship = db.Column(db.String(255))
+    BeneficiaryRole = db.Column(db.String(255))
+    BeneficiaryPhoneNumber = db.Column(db.String(255))

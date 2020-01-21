@@ -279,7 +279,7 @@ def save_enrollment():
                     os.mkdir(path)
                 file.save(os.path.join(path, filename))
                 enroll_form_data["filename"] = filename
-            enroll_form_data["pendingFrom"] = "reviewermanager"
+            enroll_form_data["PendingFrom"] = "reviewermanager"
             token_data.PendingFrom = "reviewermanager"
             enrollform = Enrollmentform.query.filter_by(tokenID=token_data["TokenID"]).first()
             for column_name in [column.key for column in Enrollmentform.__table__.columns]:
