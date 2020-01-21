@@ -22,8 +22,7 @@ user_blueprint = Blueprint('user_blueprint', __name__, template_folder='template
 def check_user():
     if request.method == "POST":
         data = json.loads(str(request.data, encoding='utf-8'))
-        username = data["username"]
-        user_details = Users.query.filter_by(Username=username).first()
+        user_details = Users.query.filter_by(Username=data["Username"]).first()
         if user_details is not None:
             return jsonify({
                 "result": True
@@ -45,24 +44,23 @@ def create_user():
                 auth1 = jwt.decode(auth, key='secret')
                 if auth1["role"] == "admin" and token_verify(token=request.headers["Authorization"], ip=request.headers["Ipaddress"], user=request.headers["User"]):
                     data = json.loads(str(request.data, encoding='utf-8'))
-                    username = data["username"]
-                    displayname = data["displayname"]
-                    email = data["email"]
-                    role = data["role"]
-                    session_expiry = data["session_expiry"]
+                    username = data["Username"]
+                    displayname = data["DisplayName"]
+                    email = data["Email"]
+                    session_duration = data["SessionDuration"]
                     password = randomStringwithDigitsAndSymbols(10)
                     enc_pass = Encryption().encrypt(password)
                     userexist = Users.query.filter_by(Username=username).first()
                     if userexist is None:
-                        new_user = Users(username=username,
-                                            email=email,
-                                            password=enc_pass,
-                                            role=role,
-                                            status="active",
-                                            temporaryPassword=True,
-                                            displayName=displayname,
-                                            sessionExpiry=session_expiry,
-                                            userCreatedTime=datetime.utcnow())
+                        new_user = Users(Username=username,
+                                            Email=email,
+                                            Password=enc_pass,
+                                            Role=data["Role"],
+                                            Status="active",
+                                            TemporaryPassword=True,
+                                            DisplayName=displayname,
+                                            SessionDuration=session_duration,
+                                            UserCreatedTime=datetime.utcnow())
                         db.session.add(new_user)
                         db.session.commit()
                         msg_text = MIMEText('<p>Dear %s</p>'
@@ -102,12 +100,12 @@ def create_user():
 def get_security_question():
     if request.method == "POST":
         data = json.loads(str(request.data, encoding='utf-8'))
-        username = data["username"]
+        username = data["Username"]
         user_details = Users.query.filter_by(Username=username).first()
         if user_details is not None:
-            sec_question = user_details["securityQuestion"]
+            sec_question_id = user_details["SecurityQuestionID"]
             print(sec_question)
-            question = SecurityQuestion.query.get(sec_question)
+            question = SecurityQuestion.query.get(sec_question_id)
             return jsonify({"question": question.question, "email": user_details["email"]}), 200
         else:
             return jsonify({"error": "user doesn't exist"}), 400
@@ -128,9 +126,9 @@ def security_question():
                 auth = jwt.decode(auth, key='secret')
                 data = json.loads(str(request.data, encoding='utf-8'))
 
-                user = Users.query.get(data["username"])
-                user.securityQuestionID = data["securityQuestion"]
-                user.securityAnswer = Encryption().encrypt(data["answer"])
+                user = Users.query.get(data["Username"])
+                user.SecurityQuestionID = data["SecurityQuestionID"]
+                user.SecurityAnswer = Encryption().encrypt(data["SecurityAnswer"])
                 db.session.commit()
 
                 return jsonify({"result": "success"}), 200
@@ -160,15 +158,15 @@ def change():
                                                                           request.headers["User"],
                                                                           request.headers["Ipaddress"]):
 
-                username = data["username"]
+                username = data["Username"]
                 old_pass = data["old_password"]
                 new_pass = data["new_password"]
                 if username is not None:
                     userinfo = Users.query.filter_by(Username=username).first()
-                    if userinfo["password"] == Encryption().encrypt(old_pass):
+                    if userinfo["Password"] == Encryption().encrypt(old_pass):
                         pass_encoded = Encryption().encrypt(new_pass)
-                        userinfo.password = pass_encoded
-                        userinfo.temporaryPassword = False
+                        userinfo.Password = pass_encoded
+                        userinfo.TemporaryPassword = False
                         db.session.commit()
                         return jsonify({"result": "Password changed successfully"}), 200
                     else:
@@ -282,8 +280,8 @@ def reset_pass_():
         data = json.loads(str(request.get_data(), encoding='utf-8'))
         change_pass = False
         request_type = data["request_type"]
-        id = data["username"]
-        mail = data["email"]
+        id = data["Username"]
+        mail = data["Email"]
         smtpObj = smtplib.SMTP_SSL('smtp.gmail.com', port=465)
         msg = MIMEMultipart()
         msg['subject'] = "Password Reset"
@@ -296,20 +294,20 @@ def reset_pass_():
                                                                           "User"]) and request_type == "admin":
             change_pass = True
         elif request_type == "securityquestion":
-            answer = data["answer"]
+            answer = data["Answer"]
             userdata = Users.query.filter_by(Username=id).first()
-            if userdata["answer"] == Encryption().encrypt(answer):
+            if userdata["Answer"] == Encryption().encrypt(answer):
                 change_pass = True
         elif request_type == "email":
             userdata = Users.query.filter_by(Username=id).first()
             print(userdata)
-            if userdata is not None and userdata["email"] == mail:
+            if userdata is not None and userdata["Email"] == mail:
                 change_pass = True
 
         if change_pass:
             try:
                 password = randomStringwithDigitsAndSymbols()
-                pass_encypt = Encryption().encrypt(password)
+                pass_encrypt = Encryption().encrypt(password)
                 msgtext = MIMEText('<p>Your password has been reset. The temporary password is: %s</p>'
                                    '<p>Please log into your system as soon as possible to set your new password.</p>'
                                    % password, 'html')
@@ -317,8 +315,8 @@ def reset_pass_():
                 smtpObj.login('venkateshvyyerram@gmail.com', "mynameisvenkatesh")
 
                 user = Users.query.get(id)
-                user.password = pass_encypt
-                user.temporaryPassword = True
+                user.Password = pass_encrypt
+                user.TemporaryPassword = True
                 db.session.commit()
 
                 smtpObj.sendmail("venkateshvyyerram@gmail.com", mail, msg.as_string())

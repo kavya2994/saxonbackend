@@ -58,32 +58,35 @@ def login():
         try:
             data = json.loads(str(request.data, encoding='utf-8'))
             print(data)
-            user = data['username']
-            password = data["password"]
-            userinfo = Users.query.filter_by(Username=user).first()
+            username = data['Username']
+            password = data["Password"]
+            userinfo = Users.query.filter_by(Username=username).first()
             encrypt_password = Encryption().encrypt(password)
             print(userinfo)
             # print(list(userinfo.keys()))
             # print(userinfo["password"])
-            if userinfo != None and userinfo["password"] == encrypt_password and str(userinfo["status"]).lower() == "active":
-                if "temppass" in userinfo.keys():
+
+            if userinfo != None and userinfo["Password"] == encrypt_password and str(userinfo["Status"]).lower() == "active":
+                if "TemporaryPassword" in userinfo.keys():
                     # print(request.form)
-                    name = userinfo["displayname"]
-                    role = userinfo["role"]
+                    name = userinfo["DisplayName"]
+                    role = userinfo["Role"]
                     exp = datetime.utcnow()
-                    if userinfo["role"] == "reviewermanager":
+                    if userinfo["Role"] == "reviewermanager":
                         exp += timedelta(hours=1, minutes=30)
                     else:
                         # exp += timedelta(minutes=30)
                         exp += timedelta(hours=1, minutes=30)
-                    encode = jwt.encode({'user': user, 'exp': exp, 'ip': data["ip"], "role": userinfo["role"]},
+
+                    encode = jwt.encode({'user': username, 'exp': exp, 'ip': data["ip"], "role": role},
                                         'secret', algorithm="HS256")
-                    return jsonify({"fusername": "test@test.com", "fpass": "test001", "id": user, "username": user,
+
+                    return jsonify({"fusername": "test@test.com", "fpass": "test001", "id": username, "username": username,
                                     "firstName": name, "lastname": name, "role": role,
-                                    "temppass": userinfo["temppass"],
+                                    "TemporaryPassword": userinfo["TemporaryPassword"],
                                     'token': str(encode.decode('utf-8')),
-                                    "securityQuestion": ("securityQuestion" in userinfo.keys()),
-                                    "email": userinfo["email"]}), 200
+                                    "SecurityQuestion": ("SecurityQuestionID" in userinfo.keys()),
+                                    "Email": userinfo["Email"]}), 200
                 else:
                     return jsonify("Cant find temppass field"), 401
 
