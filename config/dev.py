@@ -1,2 +1,4 @@
 DATA_DIR = "./data"
 DEBUG = True
+SERVER_ADDRESS = "0.0.0.0"
+SERVER_PORT = "8080"
