@@ -3,7 +3,7 @@ from flask import Flask
 from gevent.pywsgi import WSGIServer
 
 
-def create_app():
+def create_app(config=None):
     from . import routes, models, services, helpers
     app = Flask(__name__)
     models.init_app(app)
@@ -15,8 +15,11 @@ def create_app():
     app.secret_key = 'random string'
     app.debug = True
 
-    default_data_dir = os.path.join(os.path.dirname(__file__), '..', '..', 'data')
-    app.config['DATA_DIR'] = os.getenv("DATA_DIR", default=default_data_dir)
+    if config is not None:
+        if isinstance(config, dict):
+            app.config.update(config)
+        elif config.endswith('.py'):
+            app.config.from_pyfile(config)
 
     http_server = WSGIServer(('0.0.0.0', 811), app)
     http_server.serve_forever()

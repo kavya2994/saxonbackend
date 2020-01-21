@@ -37,7 +37,6 @@ pycparser==2.19
 pycryptodome==3.9.4
 PyJWT==1.7.1
 python-dateutil==2.8.1
-python-dotenv==0.10.4
 pytz==2019.3
 PyYAML==5.3
 requests==2.22.0
