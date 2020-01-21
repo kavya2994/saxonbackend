@@ -87,22 +87,22 @@ def send_enrollment_form():
                         db.session.commit()
 
                         token_data = Token(
-                            formID=new_enrollment.id,
-                            formCreatedDate=datetime.utcnow(),
-                            formStatus="pending",
-                            formType="Enrollment",
-                            initiatedBy=employer_id,
-                            # initiatedDate=
-                            pendingFrom="member",
-                            tokenStatus="active",
-                            employerID=employernumber,
-                            # olderTokenID=
+                            FormID=new_enrollment.id,
+                            FormCreatedDate=datetime.utcnow(),
+                            FormStatus="pending",
+                            FormType="Enrollment",
+                            InitiatedBy=employer_id,
+                            # InitiatedDate=
+                            PendingFrom="member",
+                            TokenStatus="active",
+                            EmployerID=employernumber,
+                            # OlderTokenID=
                         )
 
                         db.session.add(token_data)
                         db.session.commit()
 
-                        token = token_data.id
+                        token = token_data.TokenID
                         msgtext = MIMEText(
                             '<p>**This is an auto-generated e-mail message. Please do not reply to this message. **</p>'
                             '<p>Dear %s</p>'
@@ -188,20 +188,21 @@ def save_enrollment():
             enrollform.PendingFrom = "employer"
             db.session.commit()
 
-            new_token = Token(formID=token_data["FormID"],
-                            formCreatedDate=token_data["FormCreatedDate"],
-                            formStatus="pending",
-                            formType=token_data["FormType"],
-                            initiatedBy=token_data["InitiatedBy"],
-                            # initiatedDate=
-                            pendingFrom="employer",
-                            tokenStatus="active",
-                            employerID=token_data["EmployerID"],
-                            olderTokenID=tokenID,
+            new_token = Token(FormID=token_data["FormID"],
+                            FormCreatedDate=token_data["FormCreatedDate"],
+                            FormStatus="pending",
+                            FormType=token_data["FormType"],
+                            InitiatedBy=token_data["InitiatedBy"],
+                            # InitiatedDate=
+                            PendingFrom="employer",
+                            TokenStatus="active",
+                            EmployerID=token_data["EmployerID"],
+                            OlderTokenID=tokenID,
                         )
+
             db.session.add(new_token)
             db.session.commit()
-            print(new_token.id)
+            print(new_token.TokenID)
 
             try:
                 msg.attach(msgtext)
@@ -279,7 +280,7 @@ def save_enrollment():
                 file.save(os.path.join(path, filename))
                 enroll_form_data["filename"] = filename
             enroll_form_data["pendingFrom"] = "reviewermanager"
-            token_data.pendingFrom = "reviewermanager"
+            token_data.PendingFrom = "reviewermanager"
             enrollform = Enrollmentform.query.filter_by(tokenID=token_data["TokenID"]).first()
             for column_name in [column.key for column in Enrollmentform.__table__.columns]:
                 if column_name in enroll_form_data:
@@ -293,12 +294,13 @@ def save_enrollment():
     origins=['https://angularproject-5c26e.firebaseapp.com', 'http://localhost:4200', 'http://183.82.0.186:812',
              'http://192.168.2.146:812'], allow_headers=['Content-Type', 'Authorization', 'User', 'Ipaddress'])
 def send_enrollment():
+    token_id = request.args["TokenID"]
+
     if request.method == "GET":
-        token = request.args["token"]
-        tokendata = Token.query.get(token)
+        tokendata = Token.query.get(token_id)
         print(tokendata)
-        if tokendata is not None and "id" in tokendata.keys():
-            formdata = Enrollmentform.query.filter_by(tokenID=tokendata["id"]).first()
+        if tokendata is not None:
+            formdata = Enrollmentform.query.filter_by(tokenID=tokendata["TokenID"]).first()
             print(formdata)
             return jsonify({"result": formdata}), 200
         else:
@@ -308,7 +310,6 @@ def send_enrollment():
         data = json.loads(str(request.get_data(), encoding='utf-8'))
         print(data)
         member_name = data["membername"]
-        token = data["tokenID"]
         member_email = data["email"]
         request_type = data["request_type"]
         msgtext = ""
@@ -319,8 +320,8 @@ def send_enrollment():
         if request_type == "remainder":
             notify = data["notify"]
             try:
-                token_data = Token.query.get(token)
-                form_data = Enrollmentform.query.filter_by(tokenID=token_data["id"]).first()
+                token_data = Token.query.get(token_id)
+                form_data = Enrollmentform.query.filter_by(tokenID=token_data["TokenID"]).first()
                 if "formCreatedDate" in form_data.keys():
                     # init_time = datetime.strptime(form_data["formCreatedDate"], "%d%m%Y %H:%M:%S.%f")
                     # time = (datetime.utcnow() - form_data["formCreatedDate"]).days
@@ -374,7 +375,7 @@ def send_enrollment():
                                    member_name),
                                'html')
 
-            tkn = Token.query.get(token)
+            tkn = Token.query.get(token_id)
             tkn.status = "approved"
             db.session.commit()
 

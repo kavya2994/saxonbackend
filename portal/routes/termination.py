@@ -59,22 +59,22 @@ def send_termination_form():
                         db.session.commit()
 
                         token_data = Token(
-                            formID=column_name.id,
-                            formCreatedDate=datetime.utcnow(),
-                            formStatus="pending",
-                            formType="termination",
-                            initiatedBy=employer_id,
-                            # initiatedDate=,
-                            pendingFrom="member",
-                            tokenStatus="active",
-                            employerID=employernumber,
-                            # olderTokenID=,
+                            FormID=column_name.id,
+                            FormCreatedDate=datetime.utcnow(),
+                            FormStatus="pending",
+                            FormType="termination",
+                            InitiatedBy=employer_id,
+                            # InitiatedDate=,
+                            PendingFrom="member",
+                            TokenStatus="active",
+                            EmployerID=employernumber,
+                            # OlderTokenID=,
                         )
 
                         db.session.add(token_data)
                         db.session.commit()
 
-                        token = token_data[1].id
+                        token = token_data.TokenID
                         msgtext = MIMEText(
                             '<p>**This is an auto-generated e-mail message. Please do not reply to this message. **</p>'
                             '<p>Dear %s</p>'

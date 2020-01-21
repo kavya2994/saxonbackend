@@ -254,21 +254,21 @@ def file_explorer_operation():
                         #                                          "pendingFrom": "reviewer"})
                         # print(myforms[1].id)
                         token = Token(
-                            # formID=,
-                            formCreatedDate=datetime.utcnow(),
-                            formStatus="pending",
-                            formType=formtype,
-                            initiatedBy=userid,
-                            # initiatedDate=,
-                            pendingFrom="reviewer",
-                            tokenStatus="active",
-                            employerID=userid,
-                            # olderTokenID=,
+                            # FormID=,
+                            FormCreatedDate=datetime.utcnow(),
+                            FormStatus="pending",
+                            FormType=formtype,
+                            InitiatedBy=userid,
+                            # InitiatedDate=,
+                            PendingFrom="reviewer",
+                            TokenStatus="active",
+                            EmployerID=userid,
+                            # OlderTokenID=,
                         )
                         db.session.add(token)
                         db.session.commit()
 
-                        path = os.path.join(path, str(token.id))
+                        path = os.path.join(path, str(token.TokenID))
                         if not os.path.exists(path):
                             os.mkdir(path)
                         file.save(os.path.join(path, filename))
