@@ -8,7 +8,7 @@ source venv/bin/activate
 
 Install required packages
 ```bash
-pip install -r requirements.txt -
+pip install -r requirements.txt
 ```
 
 Run the web server
@@ -20,5 +20,5 @@ python app.py
 
 For development, set:
 ```bash
-export FLASK_ENV=production
+export FLASK_ENV=dev
 ```
