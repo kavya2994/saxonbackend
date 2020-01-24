@@ -30,9 +30,7 @@ def files_():
 
 
 @file_blueprint.route("/file_explorer", methods=['GET', 'POST', 'OPTIONS'])
-@cross_origin(
-    origin=['https://angularproject-5c26e.firebaseapp.com', 'http://localhost:4200', 'http://183.82.0.186:812',
-            'http://192.168.2.146:812'], allow_headers=['Content-Type', 'Authorization', 'User', 'Ipaddress'])
+@cross_origin(origins=['*'], allow_headers=['Content-Type', 'Authorization', 'User', 'Ipaddress'])
 def file_explorer():
     if request.method == "POST":
         if "Authorization" in request.headers.keys() and token_verify(token=request.headers["Authorization"],
@@ -133,9 +131,7 @@ def file_explorer():
 
 
 @file_blueprint.route("/download_file", methods=["POST", "OPTIONS"])
-@cross_origin(
-    origin=['https://angularproject-5c26e.firebaseapp.com', 'http://localhost:4200', 'http://183.82.0.186:812',
-            'http://192.168.2.146:812'], allow_headers=['Content-Type', 'Authorization', 'User', 'Ipaddress'])
+@cross_origin(origins=['*'], allow_headers=['Content-Type', 'Authorization', 'User', 'Ipaddress'])
 def download():
     if request.method == "POST":
         root = app.config['DATA_DIR']
@@ -150,9 +146,7 @@ def download():
 
 
 @file_blueprint.route("/file_explorer_open", methods=['GET', 'POST', 'OPTIONS'])
-@cross_origin(
-    origin=['https://angularproject-5c26e.firebaseapp.com', 'http://localhost:4200', 'http://183.82.0.186:812',
-            'http://192.168.2.146:812'], allow_headers=['Content-Type', 'Authorization', 'User', 'Ipaddress'])
+@cross_origin(origins=['*'], allow_headers=['Content-Type', 'Authorization', 'User', 'Ipaddress'])
 def file_explorer_open():
     if request.method == "POST":
         if 'Authorization' in request.headers.keys() and token_verify(token=request.headers["Authorization"],
@@ -205,9 +199,7 @@ def file_explorer_open():
 
 
 @file_blueprint.route("/file_explorer_operation", methods=['GET', 'POST', 'OPTIONS'])
-@cross_origin(
-    origin=['https://angularproject-5c26e.firebaseapp.com', 'http://localhost:4200', 'http://183.82.0.186:812',
-            'http://192.168.2.146:812'], allow_headers=['Content-Type', 'Authorization', 'User', 'Ipaddress'])
+@cross_origin(origins=['*'], allow_headers=['Content-Type', 'Authorization', 'User', 'Ipaddress'])
 def file_explorer_operation():
     if request.method == "POST":
         print(request.headers)
@@ -306,9 +298,7 @@ def file_explorer_operation():
 
 
 @file_blueprint.route("/file_explorer_operations", methods=['GET', 'POST', 'OPTIONS'])
-@cross_origin(
-    origins=['https://angularproject-5c26e.firebaseapp.com', 'http://localhost:4200', 'http://183.82.0.186:812',
-             'http://192.168.2.146:812'], allow_headers=['Content-Type', 'Authorization', 'User', 'Ipaddress'])
+@cross_origin(origins=['*'], allow_headers=['Content-Type', 'Authorization', 'User', 'Ipaddress'])
 def file_explorer_operations():
     if request.method == "POST":
         print("---------------operations_headers---------------")
@@ -411,9 +401,7 @@ def file_explorer_operations():
 
 
 @file_blueprint.route("/buildexcel", methods=["POST", "OPTIONS"])
-@cross_origin(
-    origins=['https://angularproject-5c26e.firebaseapp.com', 'http://localhost:4200', 'http://183.82.0.186:812',
-             'http://192.168.2.146:812'], allow_headers=['Content-Type', 'Authorization', 'user', 'ipaddress'])
+@cross_origin(origins=['*'], allow_headers=['Content-Type', 'Authorization', 'user', 'ipaddress'])
 def build_excel():
     if request.method == "POST":
         print(request.headers)

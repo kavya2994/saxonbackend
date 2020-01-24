@@ -1,4 +1,4 @@
-# /etc/systemd/system/backend.service
+# sudo ln -s /var/www/ops/backend.service /etc/systemd/system/backend.service
 
 [Unit]
 Description=Backend Portal

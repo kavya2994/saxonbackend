@@ -15,9 +15,7 @@ from ..models.token import Token
 enrollment_blueprint = Blueprint('enrollment_blueprint', __name__, template_folder='templates')
 
 @enrollment_blueprint.route("/initiate_termination", methods=['POST', 'OPTIONS'])
-@cross_origin(
-    origin=['https://angularproject-5c26e.firebaseapp.com', 'http://localhost:4200', 'http://183.82.0.186:812',
-            'http://192.168.2.146:812'], allow_headers=['Content-Type', 'Authorization', 'User', 'Ipaddress'])
+@cross_origin(origins=['*'], allow_headers=['Content-Type', 'Authorization', 'User', 'Ipaddress'])
 def send_termination_form():
     if request.method == "POST":
         if "Authorization" in request.headers.keys() and token_verify(token=request.headers["Authorization"],
@@ -103,9 +101,7 @@ def send_termination_form():
 
 
 @enrollment_blueprint.route("/termination", methods=['POST', 'OPTIONS'])
-@cross_origin(
-    origin=['https://angularproject-5c26e.firebaseapp.com', 'http://localhost:4200', 'http://183.82.0.186:812',
-            'http://192.168.2.146:812'], allow_headers=['Content-Type', 'Authorization', 'User', 'Ipaddress'])
+@cross_origin(origins=['*'], allow_headers=['Content-Type', 'Authorization', 'User', 'Ipaddress'])
 def send_termination():
     if request.method == "POST":
         data = json.loads(str(request.get_data(), encoding='utf-8'))

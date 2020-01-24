@@ -7,19 +7,8 @@ from flask_cors import CORS
 
 
 def init_cors(app):
-    CORS(app, resources={"/login1": {
-    "origins": ['https://angularproject-5c26e.firebaseapp.com', 'http://localhost:4200', 'http://183.82.0.186:812',
-                'http://192.168.2.146:812']},
-                     "/checktoken": {"origins": ['https://angularproject-5c26e.firebaseapp.com',
-                                                 'http://localhost:4200', 'http://183.82.0.186:812',
-                                                 'http://192.168.2.146:812']},
-                     "/initiate_enrollment": {"origins": ['https://angularproject-5c26e.firebaseapp.com',
-                                                          'http://localhost:4200', 'http://183.82.0.186:812',
-                                                          'http://192.168.2.146:812']},
-                     "/enrollment": {"origins": ['https://angularproject-5c26e.firebaseapp.com',
-                                                 'http://localhost:4200', 'http://183.82.0.186:812',
-                                                 'http://192.168.2.146:812']}
-                     })
+    CORS(app, resources={r"*": {"origins": "*"}})
+
 
 
 def delete_excel(filename):

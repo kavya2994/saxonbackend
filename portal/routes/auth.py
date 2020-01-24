@@ -10,9 +10,7 @@ from ..models.users import Users
 auth_blueprint = Blueprint('auth_blueprint', __name__, template_folder='templates')
 
 @auth_blueprint.route('/checktoken', methods=['POST', 'OPTIONS'])
-@cross_origin(
-    origin=['https://angularproject-5c26e.firebaseapp.com', 'http://localhost:4200', 'http://183.82.0.186:812',
-            'http://192.168.2.146:812'], allow_headers=['Content-Type', 'Authorization', 'Ipaddress', 'User'])
+@cross_origin(origins=['*'], allow_headers=['Content-Type', 'Authorization', 'Ipaddress', 'User'])
 def checktoken():
     if request.method == "POST":
         result = False
@@ -45,9 +43,7 @@ def checktoken():
 
 
 @auth_blueprint.route('/login1', methods=['POST', 'OPTIONS'])
-@cross_origin(
-    origins=['https://angularproject-5c26e.firebaseapp.com', 'http://localhost:4200', 'http://183.82.0.186:812',
-             'http://192.168.2.146:812'], allow_headers=['Content-Type'])
+@cross_origin(origins=['*'], allow_headers=['Content-Type'])
 def login():
     if request.method == "POST" or request.method == "OPTIONS":
         print(request.headers)

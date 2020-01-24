@@ -17,9 +17,7 @@ from ..models import db
 enrollment_blueprint = Blueprint('enrollment_blueprint', __name__, template_folder='templates')
 
 @enrollment_blueprint.route("/initiate_enrollment", methods=['POST', 'OPTIONS'])
-@cross_origin(
-    origins=['https://angularproject-5c26e.firebaseapp.com', 'http://localhost:4200', 'http://183.82.0.186:812',
-             'http://192.168.2.146:812'], allow_headers=['Content-Type', 'Authorization', 'User', 'Ipaddress'])
+@cross_origin(origins=['*'], allow_headers=['Content-Type', 'Authorization', 'User', 'Ipaddress'])
 def send_enrollment_form():
     if request.method == "POST":
         print(request.headers)
@@ -131,9 +129,7 @@ def send_enrollment_form():
 
 
 @enrollment_blueprint.route("/delete_enrollment_file", methods=['POST', 'OPTIONS'])
-@cross_origin(
-    origins=['https://angularproject-5c26e.firebaseapp.com', 'http://localhost:4200', 'http://183.82.0.186:812',
-             'http://192.168.2.146:812'], allow_headers=['Content-Type', 'Authorization', 'User', 'Ipaddress'])
+@cross_origin(origins=['*'], allow_headers=['Content-Type', 'Authorization', 'User', 'Ipaddress'])
 def deleteenrollmentfile():
     if request.method == "POST":
         base_path = os.path.join(app.config['DATA_DIR'], 'Employers')
@@ -153,9 +149,7 @@ def deleteenrollmentfile():
 
 
 @enrollment_blueprint.route("/save_enrollment", methods=['GET', 'POST', 'OPTIONS'])
-@cross_origin(
-    origins=['https://angularproject-5c26e.firebaseapp.com', 'http://localhost:4200', 'http://183.82.0.186:812',
-             'http://192.168.2.146:812'], allow_headers=['Content-Type', 'Authorization', 'User', 'Ipaddress'])
+@cross_origin(origins=['*'], allow_headers=['Content-Type', 'Authorization', 'User', 'Ipaddress'])
 def save_enrollment():
     if request.method == "POST":
         member_name = request.form.get("membername")
@@ -290,9 +284,7 @@ def save_enrollment():
 
 
 @enrollment_blueprint.route("/enrollment", methods=['GET', 'POST', 'OPTIONS'])
-@cross_origin(
-    origins=['https://angularproject-5c26e.firebaseapp.com', 'http://localhost:4200', 'http://183.82.0.186:812',
-             'http://192.168.2.146:812'], allow_headers=['Content-Type', 'Authorization', 'User', 'Ipaddress'])
+@cross_origin(origins=['*'], allow_headers=['Content-Type', 'Authorization', 'User', 'Ipaddress'])
 def send_enrollment():
     token_id = request.args["TokenID"]
 

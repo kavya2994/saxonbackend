@@ -16,9 +16,7 @@ from ..models.security_question import SecurityQuestion
 user_blueprint = Blueprint('user_blueprint', __name__, template_folder='templates')
 
 @user_blueprint.route('/checkuserexists', methods=['GET', 'POST', 'OPTIONS'])
-@cross_origin(
-    origins=['https://angularproject-5c26e.firebaseapp.com', 'http://localhost:4200', 'http://183.82.0.186:812',
-             'http://192.168.2.146:812'], allow_headers=['Content-Type', 'User', 'Ipaddress'])
+@cross_origin(origins=['*'], allow_headers=['Content-Type', 'User', 'Ipaddress'])
 def check_user():
     if request.method == "POST":
         data = json.loads(str(request.data, encoding='utf-8'))
@@ -33,9 +31,7 @@ def check_user():
         return abort(404)
 
 @user_blueprint.route('/createuser', methods=['POST', 'OPTIONS'])
-@cross_origin(
-    origins=['https://angularproject-5c26e.firebaseapp.com', 'http://localhost:4200', 'http://183.82.0.186:812',
-             'http://192.168.2.146:812'], allow_headers=['Content-Type', 'Authorization', 'Ipaddress', 'User'])
+@cross_origin(origins=['*'], allow_headers=['Content-Type', 'Authorization', 'Ipaddress', 'User'])
 def create_user():
     if request.method == "POST":
         try:
@@ -94,9 +90,7 @@ def create_user():
 
 
 @user_blueprint.route('/securityquestion', methods=['GET', 'POST', 'OPTIONS'])
-@cross_origin(
-    origins=['https://angularproject-5c26e.firebaseapp.com', 'http://localhost:4200', 'http://183.82.0.186:812',
-             'http://192.168.2.146:812'], allow_headers=['Content-Type'])
+@cross_origin(origins=['*'], allow_headers=['Content-Type'])
 def get_security_question():
     if request.method == "POST":
         data = json.loads(str(request.data, encoding='utf-8'))
@@ -114,10 +108,7 @@ def get_security_question():
 
 
 @user_blueprint.route('/setsecurityquestion', methods=['GET', 'POST', 'OPTIONS'])
-@cross_origin(
-    origins=['https://angularproject-5c26e.firebaseapp.com', 'http://localhost:4200',
-            'http://183.82.0.186:812',
-             'http://192.168.2.146:812'], allow_headers=['Content-Type', 'Authorization', 'User', 'Ipaddress'])
+@cross_origin(origins=['*'], allow_headers=['Content-Type', 'Authorization', 'User', 'Ipaddress'])
 def security_question():
     if request.method == "POST":
         if "Authorization" in request.headers.keys() and token_verify(token=request.headers["Authorization"], ip=request.headers["Ipaddress"], user=request.headers["User"]):
@@ -144,9 +135,7 @@ def security_question():
 
 
 @user_blueprint.route('/changepass', methods=['POST', 'OPTIONS'])
-@cross_origin(
-    origins=['https://angularproject-5c26e.firebaseapp.com', 'http://localhost:4200', 'http://183.82.0.186:812',
-             'http://192.168.2.146:812'], allow_headers=['Content-Type', 'Authorization', 'User', 'Ipaddress'])
+@cross_origin(origins=['*'], allow_headers=['Content-Type', 'Authorization', 'User', 'Ipaddress'])
 def change():
     if request.method == "POST":
         try:
@@ -184,9 +173,7 @@ def change():
 
 
 @user_blueprint.route('/login_cred', methods=['POST', 'OPTIONS'])
-@cross_origin(
-    origins=['https://angularproject-5c26e.firebaseapp.com', 'http://localhost:4200', 'http://183.82.0.186:812',
-             'http://192.168.2.146:812'], allow_headers=['Content-Type'])
+@cross_origin(origins=['*'], allow_headers=['Content-Type'])
 def login_cred_mail():
     if request.method == "POST":
         print(request.data)
@@ -271,9 +258,7 @@ def login_cred_mail():
 
 
 @user_blueprint.route("/resetpass", methods=['POST', 'OPTIONS'])
-@cross_origin(
-    origins=['https://angularproject-5c26e.firebaseapp.com', 'http://localhost:4200', 'http://183.82.0.186:812',
-             'http://192.168.2.146:812'], allow_headers=['Content-Type', 'Authorization', 'User', 'Ipaddress'])
+@cross_origin(origins=['*'], allow_headers=['Content-Type', 'Authorization', 'User', 'Ipaddress'])
 def reset_pass_():
     if request.method == "POST":
         print(request.data)
