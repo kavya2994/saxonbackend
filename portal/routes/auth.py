@@ -51,6 +51,13 @@ def login():
         print(request.data)
         print(request.remote_addr)
         print("####################")
+
+        if 'Username' not in data:
+            return jsonify("'Username' is required"), 400
+
+        if 'Password' not in data:
+            return jsonify("'Password' is required"), 400
+
         try:
             data = json.loads(str(request.data, encoding='utf-8'))
             print(data)
