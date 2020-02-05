@@ -1,11 +1,13 @@
 import os
 from flask import Flask
 from gevent.pywsgi import WSGIServer
+from flask_restplus import Api, Resource
 
 
 def create_app(config=None):
-    from . import routes, models, services, helpers
+    from . import routes, models, services, helpers, api
     app = Flask(__name__)
+    api.init_app(app)
     models.init_app(app)
     routes.init_app(app)
     services.init_app(app)

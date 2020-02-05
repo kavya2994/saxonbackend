@@ -1,9 +1,11 @@
-from flask import Blueprint, jsonify, request
+from flask import request
+from flask_restplus import Resource
+from ..api import api
 
 
-aux_blueprint = Blueprint('aux_blueprint', __name__, template_folder='templates')
-
-@aux_blueprint.route("/get_my_ip", methods=["GET"])
-def get_my_ip():
-    print(request.headers)
-    return jsonify({'ip': request.environ['REMOTE_ADDR']}), 200
+@api.route("/my-ip", methods=["GET"])
+@api.doc(description='Get user\'s IP address')
+class MyIP(Resource):
+    def get(self):
+        print(request.headers)
+        return {'ip': request.environ['REMOTE_ADDR']}, 200
