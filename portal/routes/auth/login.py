@@ -11,6 +11,10 @@ from . import ns
 
 
 parser = reqparse.RequestParser()
+parser.add_argument('Username', type=str, location='json', required=True)
+parser.add_argument('Password', type=str, location='json', required=True)
+parser.add_argument('IP', type=str, location='json', required=False)
+
 @ns.route('/login')
 class Login(Resource):
     @ns.doc(parser=parser,
@@ -19,44 +23,21 @@ class Login(Resource):
 
     @ns.expect(parser, validate=True)
     def post(self):
-        print(request.headers)
-        print(request.get_data())
-        print(request.data)
-        print(request.remote_addr)
-        print("####################")
-
+        args = parser.parse_args()
         try:
-            data = json.loads(str(request.data, encoding='utf-8'))
-
-            if 'Username' not in data:
-                return "'Username' is required", 400
-
-            if 'Password' not in data:
-                return "'Password' is required", 400
-
-            print(data)
-            username = data['Username']
-            password = data["Password"]
+            username = args['Username']
+            password = args["Password"]
             userinfo = Users.query.filter_by(Username=username).first()
             encrypt_password = Encryption().encrypt(password)
-            print(userinfo)
-            # print(list(userinfo.keys()))
-            # print(userinfo["password"])
 
             if userinfo != None and userinfo["Password"] == encrypt_password and str(userinfo["Status"]).lower() == "active":
                 if "TemporaryPassword" in userinfo.keys():
-                    # print(request.form)
                     name = userinfo["DisplayName"]
                     role = userinfo["Role"]
-                    exp = datetime.utcnow()
-                    if userinfo["Role"] == "reviewermanager":
-                        exp += timedelta(hours=1, minutes=30)
-                    else:
-                        # exp += timedelta(minutes=30)
-                        exp += timedelta(hours=1, minutes=30)
+                    exp = datetime.utcnow() + timedelta(hours=1, minutes=30)
 
-                    encode = jwt.encode({'User': username, 'exp': exp, 'IP': data["ip"], "role": role},
-                                        'secret', algorithm="HS256")
+                    encode = jwt.encode(key='secret', algorithm='HS256',
+                        payload={'User': username, 'Exp': exp, 'IP': data["IP"], "Role": role },)
 
                     return {"fusername": "test@test.com", "fpass": "test001", "id": username, "username": username,
                                     "firstName": name, "lastname": name, "role": role,
@@ -76,5 +57,5 @@ class Login(Resource):
         except Exception as e:
             print(str(e))
             print("in exception")
-            return "cant connect" + str(e), 500
+            return "cant connect: " + str(e), 500
 
