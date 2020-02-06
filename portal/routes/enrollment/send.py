@@ -9,11 +9,11 @@ from flask import Blueprint, jsonify, request, current_app as app
 from flask_cors import cross_origin
 from flask_restplus import Resource, reqparse
 from werkzeug.utils import secure_filename
-from ..helpers import token_verify
-from ..models.enrollmentform import Enrollmentform
-from ..models.token import Token
-from ..models import db
-from ..api import api
+from ...helpers import token_verify
+from ...models.enrollmentform import Enrollmentform
+from ...models.token import Token
+from ...models import db
+from ...api import api
 from . import ns
 
 parser = reqparse.RequestParser()

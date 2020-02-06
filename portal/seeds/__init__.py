@@ -7,4 +7,5 @@ def init_app(app):
     if isDev():
         from .demo import DemoSeeder
         with app.app_context():
-            DemoSeeder(db).run()
+            # DemoSeeder(db).run()
+            pass
