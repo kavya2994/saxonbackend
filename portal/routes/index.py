@@ -1,11 +1,17 @@
-from flask import Blueprint, render_template
+from flask import render_template, Response
+from flask_restplus import Resource
+from ..api import api
 
-index_blueprint = Blueprint('index_blueprint', __name__, template_folder='templates')
 
-@index_blueprint.route('/')
-def index():
-    try:
-        return render_template('pages/index.html')
-    except:
-        return "Not Found", 404
+@api.route('/index')
+class Index(Resource):
+    @api.doc('get_index', responses={404: "Not Found", 200: "OK"})
+    def get(self):
+        try:
+            data = render_template('pages/index.html')
+            response = Response(data, mimetype='text/html')
+            response.status_code = 200
+            return response
+        except:
+            return "Not Found", 404
 
