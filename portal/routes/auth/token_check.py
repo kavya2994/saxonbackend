@@ -7,7 +7,7 @@ from . import ns
 
 parser = reqparse.RequestParser()
 parser.add_argument('Authorization', type=str, location='headers', required=True)
-parser.add_argument('User', type=str, location='headers', required=True)
+parser.add_argument('Username', type=str, location='headers', required=True)
 parser.add_argument('IpAddress', type=str, location='headers', required=True)
 
 @ns.route('/token/check')

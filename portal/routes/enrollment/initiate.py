@@ -18,7 +18,7 @@ from . import ns
 
 initiate_parser = reqparse.RequestParser()
 initiate_parser.add_argument('Authorization', type=str, location='headers', required=True)
-initiate_parser.add_argument('User', type=str, location='headers', required=True)
+initiate_parser.add_argument('Username', type=str, location='headers', required=True)
 initiate_parser.add_argument('IpAddress', type=str, location='headers', required=True)
 initiate_parser.add_argument('Password', type=str, location='json', required=True)
 initiate_parser.add_argument('IP', type=str, location='json', required=False)
