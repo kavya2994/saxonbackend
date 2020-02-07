@@ -21,7 +21,7 @@ parser = reqparse.RequestParser()
 @ns.route("/security-questions")
 class SecurityQuestions(Resource):
     @ns.doc(parser=parser,
-        description='Get security question of a user',
+        description='Get list of security questions',
         responses={
             200: 'OK',
             400: 'Bad Request',
