@@ -4,8 +4,12 @@ from ..helpers import isDev
 
 
 def init_app(app):
-    if isDev():
-        from .demo import DemoSeeder
-        with app.app_context():
-            # DemoSeeder(db).run()
-            pass
+    with app.app_context():
+        from .production import ProductionSeeder
+        ProductionSeeder(db).run()
+
+        if not isDev():
+            return
+
+        from .development import DevelopmentSeeder
+        DevelopmentSeeder(db).run()

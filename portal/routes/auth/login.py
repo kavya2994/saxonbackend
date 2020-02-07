@@ -48,7 +48,7 @@ class Login(Resource):
                     "firstName": name, "lastname": name, "role": role,
                     "TemporaryPassword": userinfo.TemporaryPassword,
                     'token': str(token),
-                    "SecurityQuestion": userinfo.SecurityQuestionID,
+                    "SecurityQuestion": userinfo.SecurityQuestion.Question,
                     "Email": userinfo.Email,
                     }, 200
 

@@ -5,8 +5,9 @@ class Users(db.Model):
     __bind_key__ = 'writeonly'
 
     Username = db.Column(db.String(255), primary_key=True, nullable=False)
-    MemberID = db.Column(db.Integer) #, db.ForeignKey('tag.id'))
-    SecurityQuestionID = db.Column(db.Integer)
+    MemberID = db.Column(db.Integer)
+    SecurityQuestionID = db.Column(db.Integer, db.ForeignKey('security_question.SecurityQuestionID'))
+    SecurityQuestion = db.relationship('SecurityQuestion', backref='users')
 
     Password = db.Column(db.String(255))
     TemporaryPassword = db.Column(db.String(255))
