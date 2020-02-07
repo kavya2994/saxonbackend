@@ -36,7 +36,7 @@ class Login(Resource):
             name = userinfo.DisplayName
             role = userinfo.Role
             exp = datetime.utcnow() + timedelta(hours=1, minutes=30)
-            payload = {'User': username, 'Exp': str(exp), 'Role': role, 'IP': args['IP'] if 'IP' in args else '' }
+            payload = {'Username': username, 'Exp': str(exp), 'Role': role, 'IP': args['IP'] if 'IP' in args else '' }
             token = jwt.encode(key='secret', algorithm='HS256', payload=payload,)
             token = token.decode('utf-8')
 
@@ -47,7 +47,7 @@ class Login(Resource):
                     "username": username,
                     "firstName": name, "lastname": name, "role": role,
                     "TemporaryPassword": userinfo.TemporaryPassword,
-                    'token': str(token),
+                    'Token': str(token),
                     "SecurityQuestion": userinfo.SecurityQuestion.Question,
                     "Email": userinfo.Email,
                     }, 200

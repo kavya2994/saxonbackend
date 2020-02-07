@@ -21,7 +21,7 @@ def token_verify(token, user, ip):
     result = False
     try:
         decoded = jwt.decode(token, key='secret')
-        if decoded["user"] == user and decoded["ip"] == ip:
+        if decoded["User"] == user and decoded["IP"] == ip:
             result = True
     except jwt.DecodeError:
         print("decode error")
