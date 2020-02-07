@@ -20,5 +20,5 @@ python app.py
 
 For development, set:
 ```bash
-export FLASK_ENV=dev
+export FLASK_ENV=development
 ```

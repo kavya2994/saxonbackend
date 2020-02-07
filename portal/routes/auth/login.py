@@ -13,7 +13,6 @@ from . import ns
 parser = reqparse.RequestParser()
 parser.add_argument('Username', type=str, location='json', required=True)
 parser.add_argument('Password', type=str, location='json', required=True)
-parser.add_argument('IP', type=str, location='json', required=False)
 
 @ns.route('/login')
 class Login(Resource):
@@ -23,39 +22,41 @@ class Login(Resource):
 
     @ns.expect(parser, validate=True)
     def post(self):
-        args = parser.parse_args()
+        args = parser.parse_args(strict=False)
         try:
             username = args['Username']
-            password = args["Password"]
-            userinfo = Users.query.filter_by(Username=username).first()
+            password = args['Password']
             encrypt_password = Encryption().encrypt(password)
+            userinfo = Users.query.filter_by(Username=username, Password=encrypt_password, Status="active").first()
 
-            if userinfo != None and userinfo["Password"] == encrypt_password and str(userinfo["Status"]).lower() == "active":
-                if "TemporaryPassword" in userinfo.keys():
-                    name = userinfo["DisplayName"]
-                    role = userinfo["Role"]
-                    exp = datetime.utcnow() + timedelta(hours=1, minutes=30)
-
-                    encode = jwt.encode(key='secret', algorithm='HS256',
-                        payload={'User': username, 'Exp': exp, 'IP': data["IP"], "Role": role },)
-
-                    return {"fusername": "test@test.com", "fpass": "test001", "id": username, "username": username,
-                                    "firstName": name, "lastname": name, "role": role,
-                                    "TemporaryPassword": userinfo["TemporaryPassword"],
-                                    'token': str(encode.decode('utf-8')),
-                                    "SecurityQuestion": ("SecurityQuestionID" in userinfo.keys()),
-                                    "Email": userinfo["Email"]}, 200
-                else:
-                    return "Cant find temppass field", 401
-
-            else:
+            if userinfo == None:
                 print("Username or password is incorrect")
                 return "Username or password is incorrect", 401
+
+            name = userinfo.DisplayName
+            role = userinfo.Role
+            exp = datetime.utcnow() + timedelta(hours=1, minutes=30)
+            payload = {'User': username, 'Exp': str(exp), 'Role': role, 'IP': args['IP'] if 'IP' in args else '' }
+            token = jwt.encode(key='secret', algorithm='HS256', payload=payload,)
+            token = token.decode('utf-8')
+
+            return {
+                    "fusername": "test@test.com",
+                    "fpass": "test001",
+                    "id": username,
+                    "username": username,
+                    "firstName": name, "lastname": name, "role": role,
+                    "TemporaryPassword": userinfo.TemporaryPassword,
+                    'token': str(token),
+                    "SecurityQuestion": userinfo.SecurityQuestionID,
+                    "Email": userinfo.Email,
+                    }, 200
+
         except json.decoder.JSONDecodeError:
             return 'Bad Request', 400
 
         except Exception as e:
             print(str(e))
-            print("in exception")
+            print("in exception", e)
             return "cant connect: " + str(e), 500
 

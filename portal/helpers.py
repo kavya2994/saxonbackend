@@ -42,7 +42,7 @@ def randomStringwithDigitsAndSymbols(stringLength=10):
 
 
 def isDev():
-    return "dev" == os.getenv("FLASK_ENV", default="")
+    return "development" == os.getenv("FLASK_ENV", default="")
 
 
 def isProd():
