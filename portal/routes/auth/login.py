@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 from flask import request
 from flask_cors import cross_origin
 from flask_restplus import Resource, reqparse
+from werkzeug.exceptions import NotFound, BadRequest, UnprocessableEntity, InternalServerError
 from ...encryption import Encryption
 from ...models.users import Users
 from ...api import api
@@ -23,16 +24,19 @@ class Login(Resource):
     @ns.expect(parser, validate=True)
     def post(self):
         args = parser.parse_args(strict=False)
+        username = args['Username']
+        password = args['Password']
+        encrypt_password = Encryption().encrypt(password)
+        userinfo = Users.query.filter_by(Username=username, Password=encrypt_password).first()
+
+        if userinfo == None:
+            print("Username or password is incorrect")
+            raise UnprocessableEntity('Username or Password is incorrect')
+
+        if userinfo.Status != "active":
+            raise UnprocessableEntity('User is not active')
+
         try:
-            username = args['Username']
-            password = args['Password']
-            encrypt_password = Encryption().encrypt(password)
-            userinfo = Users.query.filter_by(Username=username, Password=encrypt_password, Status="active").first()
-
-            if userinfo == None:
-                print("Username or password is incorrect")
-                return "Username or password is incorrect", 401
-
             name = userinfo.DisplayName
             role = userinfo.Role
             exp = datetime.utcnow() + timedelta(hours=1, minutes=30)
@@ -53,10 +57,10 @@ class Login(Resource):
                     }, 200
 
         except json.decoder.JSONDecodeError:
-            return 'Bad Request', 400
+            raise BadRequest
 
         except Exception as e:
             print(str(e))
             print("in exception", e)
-            return "cant connect: " + str(e), 500
+            raise InternalServerError(e)
 
