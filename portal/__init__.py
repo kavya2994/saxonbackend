@@ -4,7 +4,7 @@ from flask_restplus import Api, Resource
 
 
 def create_app(config=None):
-    app = Flask(__name__)
+    app = Flask(__name__, static_url_path='/static')
     app.secret_key = 'random string'
     app.debug = True
 
