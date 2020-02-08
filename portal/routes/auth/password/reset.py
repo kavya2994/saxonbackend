@@ -1,9 +1,6 @@
 import jwt
 import json
-import smtplib
 from datetime import datetime
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
 from flask import Blueprint, jsonify, request, abort
 from flask_cors import cross_origin
 from flask_restplus import Resource, reqparse
@@ -13,6 +10,7 @@ from ....encryption import Encryption
 from ....models import db
 from ....models.users import Users
 from ....models.security_question import SecurityQuestion
+from ....services.mail import send_email
 from .. import ns
 
 
@@ -37,12 +35,6 @@ class PasswordReset(Resource):
         change_pass = False
 
         username = args["Username"]
-        smtpObj = smtplib.SMTP_SSL('smtp.gmail.com', port=465)
-        msg = MIMEMultipart()
-        msg['subject'] = "Password Reset"
-        msg['from'] = "venkatesh"
-        msg['to'] = "venkatesh"
-
         token = token_verify_or_raise(token=args["Authorization"], ip=args["IpAddress"], user=args["Username"])
 
         user = Users.query.filter_by(Username=username).first()
@@ -69,18 +61,15 @@ class PasswordReset(Resource):
         try:
             password = randomStringwithDigitsAndSymbols()
             pass_encrypt = Encryption().encrypt(password)
-            msgtext = MIMEText('<p>Your password has been reset. The temporary password is: %s</p>'
-                                '<p>Please log into your system as soon as possible to set your new password.</p>'
-                                % password, 'html')
-            msg.attach(msgtext)
-            smtpObj.login('venkateshvyyerram@gmail.com', "mynameisvenkatesh")
+            message = f'<p>Your password has been reset. The temporary password is: {password}</p>' +
+                    '<p>Please log into your system as soon as possible to set your new password.</p>'
 
             user = Users.query.get(username)
             user.Password = pass_encrypt
             user.TemporaryPassword = True
             db.session.commit()
 
-            smtpObj.sendmail("venkateshvyyerram@gmail.com", email, msg.as_string())
+            send_email(to_address=email, subject='Reset Password', body=message)
             return {"Result": "Success"}
 
         except Exception as e:
