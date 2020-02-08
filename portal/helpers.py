@@ -4,7 +4,7 @@ import time
 import random
 import string
 from flask_cors import CORS
-
+from werkzeug.exceptions import Unauthorized
 
 def init_cors(app):
     CORS(app, resources={r"*": {"origins": "*"}})
@@ -17,21 +17,28 @@ def delete_excel(filename):
     os.remove(filename)
 
 
+def token_verify_or_raise(token, user, ip):
+    decoded_token = token_verify(token, user, ip)
+    if decoded_token == None:
+        raise Unauthorized()
+    return decoded_token
+
+
 def token_verify(token, user, ip):
-    result = False
+    decoded = None
+
     try:
         decoded = jwt.decode(token, key='secret')
-        if decoded["User"] == user and decoded["IP"] == ip:
-            result = True
+        if decoded["User"] != user or decoded["IP"] != ip:
+            decoded = None
+
     except jwt.DecodeError:
         print("decode error")
-        result = False
     except jwt.ExpiredSignatureError:
         print("sign")
-        result = False
     except KeyError:
         print("key error")
-    return result
+    return decoded
 
 
 def randomStringwithDigitsAndSymbols(stringLength=10):
