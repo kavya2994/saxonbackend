@@ -8,8 +8,8 @@ def init_app(app):
         from .production import ProductionSeeder
         ProductionSeeder(db).run()
 
-        if not isDev():
-            return
+        # if not isDev():
+        #     return
 
         from .development import DevelopmentSeeder
         DevelopmentSeeder(db).run()
