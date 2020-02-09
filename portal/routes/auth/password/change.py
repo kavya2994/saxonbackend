@@ -7,7 +7,8 @@ from email.mime.text import MIMEText
 from flask import Blueprint, jsonify, request, abort
 from flask_cors import cross_origin
 from flask_restplus import Resource, reqparse
-from ....helpers import randomStringwithDigitsAndSymbols, token_verify
+from werkzeug.exceptions import NotFound, BadRequest, Unauthorized, UnprocessableEntity, InternalServerError
+from ....helpers import randomStringwithDigitsAndSymbols, token_verify_or_raise
 from ....encryption import Encryption
 from ....models import db
 from ....models.users import Users
@@ -16,48 +17,45 @@ from .. import ns
 
 
 parser = reqparse.RequestParser()
+parser.add_argument('Authorization', type=str, location='headers', required=True)
+parser.add_argument('IpAddress', type=str, location='headers', required=True)
+
 parser.add_argument('Username', type=str, location='json', required=True)
-parser.add_argument('Password', type=str, location='json', required=True)
-parser.add_argument('IP', type=str, location='json', required=False)
+parser.add_argument('OldPassword', type=str, location='json', required=True)
+parser.add_argument('NewPassword', type=str, location='json', required=True)
 
 @ns.route("/password/change")
 class PasswordChange(Resource):
     @ns.doc(parser=parser,
         description='Change Password',
-        responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 500: 'Internal Server Error'})
+        responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 422: 'UnprocessableEntity', 500: 'Internal Server Error'})
 
     @ns.expect(parser, validate=True)
     def post(self):
-        try:
-            print(request.headers)
-            print(request.data)
-            data = json.loads(str(request.data, encoding='utf-8'))
-            # token = request.headers["Authorization"]
-            if 'Authorization' in request.headers.keys() and token_verify(request.headers["Authorization"],
-                                                                          request.headers["User"],
-                                                                          request.headers["Ipaddress"]):
+        args = parser.parse_args(strict=False)
+        token = token_verify_or_raise(token=args["Authorization"], ip=args["IpAddress"], user=args["Username"])
 
-                username = data["Username"]
-                old_pass = data["old_password"]
-                new_pass = data["new_password"]
-                if username is not None:
-                    userinfo = Users.query.filter_by(Username=username).first()
-                    if userinfo["Password"] == Encryption().encrypt(old_pass):
-                        pass_encoded = Encryption().encrypt(new_pass)
-                        userinfo.Password = pass_encoded
-                        userinfo.TemporaryPassword = False
-                        db.session.commit()
-                        return jsonify({"result": "Password changed successfully"}), 200
-                    else:
-                        return jsonify({"error": "Password not match"}), 401
-                else:
-                    return jsonify({})
-            else:
-                return jsonify({"error": "Not Authorized"}), 401
+        # TODO:
+        # Verify the role from token before proceeding with passowrd chanage
+
+        username = args["Username"]
+        old_pass = args["OldPassword"]
+        new_pass = args["NewPassword"]
+
+        user = Users.query.filter_by(Username=username).first()
+        if user is None:
+            raise UnprocessableEntity('Username is not valid')
+
+        if user.Password != Encryption().encrypt(old_pass):
+            raise BadRequest('Old Password is wrong')
+
+        try:
+            user.Password = Encryption().encrypt(new_pass)
+            user.TemporaryPassword = False
+            db.session.commit()
+            return {"result": "Password changed successfully"}
+
         except KeyError as e:
-            if str(e).__contains__("Authorization"):
-                return jsonify({"error": "Not Authorized"}), 401
-            else:
-                print(str(e))
-                return {"error": "Irrelevant data"}, 417
+            print(e)
+            raise InternalServerError()
 

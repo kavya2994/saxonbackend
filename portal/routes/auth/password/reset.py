@@ -15,11 +15,11 @@ from .. import ns
 
 
 parser = reqparse.RequestParser()
-postParser.add_argument('Authorization', type=str, location='headers', required=True)
-postParser.add_argument('IpAddress', type=str, location='headers', required=False)
+parser.add_argument('Authorization', type=str, location='headers', required=True)
+parser.add_argument('IpAddress', type=str, location='headers', required=True)
 
 parser.add_argument('RequestType', type=str, location='json', required=True, help='Accepted Values: [Admin|SecurityQuestion|Email]')
-postParser.add_argument('Username', type=str, location='headers', required=True)
+parser.add_argument('Username', type=str, location='headers', required=True)
 parser.add_argument('Answer', type=str, location='json', required=False)
 parser.add_argument('Email', type=str, location='json', required=False)
 
@@ -27,7 +27,7 @@ parser.add_argument('Email', type=str, location='json', required=False)
 class PasswordReset(Resource):
     @ns.doc(parser=parser,
         description='Reset Password',
-        responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 500: 'Internal Server Error'})
+        responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 422: 'UnprocessableEntity', 500: 'Internal Server Error'})
 
     @ns.expect(parser, validate=True)
     def post(self):
@@ -61,7 +61,7 @@ class PasswordReset(Resource):
         try:
             password = randomStringwithDigitsAndSymbols()
             pass_encrypt = Encryption().encrypt(password)
-            message = f'<p>Your password has been reset. The temporary password is: {password}</p>' +
+            message = f'<p>Your password has been reset. The temporary password is: {password}</p>' + \
                     '<p>Please log into your system as soon as possible to set your new password.</p>'
 
             user = Users.query.get(username)
