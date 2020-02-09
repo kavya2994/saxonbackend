@@ -11,14 +11,9 @@ Install required packages
 pip install -r requirements.txt
 ```
 
-Run the web server
+For development:
 ```bash
-export FLASK_ENV=production
-python app.py
+FLASK_ENV=development flask run
 ```
 
-
-For development, set:
-```bash
-export FLASK_ENV=development
-```
+http://localhost:5000/v1/my-ip
