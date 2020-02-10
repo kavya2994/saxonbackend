@@ -36,7 +36,7 @@ class PasswordChange(Resource):
         token = token_verify_or_raise(token=args["Authorization"], ip=args["IpAddress"], user=args["Username"])
 
         # TODO:
-        # Verify the role from token before proceeding with passowrd chanage
+        # Verify the role from token before proceeding with password chanaging
 
         username = args["Username"]
         old_pass = args["OldPassword"]

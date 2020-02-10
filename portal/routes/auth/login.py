@@ -22,7 +22,7 @@ response_model = {
     'FirstName': fields.String,
     'LastName': fields.String,
     'Role': fields.String,
-    'TemporaryPassword': fields.String,
+    'TemporaryPassword': fields.Boolean(default=False),
     'Token': fields.String,
     'SecurityQuestion': fields.String,
 }
