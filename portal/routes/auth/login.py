@@ -60,7 +60,7 @@ class Login(Resource):
                 'Username': username,
                 'Exp': str(exp),
                 'Role': role,
-                'IP': ip,
+                'IpAddress': ip,
             }
 
             token = jwt.encode(key=app.config['JWT_SECRET'], algorithm='HS256', payload=payload,)

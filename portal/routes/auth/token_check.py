@@ -2,7 +2,9 @@ import jwt
 import json
 from flask import request, current_app as app
 from flask_restplus import Resource, reqparse
+from werkzeug.exceptions import Unauthorized
 from . import ns
+from ...helpers import token_verify_or_raise
 
 
 parser = reqparse.RequestParser()
@@ -19,25 +21,10 @@ class TokenCheck(Resource):
     @ns.expect(parser, validate=True)
     def post(self):
         args = parser.parse_args()
-        result = False
-        print(request.headers)
 
-        try:
-            token = args["Authorization"]
-            print(request.get_data())
-            data = json.loads(str(request.data, encoding='utf-8'))
-            decoded = jwt.decode(token, key=app.config['JWT_SECRET'])
-            print(decoded["User"])
-            if decoded["User"] == args["User"] and decoded["IP"] == args["IpAddress"]:
-                result = True
-        except jwt.DecodeError:
-            print("decode error")
-            result = False
-        except jwt.ExpiredSignatureError:
-            print("sign")
-            result = False
-        except KeyError:
-            print("key error")
-            print(result)
+        token = token_verify_or_raise(token=args["Authorization"], ip=args["IpAddress"], user=args["Username"])
 
-        return {"result": result}, 200 if result else 401
+        if token["Username"] != args["Username"] or token["IpAddress"] != args["IpAddress"]:
+            raise Unauthorized()
+
+        return { "result": True }
