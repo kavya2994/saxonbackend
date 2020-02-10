@@ -5,7 +5,7 @@ from ..helpers import uuid_generator
 class Token(db.Model):
     __bind_key__ = 'writeonly'
 
-    TokenID = db.Column(db.String, primary_key=True, default=uuid_generator)
+    TokenID = db.Column(db.String(36), primary_key=True, default=uuid_generator)
     FormID = db.Column(db.Integer)
 
     FormStatus = db.Column(db.String(255))

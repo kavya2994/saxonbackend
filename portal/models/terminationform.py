@@ -4,7 +4,7 @@ from . import db
 class Terminationform(db.Model):
     __bind_key__ = 'writeonly'
 
-    FormID = db.Column(db.Integer, primary_key=True, nullable=False)
+    FormID = db.Column(db.Integer, Sequence('terminationform_id_seq'), primary_key=True, nullable=False)
 
     EmployerName = db.Column(db.String(255))
     Date = db.Column(db.String(255))

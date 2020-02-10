@@ -1,71 +1,37 @@
 from . import db
+from sqlalchemy import Sequence
 
 
 class Enrollmentform(db.Model):
     __bind_key__ = 'writeonly'
 
-    FormID = db.Column(db.Integer, primary_key=True, nullable=False)
-    SecurityQuestionID = db.Column(db.Integer)
-
+    FormID = db.Column(db.Integer, Sequence('enrollmentform_id_seq'), primary_key=True, nullable=False)
     EmployerName = db.Column(db.String(255))
-    EmployerID = db.Column(db.String(255))
-    InitiatedDate = db.Column(db.String(255))
-    AlreadyEnrolled = db.Column(db.String(255))
-    Status = db.Column(db.String(255))
-    FirstName = db.Column(db.String(255))
-    MiddleName = db.Column(db.String(255))
-    LastName = db.Column(db.String(255))
-    DOB = db.Column(db.String(255))
-    Title = db.Column(db.String(255))
-    MaritalStatus = db.Column(db.String(255))
-    MailingAddress = db.Column(db.String(255))
-    AddressLine2 = db.Column(db.String(255))
-    District = db.Column(db.String(255))
-    PostalCode = db.Column(db.String(255))
-    Country = db.Column(db.String(255))
+    EmployerID = db.Column(db.String(255), nullable=True)
+    InitiatedDate = db.Column(db.DateTime(255), nullable=True)
+    AlreadyEnrolled = db.Column(db.String(255), nullable=True)
+    Status = db.Column(db.String(255), nullable=True)
+    FirstName = db.Column(db.String(255), nullable=True)
+    MiddleName = db.Column(db.String(255), nullable=True)
+    LastName = db.Column(db.String(255), nullable=True)
+    DOB = db.Column(db.String(255), nullable=True)
+    Title = db.Column(db.String(255), nullable=True)
+    MaritalStatus = db.Column(db.String(255), nullable=True)
+    MailingAddress = db.Column(db.String(255), nullable=True)
+    AddressLine2 = db.Column(db.String(255), nullable=True)
+    District = db.Column(db.String(255), nullable=True)
+    PostalCode = db.Column(db.String(255), nullable=True)
+    Country = db.Column(db.String(255), nullable=True)
     EmailAddress = db.Column(db.String(255))
-    Telephone = db.Column(db.String(255))
-    StartDateofContribution = db.Column(db.String(255))
-    StartDateofEmployment = db.Column(db.String(255))
-    ConfirmationStatus = db.Column(db.String(255))
-    SignersName = db.Column(db.String(255))
-    Signature = db.Column(db.String(255))
-    Estimatedannualincomerange = db.Column(db.String(255))
-    ImmigrationStatus = db.Column(db.String(255))
-    PendingFrom = db.Column(db.String(255))
-    SpouseName = db.Column(db.String(255))
-    SpouseDOB = db.Column(db.String(255))
-
-    File = db.Column(db.String(255))
-    FormCreatedDate = db.Column(db.DateTime)
-    TokenID = db.Column(db.String(255))
-
-#   'address': '',
-#   'addressLine2': '',
-#   'comments': '',
-#   'country': '',
-#   'district': '',
-#   'dob': '',
-#   'email': 'deepika.bharatula@manomay.biz',
-#   'employerComments': '',
-#   'employername': 'Saxon Pensions',
-#   'employernumber': 'saxon',
-#   'file': '',
-#   'formCreatedDate': {'nanoseconds': 936510000, 'seconds': 1575456023},
-#   'formType': 'Enrollment',
-#   'immigrationstatus': '',
-#   'incomerange': '',
-#   'isExistingMember': 'false',
-#   'maidenName': '',
-#   'maritalstatus': 'false',
-#   'memberLastName': '',
-#   'memberfirstName': 'T5',
-#   'middlename': '',
-#   'pendingFrom': 'reviewermanager',
-#   'phoneNumber': '',
-#   'postalcode': '',
-#   'startdate': '2019-12-03T18:30:00.000Z',
-#   'startemployment': '2019-12-03T18:30:00.000Z',
-#   'status': 'pending',
-#   'title': '',
-#   'tokenID': 'JsijaNKnK9GhUEVHm54S'},
+    Telephone = db.Column(db.String(255), nullable=True)
+    StartDateofContribution = db.Column(db.DateTime, nullable=True)
+    StartDateofEmployment = db.Column(db.DateTime, nullable=True)
+    ConfirmationStatus = db.Column(db.String(255), nullable=True)
+    SignersName = db.Column(db.String(255), nullable=True)
+    Signature = db.Column(db.String(255), nullable=True)
+    Estimatedannualincomerange = db.Column(db.String(255), nullable=True)
+    ImmigrationStatus = db.Column(db.String(255), nullable=True)
+    PendingFrom = db.Column(db.String(255), nullable=True)
+    SpouseName = db.Column(db.String(255), nullable=True)
+    SpouseDOB = db.Column(db.String(255), nullable=True)
+    FilePath = db.Column(db.String(255), nullable=True)

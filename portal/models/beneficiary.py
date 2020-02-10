@@ -4,7 +4,7 @@ from . import db
 class Beneficiary(db.Model):
     __bind_key__ = 'writeonly'
 
-    BeneficiaryID = db.Column(db.Integer, primary_key=True, nullable=False)
+    BeneficiaryID = db.Column(db.Integer, Sequence('beneficiary_id_seq'), primary_key=True, nullable=False)
     BeneficiaryEnrollmentformID = db.Column(db.Integer)
 
     BeneficiaryBeneficiaryFirstName = db.Column(db.String(255))

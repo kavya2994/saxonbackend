@@ -6,7 +6,7 @@ from flask_restplus import fields
 class SecurityQuestion(db.Model):
     __bind_key__ = 'writeonly'
 
-    SecurityQuestionID = db.Column(db.Integer, primary_key=True, nullable=False)
+    SecurityQuestionID = db.Column(db.Integer, Sequence('securityquestion_id_seq'), primary_key=True, nullable=False)
     Question = db.Column(db.String(255))
 
 

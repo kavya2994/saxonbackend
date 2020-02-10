@@ -4,7 +4,7 @@ from . import db
 class Contributionform(db.Model):
     __bind_key__ = 'writeonly'
 
-    FormID = db.Column(db.Integer, primary_key=True, nullable=False)
+    FormID = db.Column(db.Integer, Sequence('contributionform_id_seq'), primary_key=True, nullable=False)
 
     EmployerName = db.Column(db.String(255))
     StartDate = db.Column(db.String(255))
