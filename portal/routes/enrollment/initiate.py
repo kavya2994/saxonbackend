@@ -111,15 +111,15 @@ class EnrollmentInitiation(Resource):
 
             email_subject = "Your Silver Thatch Pensions Enrollment Form needs to be completed"
 
-            email_body = """
-'<p>**This is an auto-generated e-mail message. Please do not reply to this message. **</p>'
-'<p>Dear %s</p>'
-'<p>Please click here. Otherwise, cut and paste the link below into a browser, fill in the '
-'required information, and when you are done hit the submit button to start your enrollment '
-'into the plan.</p><p>-----------------------------------------</p>'
-'<p>http://183.82.0.186:812/enrollment-form/%s</p>'
-'<p>To learn more about the Silver Thatch Pension Plan,'
-' click here to review our members handbook. </p>""" % (args["MemberFirstName"], token_data.TokenID)
+            email_body = f"""
+<p>**This is an auto-generated e-mail message. Please do not reply to this message. **</p>
+<p>Dear {args['MemberFirstName']}</p>
+<p>Please click here. Otherwise, cut and paste the link below into a browser, fill in the
+required information, and when you are done hit the submit button to start your enrollment
+into the plan.</p><p>-----------------------------------------</p>
+<p>{app.config['SERVER_WEB_URL']}/enrollment-form/{token_data.TokenID}</p>
+<p>To learn more about the Silver Thatch Pension Plan,
+click here to review our members handbook. </p>"""
 
             send_email(to_address=args["MemberEmail"], subject=email_subject, body=email_body)
 
