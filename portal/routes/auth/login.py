@@ -12,9 +12,9 @@ from . import ns
 
 
 parser = reqparse.RequestParser()
+parser.add_argument('IpAddress', type=str, location='headers', required=True)
 parser.add_argument('Username', type=str, location='json', required=True)
 parser.add_argument('Password', type=str, location='json', required=True)
-parser.add_argument('IP', type=str, location='json', required=False)
 
 response_model = {
     'Email': fields.String,
@@ -39,7 +39,7 @@ class Login(Resource):
         args = parser.parse_args(strict=False)
         username = args['Username']
         password = args['Password']
-        ip = args['IP'] if 'IP' in args else ''
+        ip = args['IpAddress']
 
         encrypt_password = Encryption().encrypt(password)
         userinfo = Users.query.filter_by(Username=username, Password=encrypt_password).first()
