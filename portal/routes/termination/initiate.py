@@ -4,7 +4,7 @@ import smtplib
 from datetime import datetime
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request, current_app as app
 from flask_cors import cross_origin
 from flask_restplus import Resource, reqparse
 from ...helpers import token_verify
@@ -34,7 +34,7 @@ class TerminationInitiate(Resource):
                                                                       user=request.headers["User"]):
             try:
                 auth1 = request.headers["Authorization"]
-                auth1 = jwt.decode(auth1, key='secret')
+                auth1 = jwt.decode(auth1, key=app.config['JWT_SECRET'])
                 if auth1["role"] == "employer":
                     data = json.loads(str(request.get_data(), encoding='utf-8'))
                     # member_email = data["email"]

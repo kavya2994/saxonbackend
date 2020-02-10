@@ -3,6 +3,7 @@ import jwt
 import time
 import random
 import string
+from flask import current_app as app
 from flask_cors import CORS
 from werkzeug.exceptions import Unauthorized
 
@@ -28,7 +29,7 @@ def token_verify(token, user, ip):
     decoded = None
 
     try:
-        decoded = jwt.decode(token, key='secret')
+        decoded = jwt.decode(token, key=app.config['JWT_SECRET'])
         if decoded["User"] != user or decoded["IP"] != ip:
             decoded = None
 

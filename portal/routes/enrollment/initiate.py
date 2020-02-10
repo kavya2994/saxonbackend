@@ -72,7 +72,7 @@ class EnrollmentInitiation(Resource):
 
         try:
             auth = args["Authorization"]
-            auth = jwt.decode(auth, key='secret')
+            auth = jwt.decode(auth, key=app.config['JWT_SECRET'])
             if auth["role"] != "employer":
                 print("role is not employer")
                 return "Unauthorized", 401

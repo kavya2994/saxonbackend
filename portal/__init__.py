@@ -3,16 +3,23 @@ from flask import Flask
 from flask_restplus import Api, Resource
 
 
-def create_app(config=None):
+def get_config_file_path():
+    env = os.getenv("FLASK_ENV", default="development")
+    base = os.path.dirname(os.path.abspath(__file__))
+    absolute_path = os.path.abspath(os.path.join(base, '..', 'config', env + '.py'))
+    return absolute_path
+
+def create_app():
     app = Flask(__name__, static_url_path='/static')
-    app.secret_key = 'random string'
     app.debug = True
 
-    if config is not None:
-        if isinstance(config, dict):
-            app.config.update(config)
-        elif config.endswith('.py'):
-            app.config.from_pyfile(config)
+    config_file_path = get_config_file_path()
+    if config_file_path is not None:
+        if isinstance(config_file_path, dict):
+            app.config.update(config_file_path)
+        elif config_file_path.endswith('.py'):
+            app.config.from_pyfile(config_file_path)
+
 
     from . import routes, models, services, helpers, api, seeds
     api.init_app(app)

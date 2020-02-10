@@ -4,7 +4,7 @@ import smtplib
 from datetime import datetime
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-from flask import Blueprint, jsonify, request, abort
+from flask import Blueprint, jsonify, request, abort, current_app as app
 from flask_cors import cross_origin
 from flask_restplus import Resource, reqparse
 from ...helpers import randomStringwithDigitsAndSymbols, token_verify
@@ -34,7 +34,7 @@ class UserNew(Resource):
         try:
             if "Authorization" in request.headers.keys() and token_verify(token=request.headers["Authorization"], ip=request.headers["Ipaddress"], user=request.headers["User"]):
                 auth = request.headers["Authorization"]
-                auth1 = jwt.decode(auth, key='secret')
+                auth1 = jwt.decode(auth, key=app.config['JWT_SECRET'])
                 if auth1["role"] == "admin" and token_verify(token=request.headers["Authorization"], ip=request.headers["Ipaddress"], user=request.headers["User"]):
                     data = json.loads(str(request.data, encoding='utf-8'))
                     username = data["Username"]

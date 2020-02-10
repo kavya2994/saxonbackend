@@ -3,16 +3,8 @@ from portal import create_app
 from gevent.pywsgi import WSGIServer
 
 
-def get_config_file_path():
-    env = os.getenv("FLASK_ENV", default="development")
-    base = os.path.dirname(os.path.abspath(__file__))
-    absolute_path = os.path.abspath(os.path.join(base, 'config', env + '.py'))
-    return absolute_path
-
-
 if __name__ == "__main__":
-    config = get_config_file_path()
-    app = create_app(config)
+    app = create_app()
 
     server_address = app.config['SERVER_ADDRESS']
     server_port = app.config['SERVER_PORT']

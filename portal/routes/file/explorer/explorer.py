@@ -6,7 +6,7 @@ import shutil
 import threading
 import zipfile
 from datetime import datetime
-from flask import Blueprint, jsonify, request, send_file
+from flask import Blueprint, jsonify, request, send_file, current_app as app
 from flask_cors import cross_origin
 from flask_restplus import Resource, reqparse
 from werkzeug.utils import secure_filename
@@ -32,7 +32,7 @@ class FileExplorer(Resource):
     @ns.expect(parser, validate=True)
     def get(self):
         auth1 = request.headers["Authorization"]
-        auth1 = jwt.decode(auth1, key='secret')
+        auth1 = jwt.decode(auth1, key=app.config['JWT_SECRET'])
         print(request+" get requesttt")
         data = json.loads(str(request.data, encoding='utf-8'))
         return send_file(os.path.join(app.config['DATA_DIR'], data["request_folder"])), 200
@@ -50,7 +50,7 @@ class FileExplorer(Resource):
             try:
                 print('post dataa')
                 auth1 = request.headers["Authorization"]
-                auth1 = jwt.decode(auth1, key='secret')
+                auth1 = jwt.decode(auth1, key=app.config['JWT_SECRET'])
                 data = json.loads(str(request.data, encoding='utf-8'))
 
                 path = os.path.join(app.config['DATA_DIR'], data["request_folder"])

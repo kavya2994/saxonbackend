@@ -6,7 +6,7 @@ import shutil
 import threading
 import zipfile
 from datetime import datetime
-from flask import Blueprint, jsonify, request, send_file
+from flask import Blueprint, jsonify, request, send_file, current_app as app
 from flask_cors import cross_origin
 from flask_restplus import Resource, reqparse
 from werkzeug.utils import secure_filename
@@ -39,7 +39,7 @@ class FileExplorerOperations(Resource):
                             user=request.headers["User"]):
                 try:
                     auth1 = request.headers["Authorization"]
-                    auth1 = jwt.decode(auth1, key='secret')
+                    auth1 = jwt.decode(auth1, key=app.config['JWT_SECRET'])
                     data = json.loads(str(request.data, encoding='utf-8'))
                     operation = data["operation"]
                     print(operation)

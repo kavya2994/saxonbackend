@@ -1,7 +1,7 @@
 import jwt
 import json
 from datetime import datetime, timedelta
-from flask import request
+from flask import request, current_app as app
 from flask_cors import cross_origin
 from flask_restplus import Resource, reqparse, fields
 from werkzeug.exceptions import NotFound, BadRequest, UnprocessableEntity, InternalServerError
@@ -63,7 +63,7 @@ class Login(Resource):
                 'IP': ip,
             }
 
-            token = jwt.encode(key='secret', algorithm='HS256', payload=payload,)
+            token = jwt.encode(key=app.config['JWT_SECRET'], algorithm='HS256', payload=payload,)
             token = token.decode('utf-8')
 
             return {

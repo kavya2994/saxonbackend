@@ -1,6 +1,6 @@
 import jwt
 import json
-from flask import request
+from flask import request, current_app as app
 from flask_restplus import Resource, reqparse
 from . import ns
 
@@ -26,7 +26,7 @@ class TokenCheck(Resource):
             token = args["Authorization"]
             print(request.get_data())
             data = json.loads(str(request.data, encoding='utf-8'))
-            decoded = jwt.decode(token, key='secret')
+            decoded = jwt.decode(token, key=app.config['JWT_SECRET'])
             print(decoded["User"])
             if decoded["User"] == args["User"] and decoded["IP"] == args["IpAddress"]:
                 result = True
