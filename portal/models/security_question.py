@@ -1,6 +1,6 @@
 from . import db
 from flask_restplus import fields
-# from ..api import api
+from sqlalchemy import Sequence
 
 
 class SecurityQuestion(db.Model):

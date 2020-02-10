@@ -1,4 +1,5 @@
 from . import db
+from sqlalchemy import Sequence
 
 
 class Terminationform(db.Model):
