@@ -22,9 +22,9 @@ class TokenCheck(Resource):
     def post(self):
         args = parser.parse_args()
 
-        token = token_verify_or_raise(token=args["Authorization"], ip=args["IpAddress"], user=args["Username"])
+        auth = token_verify_or_raise(token=args["Authorization"], ip=args["IpAddress"], user=args["Username"])
 
-        if token["Username"] != args["Username"] or token["IpAddress"] != args["IpAddress"]:
+        if auth["Username"] != args["Username"] or auth["IpAddress"] != args["IpAddress"]:
             raise Unauthorized()
 
         return { "result": True }

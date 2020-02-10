@@ -9,163 +9,128 @@ from flask import Blueprint, jsonify, request, current_app as app
 from flask_cors import cross_origin
 from flask_restplus import Resource, reqparse
 from werkzeug.utils import secure_filename
-from ...helpers import token_verify
+from werkzeug.exceptions import NotFound, BadRequest, Unauthorized, UnprocessableEntity, InternalServerError
+from ...helpers import token_verify, token_verify_or_raise
 from ...models.enrollmentform import Enrollmentform
 from ...models.token import Token
+from ...models.comments import Comments
+from ...models.roles import *
 from ...models import db
 from ...api import api
+from ...services.mail import send_email
 from . import ns
 
-initiate_parser = reqparse.RequestParser()
-initiate_parser.add_argument('Authorization', type=str, location='headers', required=True)
-initiate_parser.add_argument('Username', type=str, location='headers', required=True)
-initiate_parser.add_argument('IpAddress', type=str, location='headers', required=True)
-initiate_parser.add_argument('Password', type=str, location='json', required=True)
-initiate_parser.add_argument('IP', type=str, location='json', required=False)
-initiate_parser.add_argument('email', type=str, location='json', required=False)
-initiate_parser.add_argument('employernumber', type=str, location='json', required=False)
-initiate_parser.add_argument('memberfirstName', type=str, location='json', required=False)
-initiate_parser.add_argument('comments', type=str, location='json', required=False)
-initiate_parser.add_argument('formCreatedDate', type=str, location='json', required=False)
-initiate_parser.add_argument('EmployerName', type=str, location='json', required=False)
-initiate_parser.add_argument('EmployerID', type=str, location='json', required=False)
-initiate_parser.add_argument('InitiatedDate', type=str, location='json', required=False)
-initiate_parser.add_argument('AlreadyEnrolled', type=str, location='json', required=False)
-initiate_parser.add_argument('Status', type=str, location='json', required=False)
-initiate_parser.add_argument('FirstName', type=str, location='json', required=False)
-initiate_parser.add_argument('MiddleName', type=str, location='json', required=False)
-initiate_parser.add_argument('LastName', type=str, location='json', required=False)
-initiate_parser.add_argument('DOB', type=str, location='json', required=False)
-initiate_parser.add_argument('Title', type=str, location='json', required=False)
-initiate_parser.add_argument('MaritalStatus', type=str, location='json', required=False)
-initiate_parser.add_argument('MailingAddress', type=str, location='json', required=False)
-initiate_parser.add_argument('AddressLine2', type=str, location='json', required=False)
-initiate_parser.add_argument('District', type=str, location='json', required=False)
-initiate_parser.add_argument('PostalCode', type=str, location='json', required=False)
-initiate_parser.add_argument('Country', type=str, location='json', required=False)
-initiate_parser.add_argument('EmailAddress', type=str, location='json', required=False)
-initiate_parser.add_argument('Telephone', type=str, location='json', required=False)
-initiate_parser.add_argument('StartDateofContribution', type=str, location='json', required=False)
-initiate_parser.add_argument('StartDateofEmployment', type=str, location='json', required=False)
-initiate_parser.add_argument('ConfirmationStatus', type=str, location='json', required=False)
-initiate_parser.add_argument('SignersName', type=str, location='json', required=False)
-initiate_parser.add_argument('Signature', type=str, location='json', required=False)
-initiate_parser.add_argument('Estimatedannualincomerange', type=str, location='json', required=False)
-initiate_parser.add_argument('ImmigrationStatus', type=str, location='json', required=False)
-initiate_parser.add_argument('PendingFrom', type=str, location='json', required=False)
-initiate_parser.add_argument('SpouseName', type=str, location='json', required=False)
-initiate_parser.add_argument('SpouseDOB', type=str, location='json', required=False)
+
+parser = reqparse.RequestParser()
+parser.add_argument('Authorization', type=str, location='headers', required=True)
+parser.add_argument('Username', type=str, location='headers', required=True)
+parser.add_argument('IpAddress', type=str, location='headers', required=True)
+
+parser.add_argument('MemberEmail', type=str, location='json', required=True)
+parser.add_argument('MemberFirstName', type=str, location='json', required=True)
+parser.add_argument('Comment', type=str, location='json', required=False)
 
 @ns.route("/initiate")
 class EnrollmentInitiation(Resource):
-    @ns.doc(parser=initiate_parser,
+    @ns.doc(parser=parser,
         description='Enrollment Initiation',
         responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 500: 'Internal Server Error'})
 
-    @ns.expect(initiate_parser, validate=True)
+    @ns.expect(parser, validate=True)
     def post(self):
-        args = initiate_parser.parse_args()
-        print(request.headers)
-        if not token_verify(token=args["Authorization"], ip=args["IpAddress"], user=args["User"]):
-            print("role is not employer")
-            return "Unauthorized", 401
+        args = parser.parse_args()
+        auth = token_verify_or_raise(token=args["Authorization"], ip=args["IpAddress"], user=args["Username"])
+
+        if auth["Role"] != ROLES_EMPLOYER:
+            raise Unauthorized()
 
         try:
-            auth = args["Authorization"]
-            auth = jwt.decode(auth, key=app.config['JWT_SECRET'])
-            if auth["role"] != "employer":
-                print("role is not employer")
-                return "Unauthorized", 401
+            employer_username = auth['Username']
+            initiation_date = datetime.utcnow()
 
-            member_email = args["email"]
-            employer_id = args["employernumber"]
-            member_name = args["memberfirstName"]
-            employer_comments = args["comments"]
-            print(data)
+            # if str(employer_id)[-2:].__contains__("HR"):
+            #     employer_username = str(employer_username)[:-2]
 
-            smtpObj = smtplib.SMTP_SSL('smtp.gmail.com', port=465)
-            msg = MIMEMultipart()
-            msg['subject'] = "Your Silver Thatch Pensions Enrollment Form needs to be completed"
-            msg['from'] = "venkatesh"
-            msg['to'] = member_name
-            employernumber = employer_id
+            new_enrollment = Enrollmentform(
+                EmployerName=args["MemberFirstName"],
+            #     EmployerID=args["EmployerID"],
+                InitiatedDate=initiation_date,
+            #     AlreadyEnrolled=args["AlreadyEnrolled"],
+            #     Status=args["Status"],
+                FirstName=args["MemberFirstName"],
+            #     MiddleName=args["MiddleName"],
+            #     LastName=args["LastName"],
+            #     DOB=args["DOB"],
+            #     Title=args["Title"],
+            #     MaritalStatus=args["MaritalStatus"],
+            #     MailingAddress=args["MailingAddress"],
+            #     AddressLine2=args["AddressLine2"],
+            #     District=args["District"],
+            #     PostalCode=args["PostalCode"],
+            #     Country=args["Country"],
+                EmailAddress=args["MemberEmail"],
+            #     Telephone=args["Telephone"],
+            #     StartDateofContribution=args["StartDateofContribution"],
+            #     StartDateofEmployment=args["StartDateofEmployment"],
+            #     ConfirmationStatus=args["ConfirmationStatus"],
+            #     SignersName=args["SignersName"],
+            #     Signature=args["Signature"],
+            #     Estimatedannualincomerange=args["Estimatedannualincomerange"],
+            #     ImmigrationStatus=args["ImmigrationStatus"],
+            #     pendingFrom=args["PendingFrom"],
+            #     SpouseName=args["SpouseName"],
+            #     SpouseDOB=args["SpouseDOB"],
+            )
 
-            try:
-                args["formCreatedDate"] = datetime.utcnow()
-                if str(employer_id)[-2:].__contains__("HR"):
-                    employernumber = str(employer_id)[:-2]
-                print(employernumber)
+            db.session.add(new_enrollment)
+            db.session.commit()
 
-                new_enrollment = Enrollmentform(
-                    EmployerName=args["EmployerName"],
-                    EmployerID=args["EmployerID"],
-                    InitiatedDate=args["InitiatedDate"],
-                    AlreadyEnrolled=args["AlreadyEnrolled"],
-                    Status=args["Status"],
-                    FirstName=args["FirstName"],
-                    MiddleName=args["MiddleName"],
-                    LastName=args["LastName"],
-                    DOB=args["DOB"],
-                    Title=args["Title"],
-                    MaritalStatus=args["MaritalStatus"],
-                    MailingAddress=args["MailingAddress"],
-                    AddressLine2=args["AddressLine2"],
-                    District=args["District"],
-                    PostalCode=args["PostalCode"],
-                    Country=args["Country"],
-                    EmailAddress=args["EmailAddress"],
-                    Telephone=args["Telephone"],
-                    StartDateofContribution=args["StartDateofContribution"],
-                    StartDateofEmployment=args["StartDateofEmployment"],
-                    ConfirmationStatus=args["ConfirmationStatus"],
-                    SignersName=args["SignersName"],
-                    Signature=args["Signature"],
-                    Estimatedannualincomerange=args["Estimatedannualincomerange"],
-                    ImmigrationStatus=args["ImmigrationStatus"],
-                    pendingFrom=args["PendingFrom"],
-                    SpouseName=args["SpouseName"],
-                    SpouseDOB=args["SpouseDOB"],
+            token_data = Token(
+                FormID = new_enrollment.FormID,
+                InitiatedBy = employer_username,
+                InitiatedDate = initiation_date,
+                FormStatus = "Pending",
+                FormType = "Enrollment",
+                PendingFrom = 'Member',
+                TokenStatus = 'Active',
+                EmployerID = '',
+            )
+
+            db.session.add(token_data)
+            db.session.commit()
+
+            if 'Comment' in args and args['Comment'] != '':
+                comment = Comments(
+                    FormID = new_enrollment.FormID,
+                    Role = auth['Role'],
+                    Comment = args['Comment'],
+                    Date = initiation_date,
                 )
-
-                db.session.add(new_enrollment)
+                db.session.add(comment)
                 db.session.commit()
 
-                token_data = Token(
-                    FormID=new_enrollment.id,
-                    FormCreatedDate=datetime.utcnow(),
-                    FormStatus="pending",
-                    FormType="Enrollment",
-                    InitiatedBy=employer_id,
-                    # InitiatedDate=
-                    PendingFrom="member",
-                    TokenStatus="active",
-                    EmployerID=employernumber,
-                    # OlderTokenID=
-                )
+            email_subject = "Your Silver Thatch Pensions Enrollment Form needs to be completed"
 
-                db.session.add(token_data)
-                db.session.commit()
+            email_body = """
+'<p>**This is an auto-generated e-mail message. Please do not reply to this message. **</p>'
+'<p>Dear %s</p>'
+'<p>Please click here. Otherwise, cut and paste the link below into a browser, fill in the '
+'required information, and when you are done hit the submit button to start your enrollment '
+'into the plan.</p><p>-----------------------------------------</p>'
+'<p>http://183.82.0.186:812/enrollment-form/%s</p>'
+'<p>To learn more about the Silver Thatch Pension Plan,'
+' click here to review our members handbook. </p>""" % (args["MemberFirstName"], token_data.TokenID)
 
-                token = token_data.TokenID
-                msgtext = MIMEText(
-                    '<p>**This is an auto-generated e-mail message. Please do not reply to this message. **</p>'
-                    '<p>Dear %s</p>'
-                    '<p>Please click here. Otherwise, cut and paste the link below into a browser, fill in the '
-                    'required information, and when you are done hit the submit button to start your enrollment '
-                    'into the plan.</p><p>-----------------------------------------</p>'
-                    '<p>http://183.82.0.186:812/enrollment-form/%s</p>'
-                    '<p>To learn more about the Silver Thatch Pension Plan,'
-                    ' click here to review our members handbook. </p>' % (member_name, token), 'html')
-                msg.attach(msgtext)
-                smtpObj.login('venkateshvyyerram@gmail.com', "mynameisvenkatesh")
-                smtpObj.sendmail("venkateshvyyerram@gmail.com", member_email, msg.as_string())
-                return {"result": "Success"}, 200
-            except Exception as e:
-                return "Something wrong happened", 500
+            send_email(to_address=args["MemberEmail"], subject=email_subject, body=email_body)
+
+            return {
+                    "result": "Success",
+                    "token": token_data.TokenID
+                }
 
         except Exception as e:
             print(str(e))
-            return "Unauthorized", 401
+            raise InternalServerError
 
 
 # @enrollment_blueprint.route("/delete_enrollment_file", methods=['POST', 'OPTIONS'])

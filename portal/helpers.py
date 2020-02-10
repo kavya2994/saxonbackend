@@ -1,6 +1,7 @@
 import os
 import jwt
 import time
+import uuid
 import random
 import string
 from flask import current_app as app
@@ -55,3 +56,7 @@ def isDev():
 
 def isProd():
     return "production" == os.getenv("FLASK_ENV", default="")
+
+
+def uuid_generator():
+    return str(uuid.uuid4())

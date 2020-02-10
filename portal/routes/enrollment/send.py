@@ -8,7 +8,7 @@ from email.mime.text import MIMEText
 from flask import Blueprint, jsonify, request, current_app as app
 from flask_cors import cross_origin
 from flask_restplus import Resource, reqparse
-from werkzeug.utils import secure_filename
+from werkzeug.exceptions import NotFound, BadRequest, UnprocessableEntity, InternalServerError
 from ...helpers import token_verify
 from ...models.enrollmentform import Enrollmentform
 from ...models.token import Token
@@ -16,22 +16,39 @@ from ...models import db
 from ...api import api
 from . import ns
 
+
 parser = reqparse.RequestParser()
 parser.add_argument('Authorization', type=str, location='headers', required=True)
 parser.add_argument('Username', type=str, location='headers', required=True)
 parser.add_argument('IpAddress', type=str, location='headers', required=True)
 
+parser.add_argument('Name', type=str, location='json', required=True)
+parser.add_argument('Email', type=str, location='json', required=True)
+parser.add_argument('RequestType', type=str, location='json', required=True)
+parser.add_argument('Notify', type=bool, location='json', required=False)
 
-# @enrollment_blueprint.route("/enrollment", methods=['GET', 'POST', 'OPTIONS'])
-# @cross_origin(origins=['*'], allow_headers=['Content-Type', 'Authorization', 'User', 'Ipaddress'])
-@ns.route("/send")
+# Remainder
+# ApprovalConfirmation
+# Rejected
+
+@ns.route('/send')
 class EnrollmentFile(Resource):
     @ns.doc(parser=parser,
-        description='Send Enrollment File',
-        responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 500: 'Internal Server Error'})
+        description='Send Enrollment Form',
+        responses={
+            200: 'OK',
+            400: 'Bad Request',
+            401: 'Unauthorized',
+            500: 'Internal Server Error'
+        })
 
     @ns.expect(parser, validate=True)
     def post(self):
+        args = parser.parse_args(strict=True)
+        # if args['RequestType'] == 'Remainder'
+
+
+    def _original(self):
         token_id = request.args["TokenID"]
         print(request.get_data())
         data = json.loads(str(request.get_data(), encoding='utf-8'))
