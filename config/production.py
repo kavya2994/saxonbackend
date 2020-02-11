@@ -16,3 +16,6 @@ CERT_FILE = "/var/www/certs/fullchain.pem"
 
 SECRET_KEY = 'f^I7q!(S(O]|"]%<+,Hz&vyQ^"exx9'
 JWT_SECRET = 'H7|=1fq[:`.;MtY02Me]w9_XPRqt^S'
+
+MAILGUN_API_KEY = "1dcbf1bdff3416543d67867101b08e49-52b6835e-5b18bf8e"
+MAILGUN_DOMAIN = "sandbox6edce741885a45088acf63216cdf5660.mailgun.org"

@@ -2,30 +2,24 @@ import smtplib
 import requests
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-
+from flask import request, current_app as app
 
 
 def send_email(to_address, subject, body):
+    return _send_mail_via_mailgun(to_address, subject, body)
+
+
+def _send_mail_via_mailgun(to_address, subject, body):
+    mailgun_domain = app.config['MAILGUN_DOMAIN']
+    mailgun_api_key = app.config['MAILGUN_API_KEY']
+
     return requests.post(
-		"https://api.mailgun.net/v3/sandbox7ecc85d60c624a9dac88f9a0b159875e.mailgun.org/messages",
-		auth=("api", "key-5146dc1e64f457fde62c94efb7a06388"),
+		f"https://api.mailgun.net/v3/{mailgun_domain}/messages",
+		auth=("api", mailgun_api_key),
 		data={
-            "from": "Test User <test@sandbox7ecc85d60c624a9dac88f9a0b159875e.mailgun.org>",
+            "from": f"Test User <test@{mailgun_domain}>",
 			"to": [to_address],
 			"subject": subject,
 			"html": body
         }
     )
-    # smtpObj = smtplib.SMTP_SSL('smtp.gmail.com', port=465)
-    # smtpObj.login('venkateshvyyerram@gmail.com', "mynameisvenkatesh")
-
-    # msg = MIMEMultipart()
-    # msg['subject'] = subject
-    # msg['from'] = "venkatesh"
-    # msg['to'] = "venkatesh"
-    # from_address = "venkateshvyyerram@gmail.com"
-
-    # msgtext = MIMEText(body, 'html')
-    # msg.attach(msgtext)
-
-    # smtpObj.sendmail(from_addr=from_address, to_addrs=to_address, msg=msg.as_string())
