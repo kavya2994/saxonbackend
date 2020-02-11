@@ -52,7 +52,7 @@ class EnrollmentInitiation(Resource):
             #     employer_username = str(employer_username)[:-2]
 
             new_enrollment = Enrollmentform(
-                EmployerName=employer_username,
+                EmployerID=employer_username,
                 InitiatedDate=initiation_date,
                 FirstName=args["MemberFirstName"],
                 EmailAddress=args["MemberEmail"],
