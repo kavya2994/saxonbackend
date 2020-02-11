@@ -44,7 +44,7 @@ class SecurityQuestion(Resource):
     def get(self):
         args = getParser.parse_args(strict=True)
 
-        user = Users.query.get(args['Username'])
+        user = Users.query.filter_by(Username=args['Username']).first()
         if user is None:
             raise NotFound('User not found')
 
@@ -67,7 +67,7 @@ class SecurityQuestion(Resource):
         if not token_verify(token=token, ip=args["IpAddress"], user=args["Username"]):
             raise Unauthorized()
 
-        user = Users.query.get(args["Username"])
+        user = Users.query.filter_by(Username=args["Username"]).first()
         if not user:
             raise NotFound()
 

@@ -1,11 +1,13 @@
 from . import db
+from sqlalchemy import Sequence
 
 
 class Users(db.Model):
     __bind_key__ = 'writeonly'
 
-    Username = db.Column(db.String(255), primary_key=True, nullable=False)
-    MemberID = db.Column(db.Integer)
+    UserID = db.Column(db.Integer, Sequence('user_id_seq'), primary_key=True, nullable=False)
+    Username = db.Column(db.String(255), unique=True, nullable=False)
+
     SecurityQuestionID = db.Column(db.Integer, db.ForeignKey('security_question.SecurityQuestionID'))
     SecurityQuestion = db.relationship('SecurityQuestion', backref='users')
 
@@ -19,3 +21,5 @@ class Users(db.Model):
     Role = db.Column(db.String(255))
     Status = db.Column(db.String(255))
     UserCreatedTime = db.Column(db.DateTime)
+    Timezone = db.Column(db.DateTime)
+    Language = db.Column(db.DateTime)

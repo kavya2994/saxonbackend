@@ -27,6 +27,10 @@ def init_app(app):
         from .enrollmentform import Enrollmentform
         from .security_question import SecurityQuestion
         from .users import Users
+        from .subsidiaries import Subsidiaries
+        from .employer import Employer, EmpMemRel
+        from .member import Member
+        # from .employer_member_relation import Members
 
         db.create_all(bind=['writeonly'])
         db.session.commit()

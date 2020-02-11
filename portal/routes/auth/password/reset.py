@@ -64,7 +64,7 @@ class PasswordReset(Resource):
             message = f'<p>Your password has been reset. The temporary password is: {password}</p>' + \
                     '<p>Please log into your system as soon as possible to set your new password.</p>'
 
-            user = Users.query.get(username)
+            user = Users.query.filter_by(Username=username).first()
             user.Password = pass_encrypt
             user.TemporaryPassword = True
             db.session.commit()
