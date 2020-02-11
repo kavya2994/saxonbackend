@@ -65,6 +65,7 @@ class Login(Resource):
 
             token = jwt.encode(key=app.config['JWT_SECRET'], algorithm='HS256', payload=payload,)
             token = token.decode('utf-8')
+            securityQuestion = None if userinfo.SecurityQuestion is None else userinfo.SecurityQuestion.Question
 
             return {
                     "Email": userinfo.Email,
@@ -74,7 +75,7 @@ class Login(Resource):
                     "Role": role,
                     "TemporaryPassword": userinfo.TemporaryPassword,
                     'Token': str(token),
-                    "SecurityQuestion": userinfo.SecurityQuestion.Question,
+                    "SecurityQuestion": securityQuestion,
             }
 
         except json.decoder.JSONDecodeError:

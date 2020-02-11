@@ -17,14 +17,17 @@ from . import ns
 
 
 getParser = reqparse.RequestParser()
-getParser.add_argument('Username', type=str, location='json', required=True)
+getParser.add_argument('Authorization', type=str, location='headers', required=True)
+getParser.add_argument('Username', type=str, location='headers', required=True)
+getParser.add_argument('IpAddress', type=str, location='headers', required=True)
 
 postParser = reqparse.RequestParser()
-postParser.add_argument('SecurityQuestionID', type=int, location='json', required=True)
-postParser.add_argument('SecurityAnswer', type=str, location='json', required=True)
 postParser.add_argument('Authorization', type=str, location='headers', required=True)
 postParser.add_argument('IpAddress', type=str, location='headers', required=True)
 postParser.add_argument('Username', type=str, location='headers', required=True)
+
+postParser.add_argument('SecurityQuestionID', type=int, location='json', required=True)
+postParser.add_argument('SecurityAnswer', type=str, location='json', required=True)
 
 @ns.route("/security-question")
 class SecurityQuestion(Resource):
