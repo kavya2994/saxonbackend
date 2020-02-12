@@ -12,10 +12,21 @@ from werkzeug.exceptions import NotFound, BadRequest, Unauthorized, Unprocessabl
 from ...helpers import token_verify, token_verify_or_raise
 from ...models.enrollmentform import Enrollmentform, EnrollmentformResponseModel
 from ...models.token import Token
+from ...models.comments import Comments
+from ...models.roles import *
 from ...models import db
 from ...api import api
 from ...services.mail import send_email
 from . import ns
+
+RequestType_MemberSubmission = 'MemberSubmission'
+RequestType_SaveFormData = 'SaveFormData'
+RequestType_EmployerSubmission = 'EmployerSubmission'
+RequestType_ApprovalConfirmation = 'ApprovalConfirmation'
+RequestType_Reject = 'Rejected'
+
+
+
 
 getParser = reqparse.RequestParser()
 parser = reqparse.RequestParser()
@@ -24,7 +35,8 @@ parser.add_argument('Authorization', type=str, location='headers', required=Fals
 parser.add_argument('Username', type=str, location='headers', required=False)
 parser.add_argument('IpAddress', type=str, location='headers', required=False)
 
-parser.add_argument('RequestType', type=str, location='json', required=True, help='Valid Values: [MemberSubmission, SaveFormData, EmployerSubmission, ApprovalConfirmation]')
+parser.add_argument('RequestType', type=str, location='json', required=True,
+    help=f"Valid Values: [{RequestType_MemberSubmission}, {RequestType_SaveFormData}, {RequestType_EmployerSubmission}, {RequestType_ApprovalConfirmation}, {RequestType_Reject}]")
 parser.add_argument('FirstName', type=str, location='json', required=True)
 parser.add_argument('MiddleName', type=str, location='json', required=True)
 parser.add_argument('LastName', type=str, location='json', required=True)
@@ -43,13 +55,13 @@ parser.add_argument('StartDateofEmployment', type=inputs.date_from_iso8601, loca
 parser.add_argument('ConfirmationStatus', type=str, location='json', required=True)
 parser.add_argument('Estimatedannualincomerange', type=str, location='json', required=True)
 parser.add_argument('ImmigrationStatus', type=str, location='json', required=True)
-parser.add_argument('PendingFrom', type=str, location='json', required=True)
 parser.add_argument('SpouseName', type=str, location='json', required=True)
 parser.add_argument('SpouseDOB', type=inputs.date_from_iso8601, location='json', required=True)
 parser.add_argument('EmployerName', type=str, location='json', required=False)
 parser.add_argument('EmployerID', type=str, location='json', required=False)
 parser.add_argument('SignersName', type=str, location='json', required=False)
 parser.add_argument('Signature', type=str, location='json', required=False)
+parser.add_argument('RejectionReason', type=str, location='json', required=False)
 
 
 @ns.route("/token/<TokenID>")
@@ -100,14 +112,16 @@ class EnrollmentFormData(Resource):
         if form is None:
             raise NotFound('Form Not Found')
 
-        if args['RequestType'] == 'MemberSubmission':
+        if args['RequestType'] == RequestType_MemberSubmission:
             self._memberSubmission_pre_update(token, form, args)
-        elif args['RequestType'] == 'SaveFormData':
+        elif args['RequestType'] == RequestType_SaveFormData:
             self._saveFormData_pre_update(token, form, args)
-        elif args['RequestType'] == 'EmployerSubmission':
+        elif args['RequestType'] == RequestType_EmployerSubmission:
             self._employerSubmission_pre_update(token, form, args)
-        elif args['RequestType'] == 'ApprovalConfirmation':
+        elif args['RequestType'] == RequestType_ApprovalConfirmation:
             self._approvalConfirmation_pre_update(token, form, args)
+        elif args['RequestType'] == RequestType_Reject:
+            self._reject_pre_update(token, form, args)
         else:
             raise BadRequest('Unkown RequestType')
 
@@ -130,7 +144,6 @@ class EnrollmentFormData(Resource):
             form.ConfirmationStatus = args['ConfirmationStatus']
             form.Estimatedannualincomerange = args['Estimatedannualincomerange']
             form.ImmigrationStatus = args['ImmigrationStatus']
-            form.PendingFrom = args['PendingFrom']
             form.SpouseName = args['SpouseName']
             form.SpouseDOB = args['SpouseDOB']
 
@@ -152,14 +165,16 @@ class EnrollmentFormData(Resource):
             print(e)
             raise InternalServerError()
 
-        if args['RequestType'] == 'MemberSubmission':
+        if  args['RequestType'] == RequestType_MemberSubmission:
             self._memberSubmission_post_update(token, form, args)
-        elif args['RequestType'] == 'SaveFormData':
+        elif  args['RequestType'] == RequestType_SaveFormData:
             self._saveFormData_post_update(token, form, args)
-        elif args['RequestType'] == 'EmployerSubmission':
+        elif  args['RequestType'] == RequestType_EmployerSubmission:
             self._employerSubmission_post_update(token, form, args)
-        elif args['RequestType'] == 'ApprovalConfirmation':
+        elif  args['RequestType'] == RequestType_ApprovalConfirmation:
             self._approvalConfirmation_post_update(token, form, args)
+        elif args['RequestType'] == RequestType_Reject:
+            self._reject_post_update(token, form, args)
         else:
             raise BadRequest('Unkown RequestType')
 
@@ -213,7 +228,10 @@ class EnrollmentFormData(Resource):
         if 'Authorization' not in args or 'IpAddress' not in args or 'Username' not in args:
             raise Unauthorized()
 
-        token_verify_or_raise(token=args["Authorization"], ip=args["IpAddress"], user=args["Username"])
+        auth = token_verify_or_raise(token=args["Authorization"], ip=args["IpAddress"], user=args["Username"])
+
+        if auth['Role'] != ROLES_EMPLOYER:
+            raise Unauthorized()
 
         if token is None or form is None:
             raise NotFound()
@@ -232,7 +250,10 @@ class EnrollmentFormData(Resource):
         if 'Authorization' not in args or 'IpAddress' not in args or 'Username' not in args:
             raise Unauthorized()
 
-        token_verify_or_raise(token=args["Authorization"], ip=args["IpAddress"], user=args["Username"])
+        auth = token_verify_or_raise(token=args["Authorization"], ip=args["IpAddress"], user=args["Username"])
+
+        if auth['Role'] != ROLES_REVIEW_MANAGER:
+            raise Unauthorized()
 
         if token is None or form is None:
             raise NotFound()
@@ -248,3 +269,38 @@ class EnrollmentFormData(Resource):
         subject = 'Your Enrollment has been approved'
         send_email(to_address=form.EmailAddress, subject=subject, template='enrollment_approval_confirmation_to_member.html')
 
+
+    def _reject_pre_update(self, token, form, args):
+        if 'Authorization' not in args or 'IpAddress' not in args or 'Username' not in args:
+            raise Unauthorized()
+
+        auth = token_verify_or_raise(token=args["Authorization"], ip=args["IpAddress"], user=args["Username"])
+
+        if auth['Role'] != ROLES_REVIEW_MANAGER:
+            raise Unauthorized()
+
+        if token is None or form is None:
+            raise NotFound()
+
+        if token.PendingFrom != 'ReviewerManager' or token.TokenStatus != 'Active' or token.FormStatus != 'Pending':
+            raise NotFound('Token was not Found or is not Active')
+
+
+    def _reject_post_update(self, token, form, args):
+        token.FormStatus = 'Rejected'
+        db.session.commit()
+
+        auth = token_verify_or_raise(token=args["Authorization"], ip=args["IpAddress"], user=args["Username"])
+        if 'RejectionReason' in args and args['RejectionReason'] != '':
+            comment = Comments(
+                FormID = form.FormID,
+                Role = auth['Role'],
+                Comment = args['RejectionReason'],
+                Date = datetime.utcnow(),
+            )
+
+            db.session.add(comment)
+            db.session.commit()
+
+        subject = 'Your Enrollment has been rejected'
+        send_email(to_address=form.EmailAddress, subject=subject, template='enrollment_rejected_to_member.html')

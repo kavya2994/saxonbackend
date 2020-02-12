@@ -28,9 +28,9 @@ def init_app(app):
         from .security_question import SecurityQuestion
         from .users import Users
         from .subsidiaries import Subsidiaries
-        from .employer import Employer, EmpMemRel
+        from .employer import Employer
         from .member import Member
-        # from .employer_member_relation import Members
+        from .employer_member_relation import EmpMemRel
 
         db.create_all(bind=['writeonly'])
         db.session.commit()
