@@ -1,5 +1,6 @@
 from . import db
 from sqlalchemy import Sequence
+from flask_restplus import fields
 
 
 class Enrollmentform(db.Model):
@@ -35,3 +36,36 @@ class Enrollmentform(db.Model):
     SpouseName = db.Column(db.String(255), nullable=True)
     SpouseDOB = db.Column(db.Date, nullable=True)
     FilePath = db.Column(db.String(255), nullable=True)
+
+
+EnrollmentformResponseModel = {
+    'EmployerName': fields.String,
+    'EmployerID': fields.String,
+    'InitiatedDate': fields.DateTime,
+    'AlreadyEnrolled': fields.String,
+    'Status': fields.String,
+    'FirstName': fields.String,
+    'MiddleName': fields.String,
+    'LastName': fields.String,
+    'DOB': fields.String,
+    'Title': fields.String,
+    'MaritalStatus': fields.String,
+    'MailingAddress': fields.String,
+    'AddressLine2': fields.String,
+    'District': fields.String,
+    'PostalCode': fields.String,
+    'Country': fields.String,
+    'EmailAddress': fields.String,
+    'Telephone': fields.String,
+    'StartDateofContribution': fields.DateTime,
+    'StartDateofEmployment': fields.DateTime,
+    'ConfirmationStatus': fields.String,
+    'SignersName': fields.String,
+    'Signature': fields.String,
+    'Estimatedannualincomerange': fields.String,
+    'ImmigrationStatus': fields.String,
+    'PendingFrom': fields.String,
+    'SpouseName': fields.String,
+    'SpouseDOB': fields.String,
+    'FilePath': fields.String,
+}

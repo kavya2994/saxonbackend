@@ -1,4 +1,3 @@
-
 import os
 import jwt
 import json
@@ -18,19 +17,9 @@ from ...api import api
 from . import ns
 
 getParser = reqparse.RequestParser()
-getParser.add_argument('Authorization', type=str, location='headers', required=True)
-getParser.add_argument('Username', type=str, location='headers', required=True)
-getParser.add_argument('IpAddress', type=str, location='headers', required=True)
-
-
 parser = reqparse.RequestParser()
-parser.add_argument('Authorization', type=str, location='headers', required=True)
-parser.add_argument('Username', type=str, location='headers', required=True)
-parser.add_argument('IpAddress', type=str, location='headers', required=True)
 
-parser.add_argument('RequestType', type=str, location='json', required=True, help='Valid Values: [SaveFormData]')
-parser.add_argument('EmployerName', type=str, location='json', required=True)
-parser.add_argument('EmployerID', type=str, location='json', required=True)
+parser.add_argument('RequestType', type=str, location='json', required=True, help='Valid Values: [MemberSubmission]')
 parser.add_argument('FirstName', type=str, location='json', required=True)
 parser.add_argument('MiddleName', type=str, location='json', required=True)
 parser.add_argument('LastName', type=str, location='json', required=True)
@@ -47,8 +36,6 @@ parser.add_argument('Telephone', type=str, location='json', required=True)
 parser.add_argument('StartDateofContribution', type=inputs.date_from_iso8601, location='json', required=True, help='iso8601 format. eg: 2012-11-25')
 parser.add_argument('StartDateofEmployment', type=inputs.date_from_iso8601, location='json', required=True, help='iso8601 format. eg: 2012-11-25')
 parser.add_argument('ConfirmationStatus', type=str, location='json', required=True)
-parser.add_argument('SignersName', type=str, location='json', required=True)
-parser.add_argument('Signature', type=str, location='json', required=True)
 parser.add_argument('Estimatedannualincomerange', type=str, location='json', required=True)
 parser.add_argument('ImmigrationStatus', type=str, location='json', required=True)
 parser.add_argument('PendingFrom', type=str, location='json', required=True)
@@ -56,52 +43,54 @@ parser.add_argument('SpouseName', type=str, location='json', required=True)
 parser.add_argument('SpouseDOB', type=inputs.date_from_iso8601, location='json', required=True)
 
 
-@ns.route("/<FormID>")
-class Token(Resource):
+@ns.route("/token/<TokenID>")
+class EnrollmentFormData(Resource):
     @ns.doc(parser=getParser,
-        description='Get Enrollment Data by FormID',
-        responses={
-            200: 'OK',
-            401: 'Unauthorized',
-            404: 'NotFound',
-            500: 'Internal Server Error'
-        })
-
-    @ns.expect(getParser, validate=True)
-    @ns.marshal_with(EnrollmentformResponseModel)
-    def get(self, FormID):
-        args = getParser.parse_args()
-        auth = token_verify_or_raise(token=args["Authorization"], ip=args["IpAddress"], user=args["Username"])
-
-        enrollmentform = Enrollmentform.query.get(FormID)
-
-        if enrollmentform is None:
-            raise NotFound
-
-        return enrollmentform
-
-
-    @ns.doc(parser=parser,
-        description='Update Enrollment Data by FormID',
+        description='Get Enrollment Data by TokenID',
         responses={
             200: 'OK',
             400: 'BadRequest',
             500: 'Internal Server Error'
         })
-    @ns.expect(parser, validate=True)
+
+    @ns.expect(getParser, validate=True)
     @ns.marshal_with(EnrollmentformResponseModel)
-    def post(self, FormID):
-        args = parser.parse_args(strict=True)
-        if args['RequestType'] != 'SaveFormData':
+    def get(self, TokenID):
+        args = getParser.parse_args()
+        token = Token.query.get(TokenID)
+
+        if token is None:
             raise BadRequest()
 
-        form = Enrollmentform.query.get(FormID)
-        if form is None:
+        try:
+            enrollmentform = Enrollmentform.query.get(token.FormID)
+            return enrollmentform
+        except Exception as e:
+            print(e)
+            raise InternalServerError()
+
+
+    @ns.doc(parser=parser,
+        description='Update Enrollment Data by TokenID',
+        responses={
+            200: 'OK',
+            400: 'BadRequest',
+            404: 'NotFound',
+            500: 'Internal Server Error'
+        })
+    @ns.expect(parser, validate=True)
+    @ns.marshal_with(EnrollmentformResponseModel)
+    def post(self, TokenID):
+        args = parser.parse_args(strict=True)
+        if args['RequestType'] != 'MemberSubmission':
+            raise BadRequest()
+
+        token = Token.query.get(TokenID)
+        if token is None:
             raise NotFound()
 
         try:
-            form.EmployerName = args['EmployerName']
-            form.EmployerID = args['EmployerID']
+            form = Enrollmentform.query.get(token.FormID)
             form.FirstName = args['FirstName']
             form.MiddleName = args['MiddleName']
             form.LastName = args['LastName']
@@ -118,8 +107,6 @@ class Token(Resource):
             form.StartDateofContribution = args['StartDateofContribution']
             form.StartDateofEmployment = args['StartDateofEmployment']
             form.ConfirmationStatus = args['ConfirmationStatus']
-            form.SignersName = args['SignersName']
-            form.Signature = args['Signature']
             form.Estimatedannualincomerange = args['Estimatedannualincomerange']
             form.ImmigrationStatus = args['ImmigrationStatus']
             form.PendingFrom = args['PendingFrom']

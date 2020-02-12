@@ -8,5 +8,5 @@ def init_app(app):
     from .file import download, explorer
     from .file.explorer import open, explorer, operation, operations
     from .user import new, user, security_question
-    from .enrollment import get, initiate, file, send
+    from .enrollment import token, enrollment, initiate, file, send
     from .termination import initiate, send
