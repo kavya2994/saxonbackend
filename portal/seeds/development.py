@@ -30,8 +30,17 @@ class DevelopmentSeeder(object):
             Role=ROLES_EMPLOYER,
             SecurityQuestionID=1)
 
+        reviewmanager_user = Users(UserID=3,
+            Username="saxonreviewmanager",
+            Password="6Q9usKHCRmlaNgufji0mJg==",
+            Status="Active",
+            TemporaryPassword=True,
+            Role=ROLES_REVIEW_MANAGER,
+            SecurityQuestionID=1)
+
         self.db.session.merge(admin_user)
         self.db.session.merge(employer_user)
+        self.db.session.merge(reviewmanager_user)
 
     def _add_employers(self):
         employer1 = Employer(

@@ -31,7 +31,7 @@ def token_verify(token, user, ip):
 
     try:
         decoded = jwt.decode(token, key=app.config['JWT_SECRET'])
-        if decoded["User"] != user or decoded["IP"] != ip:
+        if decoded["Username"] != user or decoded["IpAddress"] != ip:
             decoded = None
 
     except jwt.DecodeError:

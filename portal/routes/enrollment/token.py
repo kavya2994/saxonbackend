@@ -14,12 +14,17 @@ from ...models.enrollmentform import Enrollmentform, EnrollmentformResponseModel
 from ...models.token import Token
 from ...models import db
 from ...api import api
+from ...services.mail import send_email
 from . import ns
 
 getParser = reqparse.RequestParser()
 parser = reqparse.RequestParser()
 
-parser.add_argument('RequestType', type=str, location='json', required=True, help='Valid Values: [MemberSubmission, SaveFormData]')
+parser.add_argument('Authorization', type=str, location='headers', required=False)
+parser.add_argument('Username', type=str, location='headers', required=False)
+parser.add_argument('IpAddress', type=str, location='headers', required=False)
+
+parser.add_argument('RequestType', type=str, location='json', required=True, help='Valid Values: [MemberSubmission, SaveFormData, EmployerSubmission, ApprovalConfirmation]')
 parser.add_argument('FirstName', type=str, location='json', required=True)
 parser.add_argument('MiddleName', type=str, location='json', required=True)
 parser.add_argument('LastName', type=str, location='json', required=True)
@@ -87,23 +92,95 @@ class EnrollmentFormData(Resource):
     def post(self, TokenID):
         args = parser.parse_args(strict=True)
 
-        if args['RequestType'] == 'MemberSubmission':
-            return self._memberSubmission_update(TokenID, args)
-        elif args['RequestType'] == 'SaveFormData':
-            return self._saveFormData_update(TokenID, args)
-
-
-    def _memberSubmission_update(self, TokenID, args):
         token = Token.query.get(TokenID)
         if token is None:
-            raise NotFound()
+            raise NotFound('Token Not Found')
 
+        form = Enrollmentform.query.get(token.FormID)
+        if form is None:
+            raise NotFound('Form Not Found')
+
+        if args['RequestType'] == 'MemberSubmission':
+            self._memberSubmission_pre_update(token, form, args)
+        elif args['RequestType'] == 'SaveFormData':
+            self._saveFormData_pre_update(token, form, args)
+        elif args['RequestType'] == 'EmployerSubmission':
+            self._employerSubmission_pre_update(token, form, args)
+        elif args['RequestType'] == 'ApprovalConfirmation':
+            self._approvalConfirmation_pre_update(token, form, args)
+        else:
+            raise BadRequest('Unkown RequestType')
+
+        try:
+            form.FirstName = args['FirstName']
+            form.MiddleName = args['MiddleName']
+            form.LastName = args['LastName']
+            form.DOB = args['DOB']
+            form.Title = args['Title']
+            form.MaritalStatus = args['MaritalStatus']
+            form.MailingAddress = args['MailingAddress']
+            form.AddressLine2 = args['AddressLine2']
+            form.District = args['District']
+            form.PostalCode = args['PostalCode']
+            form.Country = args['Country']
+            form.EmailAddress = args['EmailAddress']
+            form.Telephone = args['Telephone']
+            form.StartDateofContribution = args['StartDateofContribution']
+            form.StartDateofEmployment = args['StartDateofEmployment']
+            form.ConfirmationStatus = args['ConfirmationStatus']
+            form.Estimatedannualincomerange = args['Estimatedannualincomerange']
+            form.ImmigrationStatus = args['ImmigrationStatus']
+            form.PendingFrom = args['PendingFrom']
+            form.SpouseName = args['SpouseName']
+            form.SpouseDOB = args['SpouseDOB']
+
+            if args['RequestType'] != 'MemberSubmission':
+                if 'EmployerName' in args:
+                    form.EmployerName = args['EmployerName']
+
+                if 'EmployerID' in args:
+                    form.EmployerID = args['EmployerID']
+
+                if 'SignersName' in args:
+                    form.SignersName = args['SignersName']
+
+                if 'Signature' in args:
+                    form.Signature = args['Signature']
+
+            db.session.commit()
+        except Exception as e:
+            print(e)
+            raise InternalServerError()
+
+        if args['RequestType'] == 'MemberSubmission':
+            self._memberSubmission_post_update(token, form, args)
+        elif args['RequestType'] == 'SaveFormData':
+            self._saveFormData_post_update(token, form, args)
+        elif args['RequestType'] == 'EmployerSubmission':
+            self._employerSubmission_post_update(token, form, args)
+        elif args['RequestType'] == 'ApprovalConfirmation':
+            self._approvalConfirmation_post_update(token, form, args)
+        else:
+            raise BadRequest('Unkown RequestType')
+
+        return form
+
+
+    def _memberSubmission_pre_update(self, token, form, args):
+        if token is None:
+            raise NotFound('Token was not found')
+
+        if token.PendingFrom != 'Member' or token.TokenStatus != 'Active' or token.FormStatus != 'Pending':
+            raise NotFound('Token was not Found or is not Active')
+
+
+    def _memberSubmission_post_update(self, token, form, args):
         newToken = Token(
             FormID=token.FormID,
-            FormStatus='Pending',
             FormType=token.FormType,
             InitiatedBy=token.InitiatedBy,
             InitiatedDate=datetime.utcnow(),
+            FormStatus='Pending',
             PendingFrom='Employer',
             TokenStatus='Active',
             EmployerID=token.EmployerID,
@@ -114,80 +191,60 @@ class EnrollmentFormData(Resource):
         token.FormStatus = 'Submitted'
         token.TokenStatus = 'Inactive'
 
-        try:
-            form = Enrollmentform.query.get(token.FormID)
-            form.FirstName = args['FirstName']
-            form.MiddleName = args['MiddleName']
-            form.LastName = args['LastName']
-            form.DOB = args['DOB']
-            form.Title = args['Title']
-            form.MaritalStatus = args['MaritalStatus']
-            form.MailingAddress = args['MailingAddress']
-            form.AddressLine2 = args['AddressLine2']
-            form.District = args['District']
-            form.PostalCode = args['PostalCode']
-            form.Country = args['Country']
-            form.EmailAddress = args['EmailAddress']
-            form.Telephone = args['Telephone']
-            form.StartDateofContribution = args['StartDateofContribution']
-            form.StartDateofEmployment = args['StartDateofEmployment']
-            form.ConfirmationStatus = args['ConfirmationStatus']
-            form.Estimatedannualincomerange = args['Estimatedannualincomerange']
-            form.ImmigrationStatus = args['ImmigrationStatus']
-            form.PendingFrom = args['PendingFrom']
-            form.SpouseName = args['SpouseName']
-            form.SpouseDOB = args['SpouseDOB']
-            db.session.commit()
 
-            return form
-        except Exception as e:
-            print(e)
-            raise InternalServerError()
-
-
-    def _saveFormData_update(self, TokenID, args):
+    def _saveFormData_pre_update(self, token, form, args):
         if 'Authorization' not in args or 'IpAddress' not in args or 'Username' not in args:
             raise Unauthorized()
 
-        auth = token_verify_or_raise(token=args["Authorization"], ip=args["IpAddress"], user=args["Username"])
+        token_verify_or_raise(token=args["Authorization"], ip=args["IpAddress"], user=args["Username"])
 
-        token = Token.query.get(TokenID)
         if token is None:
             raise NotFound()
 
-        form = Enrollmentform.query.get(token.FormID)
-        if form is None:
+        if token.PendingFrom != 'Employer' or token.TokenStatus != 'Active' or token.FormStatus != 'Pending':
+            raise NotFound('Token was not Found or is not Active')
+
+
+    def _saveFormData_post_update(self, token, form, args):
+        pass
+
+
+    def _employerSubmission_pre_update(self, token, form, args):
+        if 'Authorization' not in args or 'IpAddress' not in args or 'Username' not in args:
+            raise Unauthorized()
+
+        token_verify_or_raise(token=args["Authorization"], ip=args["IpAddress"], user=args["Username"])
+
+        if token is None or form is None:
             raise NotFound()
 
-        try:
-            form.EmployerName = args['EmployerName']
-            form.EmployerID = args['EmployerID']
-            form.FirstName = args['FirstName']
-            form.MiddleName = args['MiddleName']
-            form.LastName = args['LastName']
-            form.DOB = args['DOB']
-            form.Title = args['Title']
-            form.MaritalStatus = args['MaritalStatus']
-            form.MailingAddress = args['MailingAddress']
-            form.AddressLine2 = args['AddressLine2']
-            form.District = args['District']
-            form.PostalCode = args['PostalCode']
-            form.Country = args['Country']
-            form.EmailAddress = args['EmailAddress']
-            form.Telephone = args['Telephone']
-            form.StartDateofContribution = args['StartDateofContribution']
-            form.StartDateofEmployment = args['StartDateofEmployment']
-            form.ConfirmationStatus = args['ConfirmationStatus']
-            form.SignersName = args['SignersName']
-            form.Signature = args['Signature']
-            form.Estimatedannualincomerange = args['Estimatedannualincomerange']
-            form.ImmigrationStatus = args['ImmigrationStatus']
-            form.PendingFrom = args['PendingFrom']
-            form.SpouseName = args['SpouseName']
-            form.SpouseDOB = args['SpouseDOB']
-            db.session.commit()
+        if token.PendingFrom != 'Employer' or token.TokenStatus != 'Active' or token.FormStatus != 'Pending':
+            raise NotFound('Token was not Found or is not Active')
 
-            return form
-        except Exception as e:
-            print(e)
-            raise InternalServerError()
+
+    def _employerSubmission_post_update(self, token, form, args):
+        form.PendingFrom = 'ReviewerManager'
+        token.PendingFrom = 'ReviewerManager'
+        db.session.commit()
+
+
+    def _approvalConfirmation_pre_update(self, token, form, args):
+        if 'Authorization' not in args or 'IpAddress' not in args or 'Username' not in args:
+            raise Unauthorized()
+
+        token_verify_or_raise(token=args["Authorization"], ip=args["IpAddress"], user=args["Username"])
+
+        if token is None or form is None:
+            raise NotFound()
+
+        if token.PendingFrom != 'ReviewerManager' or token.TokenStatus != 'Active' or token.FormStatus != 'Pending':
+            raise NotFound('Token was not Found or is not Active')
+
+
+    def _approvalConfirmation_post_update(self, token, form, args):
+        token.FormStatus = 'Approved'
+        db.session.commit()
+
+        subject = 'Your Enrollment has been approved'
+        send_email(to_address=form.EmailAddress, subject=subject, template='enrollment_approval_confirmation_to_member.html')
+

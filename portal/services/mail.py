@@ -1,11 +1,19 @@
+import os
 import smtplib
 import requests
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-from flask import request, current_app as app
+from flask import request, render_template, current_app as app
 
 
-def send_email(to_address, subject, body):
+def send_email(to_address, subject, body=None, template=None):
+
+    if template is None and body is None:
+        raise Exception('One of body/template is required')
+
+    if template:
+        body = render_template(os.path.join('emails', template))
+
     return _send_mail_via_mailgun(to_address, subject, body)
 
 
