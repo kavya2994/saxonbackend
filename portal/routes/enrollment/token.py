@@ -89,6 +89,22 @@ class EnrollmentFormData(Resource):
         if token is None:
             raise NotFound()
 
+        newToken = Token(
+            FormID=token.FormID,
+            FormStatus='Pending',
+            FormType=token.FormType,
+            InitiatedBy=token.InitiatedBy,
+            InitiatedDate=datetime.utcnow(),
+            PendingFrom='Employer',
+            TokenStatus='Active',
+            EmployerID=token.EmployerID,
+            OlderTokenID=token.TokenID,
+        )
+
+        db.session.add(newToken)
+        token.FormStatus = 'Submitted'
+        token.TokenStatus = 'Inactive'
+
         try:
             form = Enrollmentform.query.get(token.FormID)
             form.FirstName = args['FirstName']
