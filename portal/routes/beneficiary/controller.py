@@ -7,8 +7,7 @@ from datetime import datetime
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from flask import Blueprint, jsonify, request, current_app as app
-from flask_cors import cross_origin
-from flask_restplus import Resource, reqparse, fields, inputs
+from flask_restplus import Resource, reqparse, fields, inputs, cors
 from werkzeug.exceptions import NotFound, BadRequest, Unauthorized, UnprocessableEntity, InternalServerError
 from ...helpers import token_verify_or_raise
 from ...models.beneficiary import Beneficiary, BeneficiaryResponseModel
@@ -50,6 +49,7 @@ class BeneficiaryFormController(Resource):
         })
     @ns.expect(parser, validate=True)
     @ns.marshal_with(BeneficiaryResponseModel)
+    @cors.crossdomain(origin='*')
     def get(self, FormID):
         args = parser.parse_args()
         auth = token_verify_or_raise(token=args['Authorization'], ip=args['IpAddress'], user=args['Username'])
@@ -72,6 +72,7 @@ class BeneficiaryFormController(Resource):
         })
     @ns.marshal_with(BeneficiaryResponseModel)
     @ns.expect(postParser, validate=True)
+    @cors.crossdomain(origin='*')
     def post(self, FormID):
         args = postParser.parse_args(strict=True)
         auth = token_verify_or_raise(token=args['Authorization'], ip=args['IpAddress'], user=args['Username'])
@@ -119,6 +120,7 @@ class BeneficiaryFormController(Resource):
         })
     @ns.marshal_with(BeneficiaryResponseModel)
     @ns.expect(parser, validate=True)
+    @cors.crossdomain(origin='*')
     def delete(self, FormID):
         args = parser.parse_args()
         auth = token_verify_or_raise(token=args['Authorization'], ip=args['IpAddress'], user=args['Username'])

@@ -5,12 +5,7 @@ import uuid
 import random
 import string
 from flask import current_app as app
-from flask_cors import CORS
 from werkzeug.exceptions import Unauthorized
-
-def init_cors(app):
-    CORS(app, resources={r"*": {"origins": "*"}})
-
 
 
 def delete_excel(filename):

@@ -2,8 +2,7 @@ import jwt
 import json
 from datetime import datetime
 from flask import Blueprint, jsonify, request, abort
-from flask_cors import cross_origin
-from flask_restplus import Resource, reqparse
+from flask_restplus import Resource, reqparse, cors
 from werkzeug.exceptions import NotFound, BadRequest, Unauthorized, UnprocessableEntity, InternalServerError
 from ....helpers import randomStringwithDigitsAndSymbols, token_verify_or_raise
 from ....encryption import Encryption
@@ -30,6 +29,7 @@ class PasswordReset(Resource):
         responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 422: 'UnprocessableEntity', 500: 'Internal Server Error'})
 
     @ns.expect(parser, validate=True)
+    @cors.crossdomain(origin='*')
     def post(self):
         args = parser.parse_args(strict=False)
         change_pass = False

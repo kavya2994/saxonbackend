@@ -5,8 +5,7 @@ from datetime import datetime
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from flask import Blueprint, jsonify, request, abort
-from flask_cors import cross_origin
-from flask_restplus import Resource, reqparse, fields
+from flask_restplus import Resource, reqparse, fields, cors
 from werkzeug.exceptions import NotFound, BadRequest
 from ...helpers import randomStringwithDigitsAndSymbols, token_verify
 from ...encryption import Encryption
@@ -31,6 +30,7 @@ class SecurityQuestions(Resource):
 
     @ns.expect(parser)
     @ns.marshal_with(ns.model('SecurityQuestions', SecurityQuestionModel))
+    @cors.crossdomain(origin='*')
     def get(self):
         args = parser.parse_args(strict=False)
         questions = SecurityQuestion.query.all()

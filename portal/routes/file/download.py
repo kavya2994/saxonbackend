@@ -7,7 +7,6 @@ import threading
 import zipfile
 from datetime import datetime
 from flask import Blueprint, jsonify, request, send_file
-from flask_cors import cross_origin
 from flask_restplus import Resource, reqparse
 from werkzeug.utils import secure_filename
 from xlutils.copy import copy

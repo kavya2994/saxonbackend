@@ -26,7 +26,6 @@ def create_app():
     models.init_app(app)
     routes.init_app(app)
     services.init_app(app)
-    helpers.init_cors(app)
     seeds.init_app(app)
 
     return app

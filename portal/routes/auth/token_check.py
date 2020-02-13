@@ -1,7 +1,7 @@
 import jwt
 import json
 from flask import request, current_app as app
-from flask_restplus import Resource, reqparse
+from flask_restplus import Resource, reqparse, cors
 from werkzeug.exceptions import Unauthorized
 from . import ns
 from ...helpers import token_verify_or_raise
@@ -19,6 +19,7 @@ class TokenCheck(Resource):
         responses={400: 'Bad Request', 401: 'Unauthorized', 200: 'OK'})
 
     @ns.expect(parser, validate=True)
+    @cors.crossdomain(origin='*')
     def post(self):
         args = parser.parse_args()
 

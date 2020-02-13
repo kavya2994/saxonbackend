@@ -2,8 +2,7 @@ import jwt
 import json
 from datetime import datetime, timedelta
 from flask import request, current_app as app
-from flask_cors import cross_origin
-from flask_restplus import Resource, reqparse, fields
+from flask_restplus import Resource, reqparse, fields, cors
 from werkzeug.exceptions import NotFound, BadRequest, UnprocessableEntity, InternalServerError
 from ...encryption import Encryption
 from ...models.users import Users
@@ -35,6 +34,7 @@ class Login(Resource):
 
     @ns.expect(parser, validate=True)
     @ns.marshal_with(response_model)
+    @cors.crossdomain(origin='*')
     def post(self):
         args = parser.parse_args(strict=False)
         username = args['Username']

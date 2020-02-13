@@ -6,8 +6,7 @@ from datetime import datetime
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from flask import Blueprint, jsonify, request, current_app as app
-from flask_cors import cross_origin
-from flask_restplus import Resource, reqparse, fields, inputs
+from flask_restplus import Resource, reqparse, fields, inputs, cors
 from werkzeug.exceptions import NotFound, BadRequest, Unauthorized, UnprocessableEntity, InternalServerError
 from ...helpers import token_verify, token_verify_or_raise
 from ...models.enrollmentform import Enrollmentform, EnrollmentformResponseModel
@@ -76,6 +75,7 @@ class EnrollmentController(Resource):
 
     @ns.expect(getParser, validate=True)
     @ns.marshal_with(EnrollmentformResponseModel)
+    @cors.crossdomain(origin='*')
     def get(self, TokenID):
         args = getParser.parse_args()
         token = Token.query.get(TokenID)
@@ -101,6 +101,7 @@ class EnrollmentController(Resource):
         })
     @ns.expect(parser, validate=True)
     @ns.marshal_with(EnrollmentformResponseModel)
+    @cors.crossdomain(origin='*')
     def post(self, TokenID):
         args = parser.parse_args(strict=True)
 
