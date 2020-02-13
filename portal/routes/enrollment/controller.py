@@ -65,7 +65,7 @@ parser.add_argument('RejectionReason', type=str, location='json', required=False
 
 
 @ns.route("/token/<TokenID>")
-class EnrollmentFormData(Resource):
+class EnrollmentController(Resource):
     @ns.doc(parser=getParser,
         description='Get Enrollment Data by TokenID',
         responses={

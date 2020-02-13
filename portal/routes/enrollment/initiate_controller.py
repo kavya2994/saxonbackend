@@ -31,7 +31,7 @@ parser.add_argument('MemberFirstName', type=str, location='json', required=True)
 parser.add_argument('Comment', type=str, location='json', required=False)
 
 @ns.route("/initiate")
-class EnrollmentInitiation(Resource):
+class EnrollmentInitiationController(Resource):
     @ns.doc(parser=parser,
         description='Enrollment Initiation',
         responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 500: 'Internal Server Error'})

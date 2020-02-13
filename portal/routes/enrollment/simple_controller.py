@@ -1,4 +1,3 @@
-
 import os
 import jwt
 import json
@@ -24,7 +23,7 @@ parser.add_argument('IpAddress', type=str, location='headers', required=True)
 
 
 @ns.route("/<FormID>")
-class Token(Resource):
+class SimpleEnrollmentController(Resource):
     @ns.doc(parser=parser,
         description='Get Enrollment Data by FormID',
         responses={
