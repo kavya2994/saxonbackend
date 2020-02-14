@@ -60,14 +60,6 @@ def uuid_generator():
     return str(uuid.uuid4())
 
 
-def cors(func):
-    def inner(**kwargs):
-
-        return func(**kwargs)
-    return inner
-
-
-
 def crossdomain(origin=None, methods=None, headers=None, expose_headers=None,
                 max_age=21600, attach_to_all=True,
                 automatic_options=True, credentials=False, whitelist=[]):
@@ -87,6 +79,11 @@ def crossdomain(origin=None, methods=None, headers=None, expose_headers=None,
         options_resp = APP.make_default_options_response()
         return options_resp.headers['allow']
 
+    def get_origin(req):
+        if req.environ.get('HTTP_ORIGIN') in whitelist:
+            origin = req.environ.get('HTTP_ORIGIN')
+        else:
+            origin = ''
 
     def decorator(f):
         def wrapped_function(*args, **kwargs):
@@ -99,12 +96,7 @@ def crossdomain(origin=None, methods=None, headers=None, expose_headers=None,
 
             h = resp.headers
 
-            if request.environ.get('HTTP_ORIGIN') in whitelist:
-                origin = request.environ.get('HTTP_ORIGIN')
-            else:
-                origin = ''
-
-            h['Access-Control-Allow-Origin'] = origin
+            h['Access-Control-Allow-Origin'] = get_origin(request)
             h['Access-Control-Allow-Methods'] = get_methods()
             h['Access-Control-Max-Age'] = str(max_age)
             if credentials:
