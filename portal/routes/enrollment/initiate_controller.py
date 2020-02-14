@@ -36,12 +36,11 @@ class EnrollmentInitiationController(Resource):
     def options(self):
         pass
 
+    @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
     @ns.doc(parser=parser,
         description='Enrollment Initiation',
         responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 500: 'Internal Server Error'})
-
     @ns.expect(parser, validate=True)
-    @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
     def post(self):
         args = parser.parse_args()
         auth = token_verify_or_raise(token=args["Authorization"], ip=args["IpAddress"], user=args["Username"])

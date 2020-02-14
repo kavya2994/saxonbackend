@@ -36,13 +36,13 @@ class Login(Resource):
     def options(self):
         pass
 
+    @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'], credentials=True)
     @ns.doc(parser=parser,
         description='Login',
         responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 500: 'Internal Server Error'})
 
     @ns.expect(parser, validate=True)
     @ns.marshal_with(response_model)
-    @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'], credentials=True)
     def post(self):
         args = parser.parse_args(strict=False)
         username = args['Username']

@@ -29,6 +29,7 @@ class SimpleEnrollmentController(Resource):
     def options(self):
         pass
 
+    @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
     @ns.doc(parser=parser,
         description='Get Enrollment Data by FormID',
         responses={
@@ -37,10 +38,8 @@ class SimpleEnrollmentController(Resource):
             404: 'NotFound',
             500: 'Internal Server Error'
         })
-
     @ns.expect(parser, validate=True)
     @ns.marshal_with(EnrollmentformResponseModel)
-    @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
     def get(self, FormID):
         args = parser.parse_args()
         auth = token_verify_or_raise(token=args["Authorization"], ip=args["IpAddress"], user=args["Username"])

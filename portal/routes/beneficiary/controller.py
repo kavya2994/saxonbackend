@@ -44,6 +44,7 @@ class BeneficiaryFormController(Resource):
     def options(self):
         pass
 
+    @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
     @ns.doc(parser=parser,
         description='Get Beneficiary',
         responses={
@@ -54,7 +55,6 @@ class BeneficiaryFormController(Resource):
         })
     @ns.expect(parser, validate=True)
     @ns.marshal_with(BeneficiaryResponseModel)
-    @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
     def get(self, FormID):
         args = parser.parse_args()
         auth = token_verify_or_raise(token=args['Authorization'], ip=args['IpAddress'], user=args['Username'])
@@ -66,6 +66,7 @@ class BeneficiaryFormController(Resource):
         return beneficiaries
 
 
+    @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
     @ns.doc(parser=postParser,
         description='Add New Beneficiary',
         responses={
@@ -77,7 +78,6 @@ class BeneficiaryFormController(Resource):
         })
     @ns.marshal_with(BeneficiaryResponseModel)
     @ns.expect(postParser, validate=True)
-    @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
     def post(self, FormID):
         args = postParser.parse_args(strict=True)
         auth = token_verify_or_raise(token=args['Authorization'], ip=args['IpAddress'], user=args['Username'])
@@ -114,6 +114,7 @@ class BeneficiaryFormController(Resource):
 
         return Beneficiary.query.filter_by(EnrollmentformID=FormID).all()
 
+    @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
     @ns.doc(parser=parser,
         description='Delete A Beneficiary',
         responses={
@@ -125,7 +126,6 @@ class BeneficiaryFormController(Resource):
         })
     @ns.marshal_with(BeneficiaryResponseModel)
     @ns.expect(parser, validate=True)
-    @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
     def delete(self, FormID):
         args = parser.parse_args()
         auth = token_verify_or_raise(token=args['Authorization'], ip=args['IpAddress'], user=args['Username'])

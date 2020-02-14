@@ -35,6 +35,7 @@ class SecurityQuestion(Resource):
     def options(self):
         pass
 
+    @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
     @ns.doc(parser=getParser,
         description='Get security question of a user',
         responses={
@@ -43,9 +44,7 @@ class SecurityQuestion(Resource):
             401: 'Unauthorized',
             404: 'Not Found',
             500: 'Internal Server Error'})
-
     @ns.expect(getParser)
-    @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
     def get(self):
         args = getParser.parse_args(strict=True)
 
@@ -61,12 +60,11 @@ class SecurityQuestion(Resource):
 
 
 
+    @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
     @ns.doc(parser=postParser,
         description='Set Security Question',
         responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 500: 'Internal Server Error'})
-
     @ns.expect(postParser, validate=True)
-    @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
     def post(self):
         args = postParser.parse_args(strict=False)
         token = args["Authorization"]

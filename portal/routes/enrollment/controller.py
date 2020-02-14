@@ -71,6 +71,7 @@ class EnrollmentController(Resource):
     def options(self):
         pass
 
+    @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
     @ns.doc(parser=getParser,
         description='Get Enrollment Data by TokenID',
         responses={
@@ -78,10 +79,8 @@ class EnrollmentController(Resource):
             400: 'BadRequest',
             500: 'Internal Server Error'
         })
-
     @ns.expect(getParser, validate=True)
     @ns.marshal_with(EnrollmentformResponseModel)
-    @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
     def get(self, TokenID):
         args = getParser.parse_args()
         token = Token.query.get(TokenID)
@@ -97,6 +96,7 @@ class EnrollmentController(Resource):
             raise InternalServerError()
 
 
+    @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
     @ns.doc(parser=parser,
         description='Update Enrollment Data by TokenID',
         responses={
@@ -107,7 +107,6 @@ class EnrollmentController(Resource):
         })
     @ns.expect(parser, validate=True)
     @ns.marshal_with(EnrollmentformResponseModel)
-    @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
     def post(self, TokenID):
         args = parser.parse_args(strict=True)
 
