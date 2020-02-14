@@ -84,6 +84,7 @@ def crossdomain(origin=None, methods=None, headers=None, expose_headers=None,
             origin = req.environ.get('HTTP_ORIGIN')
         else:
             origin = ''
+        return origin
 
     def decorator(f):
         def wrapped_function(*args, **kwargs):
