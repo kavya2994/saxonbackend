@@ -4,7 +4,7 @@ from datetime import datetime
 from flask import Blueprint, jsonify, request, abort
 from flask_restplus import Resource, reqparse, cors
 from werkzeug.exceptions import NotFound, BadRequest, Unauthorized, UnprocessableEntity, InternalServerError
-from ....helpers import randomStringwithDigitsAndSymbols, token_verify_or_raise
+from ....helpers import randomStringwithDigitsAndSymbols, token_verify_or_raise, crossdomain
 from ....encryption import Encryption
 from ....models import db
 from ....models.users import Users
@@ -25,7 +25,7 @@ parser.add_argument('Email', type=str, location='json', required=False)
 
 @ns.route("/password/reset")
 class PasswordReset(Resource):
-    @cors.crossdomain(origin=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
+    @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
     def options(self):
         pass
 
@@ -34,7 +34,7 @@ class PasswordReset(Resource):
         responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 422: 'UnprocessableEntity', 500: 'Internal Server Error'})
 
     @ns.expect(parser, validate=True)
-    @cors.crossdomain(origin=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
+    @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
     def post(self):
         args = parser.parse_args(strict=False)
         change_pass = False

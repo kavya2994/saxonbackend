@@ -11,8 +11,8 @@ SERVER_WEB_URL = 'https://portal.silverthatch.org.ky/'
 SERVER_ADDRESS = "0.0.0.0"
 SERVER_PORT = 443
 
-CERT_KEY_FILE = "/var/www/certs/privkey.pem"
-CERT_FILE = "/var/www/certs/fullchain.pem"
+CERT_KEY_FILE = "/var/www/ops/certs/privkey.pem"
+CERT_FILE = "/var/www/ops/certs/fullchain.pem"
 
 SECRET_KEY = 'f^I7q!(S(O]|"]%<+,Hz&vyQ^"exx9'
 JWT_SECRET = 'H7|=1fq[:`.;MtY02Me]w9_XPRqt^S'
@@ -24,28 +24,27 @@ CORS_HEADERS = [
     'IpAddress', 'Username', 'Password'
 ]
 
-CORS_ORIGIN_WHITELIST = '*'
+CORS_ORIGIN_WHITELIST = [
+    "http://127.0.0.1",
+    "https://127.0.0.1",
+    "http://127.0.0.1:5000",
+    "https://127.0.0.1:5000",
+    "http://127.0.0.1:4200",
+    "https://127.0.0.1:4200",
 
-_CORS_ORIGIN_WHITELIST = [
-    "http://127.0.0.1/",
-    "https://127.0.0.1/",
-    "http://127.0.0.1:5000/",
-    "https://127.0.0.1:5000/",
-    "http://127.0.0.1:4200/",
-    "https://127.0.0.1:4200/",
+    "http://localhost",
+    "https://localhost",
+    "http://localhost:5000",
+    "https://localhost:5000",
+    "http://localhost:4200",
+    "https://localhost:4200",
 
-    "http://localhost/",
-    "https://localhost/",
-    "http://localhost:5000/",
-    "https://localhost:5000/",
-    "http://localhost:4200/",
-    "https://localhost:4200/",
+    "http://10.147.1.101",
+    "https://10.147.1.101",
 
-    "http://10.147.1.101/",
-    "https://10.147.1.101/",
+    "http://10.147.1.101:4200",
+    "https://10.147.1.101:4200",
 
-    "http://10.147.1.101:4200/",
-    "https://10.147.1.101:4200/",
-    "http://portal.silverthatch.org.ky/"
-    "https://portal.silverthatch.org.ky/"
+    "http://portal.silverthatch.org.ky",
+    "https://portal.silverthatch.org.ky"
 ]

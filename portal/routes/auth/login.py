@@ -2,10 +2,12 @@ import jwt
 import json
 from datetime import datetime, timedelta
 from flask import request
+from flask_cors import cross_origin
 from flask_restplus import Resource, reqparse, fields, cors
 from werkzeug.exceptions import NotFound, BadRequest, UnprocessableEntity, InternalServerError
 from ...encryption import Encryption
 from ...models.users import Users
+from ...helpers import crossdomain
 from ...api import api
 from . import ns
 from ... import APP
@@ -27,9 +29,10 @@ response_model = {
     'SecurityQuestion': fields.String,
 }
 
+
 @ns.route('/login')
 class Login(Resource):
-    @cors.crossdomain(origin=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
+    @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'], credentials=True)
     def options(self):
         pass
 
@@ -39,7 +42,7 @@ class Login(Resource):
 
     @ns.expect(parser, validate=True)
     @ns.marshal_with(response_model)
-    @cors.crossdomain(origin=APP.config['CORS_ORIGIN_WHITELIST'], credentials=True)
+    @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'], credentials=True)
     def post(self):
         args = parser.parse_args(strict=False)
         username = args['Username']

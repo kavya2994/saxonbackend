@@ -9,7 +9,7 @@ from flask import Blueprint, jsonify, request
 from flask_restplus import Resource, reqparse, cors
 from werkzeug.utils import secure_filename
 from werkzeug.exceptions import NotFound, BadRequest, Unauthorized, UnprocessableEntity, InternalServerError
-from ...helpers import token_verify_or_raise
+from ...helpers import token_verify_or_raise, crossdomain
 from ...models.enrollmentform import Enrollmentform
 from ...models.token import Token
 from ...models.comments import Comments
@@ -32,7 +32,7 @@ parser.add_argument('Comment', type=str, location='json', required=False)
 
 @ns.route("/initiate")
 class EnrollmentInitiationController(Resource):
-    @cors.crossdomain(origin=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
+    @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
     def options(self):
         pass
 
@@ -41,7 +41,7 @@ class EnrollmentInitiationController(Resource):
         responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 500: 'Internal Server Error'})
 
     @ns.expect(parser, validate=True)
-    @cors.crossdomain(origin=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
+    @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
     def post(self):
         args = parser.parse_args()
         auth = token_verify_or_raise(token=args["Authorization"], ip=args["IpAddress"], user=args["Username"])

@@ -8,7 +8,7 @@ from email.mime.text import MIMEText
 from flask import Blueprint, jsonify, request
 from flask_restplus import Resource, reqparse, fields, inputs, cors
 from werkzeug.exceptions import NotFound, BadRequest, Unauthorized, UnprocessableEntity, InternalServerError
-from ...helpers import token_verify_or_raise
+from ...helpers import token_verify_or_raise, crossdomain
 from ...models.enrollmentform import Enrollmentform, EnrollmentformResponseModel
 from ...models.token import Token
 from ...models.comments import Comments
@@ -67,7 +67,7 @@ parser.add_argument('RejectionReason', type=str, location='json', required=False
 
 @ns.route("/token/<TokenID>")
 class EnrollmentController(Resource):
-    @cors.crossdomain(origin=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
+    @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
     def options(self):
         pass
 
@@ -81,7 +81,7 @@ class EnrollmentController(Resource):
 
     @ns.expect(getParser, validate=True)
     @ns.marshal_with(EnrollmentformResponseModel)
-    @cors.crossdomain(origin=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
+    @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
     def get(self, TokenID):
         args = getParser.parse_args()
         token = Token.query.get(TokenID)
@@ -107,7 +107,7 @@ class EnrollmentController(Resource):
         })
     @ns.expect(parser, validate=True)
     @ns.marshal_with(EnrollmentformResponseModel)
-    @cors.crossdomain(origin=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
+    @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
     def post(self, TokenID):
         args = parser.parse_args(strict=True)
 

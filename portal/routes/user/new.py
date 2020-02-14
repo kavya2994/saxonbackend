@@ -6,7 +6,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from flask import Blueprint, jsonify, request, abort
 from flask_restplus import Resource, reqparse, cors
-from ...helpers import randomStringwithDigitsAndSymbols, token_verify
+from ...helpers import randomStringwithDigitsAndSymbols, token_verify, crossdomain
 from ...encryption import Encryption
 from ...models import db
 from ...models.users import Users
@@ -25,7 +25,7 @@ parser.add_argument('IpAddress', type=str, location='headers', required=True)
 # @cross_origin(origins=['*'], allow_headers=['Content-Type', 'Authorization', 'Ipaddress', 'User'])
 @ns.route("/new")
 class UserNew(Resource):
-    @cors.crossdomain(origin=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
+    @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
     def options(self):
         pass
 

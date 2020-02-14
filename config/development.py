@@ -18,20 +18,18 @@ CORS_HEADERS = [
     'IpAddress', 'Username', 'Password'
 ]
 
-CORS_ORIGIN_WHITELIST = '*'
+CORS_ORIGIN_WHITELIST = [
+    "http://127.0.0.1",
+    "https://127.0.0.1",
+    "http://127.0.0.1:5000",
+    "https://127.0.0.1:5000",
+    "http://127.0.0.1:4200",
+    "https://127.0.0.1:4200",
 
-_CORS_ORIGIN_WHITELIST = [
-    "http://127.0.0.1/",
-    "https://127.0.0.1/",
-    "http://127.0.0.1:5000/",
-    "https://127.0.0.1:5000/",
-    "http://127.0.0.1:4200/",
-    "https://127.0.0.1:4200/",
-
-    "http://localhost/",
-    "https://localhost/",
-    "http://localhost:5000/",
-    "https://localhost:5000/",
-    "http://localhost:4200/",
-    "https://localhost:4200/",
+    "http://localhost",
+    "https://localhost",
+    "http://localhost:5000",
+    "https://localhost:5000",
+    "http://localhost:4200",
+    "https://localhost:4200",
 ]

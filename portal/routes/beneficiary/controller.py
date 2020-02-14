@@ -9,7 +9,7 @@ from email.mime.text import MIMEText
 from flask import Blueprint, jsonify, request
 from flask_restplus import Resource, reqparse, fields, inputs, cors
 from werkzeug.exceptions import NotFound, BadRequest, Unauthorized, UnprocessableEntity, InternalServerError
-from ...helpers import token_verify_or_raise
+from ...helpers import token_verify_or_raise, crossdomain
 from ...models.beneficiary import Beneficiary, BeneficiaryResponseModel
 from ...models.enrollmentform import Enrollmentform
 from ...models.roles import *
@@ -40,7 +40,7 @@ postParser.add_argument('Percentage', type=float, location='json', required=True
 
 @ns.route("/form/<FormID>")
 class BeneficiaryFormController(Resource):
-    @cors.crossdomain(origin=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
+    @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
     def options(self):
         pass
 
@@ -54,7 +54,7 @@ class BeneficiaryFormController(Resource):
         })
     @ns.expect(parser, validate=True)
     @ns.marshal_with(BeneficiaryResponseModel)
-    @cors.crossdomain(origin=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
+    @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
     def get(self, FormID):
         args = parser.parse_args()
         auth = token_verify_or_raise(token=args['Authorization'], ip=args['IpAddress'], user=args['Username'])
@@ -77,7 +77,7 @@ class BeneficiaryFormController(Resource):
         })
     @ns.marshal_with(BeneficiaryResponseModel)
     @ns.expect(postParser, validate=True)
-    @cors.crossdomain(origin=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
+    @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
     def post(self, FormID):
         args = postParser.parse_args(strict=True)
         auth = token_verify_or_raise(token=args['Authorization'], ip=args['IpAddress'], user=args['Username'])
@@ -125,7 +125,7 @@ class BeneficiaryFormController(Resource):
         })
     @ns.marshal_with(BeneficiaryResponseModel)
     @ns.expect(parser, validate=True)
-    @cors.crossdomain(origin=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
+    @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
     def delete(self, FormID):
         args = parser.parse_args()
         auth = token_verify_or_raise(token=args['Authorization'], ip=args['IpAddress'], user=args['Username'])
