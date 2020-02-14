@@ -29,7 +29,7 @@ response_model = {
 
 @ns.route('/login')
 class Login(Resource):
-    @cors.crossdomain(origin=APP.config['CORS_ORIGIN_WHITELIST'])
+    @cors.crossdomain(origin=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
     def options(self):
         pass
 

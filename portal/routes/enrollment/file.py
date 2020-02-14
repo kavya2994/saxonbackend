@@ -25,7 +25,7 @@ parser.add_argument('IpAddress', type=str, location='headers', required=True)
 
 @ns.route("/file")
 class EnrollmentFile(Resource):
-    @cors.crossdomain(origin=APP.config['CORS_ORIGIN_WHITELIST'])
+    @cors.crossdomain(origin=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
     def options(self):
         pass
 

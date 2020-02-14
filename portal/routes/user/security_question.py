@@ -31,7 +31,7 @@ postParser.add_argument('SecurityAnswer', type=str, location='json', required=Tr
 
 @ns.route("/security-question")
 class SecurityQuestion(Resource):
-    @cors.crossdomain(origin=APP.config['CORS_ORIGIN_WHITELIST'])
+    @cors.crossdomain(origin=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
     def options(self):
         pass
 
@@ -45,7 +45,7 @@ class SecurityQuestion(Resource):
             500: 'Internal Server Error'})
 
     @ns.expect(getParser)
-    @cors.crossdomain(origin=APP.config['CORS_ORIGIN_WHITELIST'])
+    @cors.crossdomain(origin=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
     def get(self):
         args = getParser.parse_args(strict=True)
 
@@ -66,7 +66,7 @@ class SecurityQuestion(Resource):
         responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 500: 'Internal Server Error'})
 
     @ns.expect(postParser, validate=True)
-    @cors.crossdomain(origin=APP.config['CORS_ORIGIN_WHITELIST'])
+    @cors.crossdomain(origin=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
     def post(self):
         args = postParser.parse_args(strict=False)
         token = args["Authorization"]

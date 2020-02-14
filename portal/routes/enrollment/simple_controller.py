@@ -25,7 +25,7 @@ parser.add_argument('IpAddress', type=str, location='headers', required=True)
 
 @ns.route("/<FormID>")
 class SimpleEnrollmentController(Resource):
-    @cors.crossdomain(origin=APP.config['CORS_ORIGIN_WHITELIST'])
+    @cors.crossdomain(origin=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
     def options(self):
         pass
 
@@ -40,7 +40,7 @@ class SimpleEnrollmentController(Resource):
 
     @ns.expect(parser, validate=True)
     @ns.marshal_with(EnrollmentformResponseModel)
-    @cors.crossdomain(origin=APP.config['CORS_ORIGIN_WHITELIST'])
+    @cors.crossdomain(origin=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
     def get(self, FormID):
         args = parser.parse_args()
         auth = token_verify_or_raise(token=args["Authorization"], ip=args["IpAddress"], user=args["Username"])

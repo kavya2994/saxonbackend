@@ -25,7 +25,7 @@ parser.add_argument('IpAddress', type=str, location='headers', required=True)
 # @cross_origin(origins=['*'], allow_headers=['Content-Type', 'Authorization', 'Ipaddress', 'User'])
 @ns.route("/new")
 class UserNew(Resource):
-    @cors.crossdomain(origin=APP.config['CORS_ORIGIN_WHITELIST'])
+    @cors.crossdomain(origin=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
     def options(self):
         pass
 

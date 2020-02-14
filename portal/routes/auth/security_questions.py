@@ -20,7 +20,7 @@ parser = reqparse.RequestParser()
 
 @ns.route("/security-questions")
 class SecurityQuestions(Resource):
-    @cors.crossdomain(origin=APP.config['CORS_ORIGIN_WHITELIST'])
+    @cors.crossdomain(origin=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
     def options(self):
         pass
 
@@ -35,7 +35,7 @@ class SecurityQuestions(Resource):
 
     @ns.expect(parser)
     @ns.marshal_with(ns.model('SecurityQuestions', SecurityQuestionModel))
-    @cors.crossdomain(origin=APP.config['CORS_ORIGIN_WHITELIST'])
+    @cors.crossdomain(origin=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
     def get(self):
         args = parser.parse_args(strict=False)
         questions = SecurityQuestion.query.all()
