@@ -11,6 +11,7 @@ from ....models.users import Users
 from ....models.security_question import SecurityQuestion
 from ....services.mail import send_email
 from .. import ns
+from .... import APP
 
 
 parser = reqparse.RequestParser()
@@ -24,12 +25,16 @@ parser.add_argument('Email', type=str, location='json', required=False)
 
 @ns.route("/password/reset")
 class PasswordReset(Resource):
+    @cors.crossdomain(origin=APP.config['CORS_ORIGIN_WHITELIST'])
+    def options(self):
+        pass
+
     @ns.doc(parser=parser,
         description='Reset Password',
         responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 422: 'UnprocessableEntity', 500: 'Internal Server Error'})
 
     @ns.expect(parser, validate=True)
-    @cors.crossdomain(origin='*')
+    @cors.crossdomain(origin=APP.config['CORS_ORIGIN_WHITELIST'])
     def post(self):
         args = parser.parse_args(strict=False)
         change_pass = False

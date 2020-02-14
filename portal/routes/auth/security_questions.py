@@ -13,12 +13,17 @@ from ...models import db
 from ...models.users import Users
 from ...models.security_question import SecurityQuestion , SecurityQuestionModel
 from . import ns
+from ... import APP
 
 
 parser = reqparse.RequestParser()
 
 @ns.route("/security-questions")
 class SecurityQuestions(Resource):
+    @cors.crossdomain(origin=APP.config['CORS_ORIGIN_WHITELIST'])
+    def options(self):
+        pass
+
     @ns.doc(parser=parser,
         description='Get list of security questions',
         responses={
@@ -30,7 +35,7 @@ class SecurityQuestions(Resource):
 
     @ns.expect(parser)
     @ns.marshal_with(ns.model('SecurityQuestions', SecurityQuestionModel))
-    @cors.crossdomain(origin='*')
+    @cors.crossdomain(origin=APP.config['CORS_ORIGIN_WHITELIST'])
     def get(self):
         args = parser.parse_args(strict=False)
         questions = SecurityQuestion.query.all()

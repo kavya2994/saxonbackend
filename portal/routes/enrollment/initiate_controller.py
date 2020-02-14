@@ -5,11 +5,11 @@ import smtplib
 from datetime import datetime
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-from flask import Blueprint, jsonify, request, current_app as app
+from flask import Blueprint, jsonify, request
 from flask_restplus import Resource, reqparse, cors
 from werkzeug.utils import secure_filename
 from werkzeug.exceptions import NotFound, BadRequest, Unauthorized, UnprocessableEntity, InternalServerError
-from ...helpers import token_verify, token_verify_or_raise
+from ...helpers import token_verify_or_raise
 from ...models.enrollmentform import Enrollmentform
 from ...models.token import Token
 from ...models.comments import Comments
@@ -18,6 +18,7 @@ from ...models import db
 from ...api import api
 from ...services.mail import send_email
 from . import ns
+from ... import APP
 
 
 parser = reqparse.RequestParser()
@@ -31,12 +32,16 @@ parser.add_argument('Comment', type=str, location='json', required=False)
 
 @ns.route("/initiate")
 class EnrollmentInitiationController(Resource):
+    @cors.crossdomain(origin=APP.config['CORS_ORIGIN_WHITELIST'])
+    def options(self):
+        pass
+
     @ns.doc(parser=parser,
         description='Enrollment Initiation',
         responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 500: 'Internal Server Error'})
 
     @ns.expect(parser, validate=True)
-    @cors.crossdomain(origin='*')
+    @cors.crossdomain(origin=APP.config['CORS_ORIGIN_WHITELIST'])
     def post(self):
         args = parser.parse_args()
         auth = token_verify_or_raise(token=args["Authorization"], ip=args["IpAddress"], user=args["Username"])

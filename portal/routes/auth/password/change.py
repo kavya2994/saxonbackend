@@ -4,7 +4,7 @@ import smtplib
 from datetime import datetime
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-from flask import Blueprint, jsonify, request, abort
+from flask import Blueprint, jsonify, request, abort, current_app as app
 from flask_restplus import Resource, reqparse, cors
 from werkzeug.exceptions import NotFound, BadRequest, Unauthorized, UnprocessableEntity, InternalServerError
 from ....helpers import randomStringwithDigitsAndSymbols, token_verify_or_raise
@@ -13,6 +13,7 @@ from ....models import db
 from ....models.users import Users
 from ....models.security_question import SecurityQuestion
 from .. import ns
+from .... import APP
 
 
 parser = reqparse.RequestParser()
@@ -25,12 +26,16 @@ parser.add_argument('NewPassword', type=str, location='json', required=True)
 
 @ns.route("/password/change")
 class PasswordChange(Resource):
+    @cors.crossdomain(origin=APP.config['CORS_ORIGIN_WHITELIST'])
+    def options(self):
+        pass
+
     @ns.doc(parser=parser,
         description='Change Password',
         responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 422: 'UnprocessableEntity', 500: 'Internal Server Error'})
 
     @ns.expect(parser, validate=True)
-    @cors.crossdomain(origin='*')
+    @cors.crossdomain(origin=APP.config['CORS_ORIGIN_WHITELIST'])
     def post(self):
         args = parser.parse_args(strict=False)
         token = token_verify_or_raise(token=args["Authorization"], ip=args["IpAddress"], user=args["Username"])

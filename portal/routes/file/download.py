@@ -10,7 +10,7 @@ from flask import Blueprint, jsonify, request, send_file
 from flask_restplus import Resource, reqparse
 from werkzeug.utils import secure_filename
 from xlutils.copy import copy
-from ...helpers import token_verify, delete_excel
+from ...helpers import delete_excel
 from ...models import db
 from ...models.token import Token
 from . import ns

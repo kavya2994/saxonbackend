@@ -1,13 +1,14 @@
 import jwt
 import json
 from datetime import datetime, timedelta
-from flask import request, current_app as app
+from flask import request
 from flask_restplus import Resource, reqparse, fields, cors
 from werkzeug.exceptions import NotFound, BadRequest, UnprocessableEntity, InternalServerError
 from ...encryption import Encryption
 from ...models.users import Users
 from ...api import api
 from . import ns
+from ... import APP
 
 
 parser = reqparse.RequestParser()
@@ -28,13 +29,17 @@ response_model = {
 
 @ns.route('/login')
 class Login(Resource):
+    @cors.crossdomain(origin=APP.config['CORS_ORIGIN_WHITELIST'])
+    def options(self):
+        pass
+
     @ns.doc(parser=parser,
         description='Login',
         responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 500: 'Internal Server Error'})
 
     @ns.expect(parser, validate=True)
     @ns.marshal_with(response_model)
-    @cors.crossdomain(origin='*')
+    @cors.crossdomain(origin=APP.config['CORS_ORIGIN_WHITELIST'], credentials=True)
     def post(self):
         args = parser.parse_args(strict=False)
         username = args['Username']
@@ -63,7 +68,7 @@ class Login(Resource):
                 'IpAddress': ip,
             }
 
-            token = jwt.encode(key=app.config['JWT_SECRET'], algorithm='HS256', payload=payload,)
+            token = jwt.encode(key=APP.config['JWT_SECRET'], algorithm='HS256', payload=payload,)
             token = token.decode('utf-8')
             securityQuestion = None if userinfo.SecurityQuestion is None else userinfo.SecurityQuestion.Question
 

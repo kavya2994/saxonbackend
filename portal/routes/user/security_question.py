@@ -5,8 +5,7 @@ from datetime import datetime
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from flask import Blueprint, jsonify, request, abort
-from flask_cors import cross_origin
-from flask_restplus import Resource, reqparse
+from flask_restplus import Resource, reqparse, cors
 from werkzeug.exceptions import NotFound, BadRequest, Unauthorized
 from ...helpers import randomStringwithDigitsAndSymbols, token_verify
 from ...encryption import Encryption
@@ -14,6 +13,7 @@ from ...models import db
 from ...models.users import Users
 from ...models.security_question import SecurityQuestion
 from . import ns
+from ... import APP
 
 
 getParser = reqparse.RequestParser()
@@ -31,6 +31,10 @@ postParser.add_argument('SecurityAnswer', type=str, location='json', required=Tr
 
 @ns.route("/security-question")
 class SecurityQuestion(Resource):
+    @cors.crossdomain(origin=APP.config['CORS_ORIGIN_WHITELIST'])
+    def options(self):
+        pass
+
     @ns.doc(parser=getParser,
         description='Get security question of a user',
         responses={
@@ -41,6 +45,7 @@ class SecurityQuestion(Resource):
             500: 'Internal Server Error'})
 
     @ns.expect(getParser)
+    @cors.crossdomain(origin=APP.config['CORS_ORIGIN_WHITELIST'])
     def get(self):
         args = getParser.parse_args(strict=True)
 
@@ -61,6 +66,7 @@ class SecurityQuestion(Resource):
         responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 500: 'Internal Server Error'})
 
     @ns.expect(postParser, validate=True)
+    @cors.crossdomain(origin=APP.config['CORS_ORIGIN_WHITELIST'])
     def post(self):
         args = postParser.parse_args(strict=False)
         token = args["Authorization"]
