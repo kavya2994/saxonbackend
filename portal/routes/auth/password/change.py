@@ -34,7 +34,6 @@ class PasswordChange(Resource):
     @ns.doc(parser=parser,
         description='Change Password',
         responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 422: 'UnprocessableEntity', 500: 'Internal Server Error'})
-
     @ns.expect(parser, validate=True)
     def post(self):
         args = parser.parse_args(strict=False)

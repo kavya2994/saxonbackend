@@ -24,6 +24,7 @@ class SecurityQuestions(Resource):
     def options(self):
         pass
 
+    @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
     @ns.doc(parser=parser,
         description='Get list of security questions',
         responses={
@@ -32,10 +33,8 @@ class SecurityQuestions(Resource):
             401: 'Unauthorized',
             404: 'Not Found',
             500: 'Internal Server Error'})
-
     @ns.expect(parser)
     @ns.marshal_with(ns.model('SecurityQuestions', SecurityQuestionModel))
-    @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
     def get(self):
         args = parser.parse_args(strict=False)
         questions = SecurityQuestion.query.all()
