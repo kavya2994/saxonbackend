@@ -77,6 +77,7 @@ class TerminationInitiate(Resource):
                             TokenStatus="active",
                             EmployerID=employernumber,
                             # OlderTokenID=,
+                            LastModifiedDate=datetime.utcnow(),
                         )
 
                         db.session.add(token_data)

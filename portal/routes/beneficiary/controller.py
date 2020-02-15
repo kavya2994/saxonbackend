@@ -9,7 +9,7 @@ from email.mime.text import MIMEText
 from flask import Blueprint, jsonify, request
 from flask_restplus import Resource, reqparse, fields, inputs, cors
 from werkzeug.exceptions import NotFound, BadRequest, Unauthorized, UnprocessableEntity, InternalServerError
-from ...helpers import token_verify_or_raise, crossdomain
+from ...helpers import token_verify_or_raise, crossdomain, RESPONSE_OK
 from ...models.beneficiary import Beneficiary, BeneficiaryResponseModel
 from ...models.enrollmentform import Enrollmentform
 from ...models.roles import *
@@ -36,6 +36,12 @@ postParser.add_argument('Relationship', type=str, location='json', required=True
 postParser.add_argument('Role', type=str, location='json', required=True)
 postParser.add_argument('PhoneNumber', type=str, location='json', required=True)
 postParser.add_argument('Percentage', type=float, location='json', required=True)
+
+deleteParser = reqparse.RequestParser()
+deleteParser.add_argument('Authorization', type=str, location='headers', required=True)
+deleteParser.add_argument('Username', type=str, location='headers', required=True)
+deleteParser.add_argument('IpAddress', type=str, location='headers', required=True)
+deleteParser.add_argument('BeneficiaryID', type=str, location='json', required=True)
 
 
 @ns.route("/form/<FormID>")
@@ -115,7 +121,7 @@ class BeneficiaryFormController(Resource):
         return Beneficiary.query.filter_by(EnrollmentformID=FormID).all()
 
     @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
-    @ns.doc(parser=parser,
+    @ns.doc(parser=deleteParser,
         description='Delete A Beneficiary',
         responses={
             200: 'OK',
@@ -125,9 +131,9 @@ class BeneficiaryFormController(Resource):
             500: 'Internal Server Error'
         })
     @ns.marshal_with(BeneficiaryResponseModel)
-    @ns.expect(parser, validate=True)
+    @ns.expect(deleteParser, validate=True)
     def delete(self, FormID):
-        args = parser.parse_args()
+        args = deleteParser.parse_args(strict=True)
         auth = token_verify_or_raise(token=args['Authorization'], ip=args['IpAddress'], user=args['Username'])
 
         if auth['Role'] not in [ROLES_EMPLOYER, ROLES_ADMIN]:
@@ -135,6 +141,13 @@ class BeneficiaryFormController(Resource):
 
         form = Enrollmentform.query.get(FormID)
         if form is None:
-            raise BadRequest()
+            raise NotFound('Form Not Found')
 
-        pass
+        beneficiary = Beneficiary.query.get(BeneficiaryID=args['BeneficiaryID'])
+        if beneficiary is None:
+            raise NotFound('Beneficiary Not Found')
+
+        db.session.delete(beneficiary)
+        db.session.commit()
+        return RESPONSE_OK
+

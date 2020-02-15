@@ -11,6 +11,8 @@ from functools import update_wrapper
 from . import APP
 
 
+RESPONSE_OK = { "Result": "Success" }
+
 def delete_excel(filename):
     time.sleep(5) #??!!
     print("deleting file" + filename)

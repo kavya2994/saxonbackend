@@ -7,7 +7,7 @@ from email.mime.text import MIMEText
 from flask import Blueprint, jsonify, request, abort
 from flask_restplus import Resource, reqparse, cors
 from werkzeug.exceptions import NotFound, BadRequest, Unauthorized
-from ...helpers import randomStringwithDigitsAndSymbols, token_verify, crossdomain
+from ...helpers import randomStringwithDigitsAndSymbols, token_verify, crossdomain, RESPONSE_OK
 from ...encryption import Encryption
 from ...models import db
 from ...models.users import Users
@@ -79,7 +79,7 @@ class SecurityQuestion(Resource):
         user.SecurityAnswer = Encryption().encrypt(args["SecurityAnswer"])
         try:
             db.session.commit()
-            return { "result": "success" }
+            return RESPONSE_OK
 
         except KeyError as e:
             print(str(e))

@@ -105,7 +105,7 @@ click here to review our members handbook. </p>"""
             send_email(to_address=args["MemberEmail"], subject=email_subject, body=email_body)
 
             return {
-                    "result": "Success",
+                    "Result": "Success",
                     "TokenID": token_data.TokenID
                 }
 
