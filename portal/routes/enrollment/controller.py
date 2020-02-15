@@ -26,9 +26,6 @@ RequestType_EmployerSubmission = 'EmployerSubmission'
 RequestType_ApprovalConfirmation = 'ApprovalConfirmation'
 RequestType_Reject = 'Rejected'
 
-
-
-
 getParser = reqparse.RequestParser()
 parser = reqparse.RequestParser()
 
@@ -206,11 +203,13 @@ class EnrollmentController(Resource):
             TokenStatus='Active',
             EmployerID=token.EmployerID,
             OlderTokenID=token.TokenID,
+            LastModifiedDate=datetime.utcnow(),
         )
 
         db.session.add(newToken)
         token.FormStatus = 'Submitted'
         token.TokenStatus = 'Inactive'
+        token.LastModifiedDate = datetime.utcnow()
 
 
     def _saveFormData_pre_update(self, token, form, args):
@@ -249,6 +248,7 @@ class EnrollmentController(Resource):
     def _employerSubmission_post_update(self, token, form, args):
         form.PendingFrom = 'ReviewerManager'
         token.PendingFrom = 'ReviewerManager'
+        token.LastModifiedDate = datetime.utcnow()
         db.session.commit()
 
 

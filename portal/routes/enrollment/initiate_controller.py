@@ -74,6 +74,7 @@ class EnrollmentInitiationController(Resource):
                 PendingFrom = 'Member',
                 TokenStatus = 'Active',
                 EmployerID = '',
+                LastModifiedDate=datetime.utcnow(),
             )
 
             db.session.add(token_data)
