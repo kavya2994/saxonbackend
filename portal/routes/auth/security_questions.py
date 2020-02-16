@@ -43,10 +43,10 @@ class SecurityQuestions(Resource):
                 {
                     'SecurityQuestionID': questions[0].SecurityQuestionID,
                     'Question': questions[0].Question,
-                },{
+                }, {
                     'SecurityQuestionID': questions[1].SecurityQuestionID,
                     'Question': questions[1].Question,
-                },{
+                }, {
                     'SecurityQuestionID': questions[2].SecurityQuestionID,
                     'Question': questions[2].Question,
                 }

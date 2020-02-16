@@ -49,6 +49,9 @@ CORS_ORIGIN_WHITELIST = [
     "http://10.147.1.101:4200",
     "https://10.147.1.101:4200",
 
+    "http://132.145.107.163",
+    "https://132.145.107.163",
+
     "http://portal.silverthatch.org.ky",
     "https://portal.silverthatch.org.ky"
 ]
