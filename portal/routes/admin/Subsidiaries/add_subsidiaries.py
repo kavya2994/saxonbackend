@@ -8,7 +8,7 @@ from .. import ns
 
 parser = reqparse.RequestParser()
 parser.add_argument('Authorization', type=str, location='headers', required=True)
-parser.add_argument('Username', type=str, location='headers', required=True)
+parser.add_argument('username', type=str, location='headers', required=True)
 parser.add_argument('Ipaddress', type=str, location='headers', required=True)
 parser.add_argument('SubsidiaryID', type=str, location='json', required=True)
 parser.add_argument('SubsidiaryName', type=str, location='json', required=True)
@@ -26,7 +26,7 @@ class AddSubsidiary(Resource):
     @ns.expect(parser, validate=True)
     def post(self):
         args = parser.parse_args(strict=False)
-        username = args['Username']
+        username = args['username']
         token = args["Authorization"]
         ip = args['Ipaddress']
         decoded_token = token_verify_or_raise(token, username, ip)

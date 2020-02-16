@@ -9,7 +9,7 @@ from . import ns
 
 parser = reqparse.RequestParser()
 parser.add_argument('Authorization', type=str, location='headers', required=True)
-parser.add_argument('Username', type=str, location='headers', required=True)
+parser.add_argument('username', type=str, location='headers', required=True)
 parser.add_argument('IpAddress', type=str, location='headers', required=True)
 parser.add_argument('username', type=str, location='json', required=True)
 
@@ -24,7 +24,7 @@ class DeleteUser(Resource):
     @ns.expect(parser, validate=True)
     def post(self):
         args = parser.parse_args(strict=False)
-        username = args['Username']
+        username = args['username']
         token = args["Authorization"]
         ip = args['IpAddress']
         decoded_token = token_verify_or_raise(token, username, ip)

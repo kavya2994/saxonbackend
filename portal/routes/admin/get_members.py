@@ -13,7 +13,7 @@ from . import ns
 
 parser = reqparse.RequestParser()
 parser.add_argument('Authorization', type=str, location='headers', required=True)
-parser.add_argument('Username', type=str, location='headers', required=True)
+parser.add_argument('username', type=str, location='headers', required=True)
 parser.add_argument('Ipaddress', type=str, location='headers', required=True)
 parser.add_argument('min', type=str, location='json', required=True)
 parser.add_argument('max', type=str, location='json', required=True)
@@ -50,7 +50,7 @@ class GetMembers(Resource):
     @ns.marshal_with(response_model)
     def post(self):
         args = parser.parse_args(strict=False)
-        username = args['Username']
+        username = args['username']
         token = args["Authorization"]
         ip = args['IpAddress']
         minimum = args["min"]

@@ -15,7 +15,7 @@ from . import ns
 
 parser = reqparse.RequestParser()
 parser.add_argument('Authorization', type=str, location='headers', required=True)
-parser.add_argument('Username', type=str, location='headers', required=True)
+parser.add_argument('username', type=str, location='headers', required=True)
 parser.add_argument('Ipaddress', type=str, location='headers', required=True)
 parser.add_argument('employer_id', type=str, location='json', required=True)
 parser.add_argument('member_id', type=str, location='json', required=True)
@@ -33,7 +33,7 @@ class AddEmployerMemberRelation(Resource):
     @ns.expect(parser, validate=True)
     def post(self):
         args = parser.parse_args(strict=False)
-        username = args['Username']
+        username = args['username']
         token = args["Authorization"]
         ip = args['IpAddress']
         employer_id = args["employer_id"]

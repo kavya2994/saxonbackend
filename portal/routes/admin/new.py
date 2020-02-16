@@ -14,7 +14,7 @@ from . import ns
 
 parser = reqparse.RequestParser()
 parser.add_argument('Authorization', type=str, location='headers', required=True)
-parser.add_argument('Username', type=str, location='headers', required=True)
+parser.add_argument('username', type=str, location='headers', required=True)
 parser.add_argument('Ipaddress', type=str, location='headers', required=True)
 
 
@@ -30,7 +30,7 @@ class AddUser(Resource):
         try:
             if "Authorization" in request.headers.keys() and token_verify(token=request.headers["Authorization"],
                                                                           ip=request.headers["Ipaddress"],
-                                                                          user=request.headers["Username"]):
+                                                                          user=request.headers["username"]):
                 auth = request.headers["Authorization"]
                 auth1 = jwt.decode(auth, verify=False)
                 if auth1["Role"] == "Admin":
