@@ -19,11 +19,11 @@ from ... import APP
 getParser = reqparse.RequestParser()
 getParser.add_argument('Authorization', type=str, location='headers', required=True)
 getParser.add_argument('username', type=str, location='headers', required=True)
-getParser.add_argument('ipAddress', type=str, location='headers', required=True)
+getParser.add_argument('Ipaddress', type=str, location='headers', required=True)
 
 postParser = reqparse.RequestParser()
 postParser.add_argument('Authorization', type=str, location='headers', required=True)
-postParser.add_argument('ipAddress', type=str, location='headers', required=True)
+postParser.add_argument('Ipaddress', type=str, location='headers', required=True)
 postParser.add_argument('username', type=str, location='headers', required=True)
 
 postParser.add_argument('SecurityQuestionID', type=int, location='json', required=True)
@@ -68,7 +68,7 @@ class SecurityQuestion(Resource):
     def post(self):
         args = postParser.parse_args(strict=False)
         token = args["Authorization"]
-        if not token_verify(token=token, ip=args["ipAddress"], user=args["username"]):
+        if not token_verify(token=token, ip=args["Ipaddress"], user=args["username"]):
             raise Unauthorized()
 
         user = Users.query.filter_by(Username=args["username"]).first()

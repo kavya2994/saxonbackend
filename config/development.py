@@ -15,7 +15,7 @@ MAILGUN_API_KEY = "1dcbf1bdff3416543d67867101b08e49-52b6835e-5b18bf8e"
 MAILGUN_DOMAIN = "sandbox6edce741885a45088acf63216cdf5660.mailgun.org"
 
 CORS_HEADERS = [
-    'ipAddress', 'username', 'password',
+    'Ipaddress', 'username', 'password',
     'Content-Type'
 ]
 

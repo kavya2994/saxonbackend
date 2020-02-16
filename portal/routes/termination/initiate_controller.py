@@ -19,7 +19,7 @@ from ... import APP
 parser = reqparse.RequestParser()
 parser.add_argument('Authorization', type=str, location='headers', required=True)
 parser.add_argument('username', type=str, location='headers', required=True)
-parser.add_argument('ipAddress', type=str, location='headers', required=True)
+parser.add_argument('Ipaddress', type=str, location='headers', required=True)
 
 parser.add_argument('MemberName', type=str, location='json', required=True)
 parser.add_argument('MemberNumber', type=str, location='json', required=True)
@@ -50,7 +50,7 @@ class TerminationInitiationController(Resource):
     @ns.marshal_with(TerminationformResponseModel)
     def post(self):
         args = parser.parse_args()
-        auth = token_verify_or_raise(token=args['Authorization'], ip=args['ipAddress'], user=args['username'])
+        auth = token_verify_or_raise(token=args['Authorization'], ip=args['Ipaddress'], user=args['username'])
 
         if auth['role'] != ROLES_EMPLOYER:
             raise Unauthorized()

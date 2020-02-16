@@ -14,7 +14,7 @@ from ... import APP
 
 
 parser = reqparse.RequestParser()
-parser.add_argument('ipAddress', type=str, location='headers', required=True)
+parser.add_argument('Ipaddress', type=str, location='headers', required=True)
 parser.add_argument('username', type=str, location='json', required=True)
 parser.add_argument('password', type=str, location='json', required=True)
 
@@ -46,7 +46,7 @@ class Login(Resource):
         args = parser.parse_args(strict=False)
         username = args['username']
         password = args['password']
-        ip = args['ipAddress']
+        ip = args['Ipaddress']
 
         encrypt_password = Encryption().encrypt(password)
         userinfo = Users.query.filter_by(Username=username, Password=encrypt_password).first()
@@ -67,7 +67,7 @@ class Login(Resource):
                 'username': username,
                 'exp': str(exp),
                 'role': role,
-                'ipAddress': ip,
+                'Ipaddress': ip,
             }
 
             token = jwt.encode(key=APP.config['JWT_SECRET'], algorithm='HS256', payload=payload,)

@@ -20,7 +20,7 @@ from ... import APP
 parser = reqparse.RequestParser()
 parser.add_argument('Authorization', type=str, location='headers', required=True)
 parser.add_argument('username', type=str, location='headers', required=True)
-parser.add_argument('ipAddress', type=str, location='headers', required=True)
+parser.add_argument('Ipaddress', type=str, location='headers', required=True)
 
 
 @ns.route("/file")

@@ -24,7 +24,7 @@ from ... import APP
 parser = reqparse.RequestParser()
 parser.add_argument('Authorization', type=str, location='headers', required=True)
 parser.add_argument('username', type=str, location='headers', required=True)
-parser.add_argument('ipAddress', type=str, location='headers', required=True)
+parser.add_argument('Ipaddress', type=str, location='headers', required=True)
 
 parser.add_argument('MemberEmail', type=str, location='json', required=True)
 parser.add_argument('MemberFirstName', type=str, location='json', required=True)
@@ -43,7 +43,7 @@ class EnrollmentInitiationController(Resource):
     @ns.expect(parser, validate=True)
     def post(self):
         args = parser.parse_args()
-        auth = token_verify_or_raise(token=args["Authorization"], ip=args["ipAddress"], user=args["username"])
+        auth = token_verify_or_raise(token=args["Authorization"], ip=args["Ipaddress"], user=args["username"])
 
         if auth["Role"] != ROLES_EMPLOYER:
             raise Unauthorized()
