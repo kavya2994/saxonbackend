@@ -21,10 +21,10 @@ parser.add_argument('password', type=str, location='json', required=True)
 response_model = {
     'email': fields.String,
     'username': fields.String,
-    'firstName': fields.String,
-    'lastName': fields.String,
+    'firstname': fields.String,
+    'lastname': fields.String,
     'role': fields.String,
-    'temporaryPassword': fields.Boolean(default=False),
+    'temppass': fields.Boolean(default=False),
     'token': fields.String,
     'securityQuestion': fields.String,
 }
@@ -80,7 +80,7 @@ class Login(Resource):
                     "firstname": name,
                     "lastname": name,
                     "role": role,
-                    "temporaryPassword": userinfo.TemporaryPassword,
+                    "temppass": userinfo.TemporaryPassword,
                     'token': str(token),
                     "securityQuestion": securityQuestion,
             }
