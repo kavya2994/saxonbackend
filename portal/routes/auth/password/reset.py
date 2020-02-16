@@ -18,7 +18,7 @@ parser = reqparse.RequestParser()
 parser.add_argument('Authorization', type=str, location='headers', required=True)
 parser.add_argument('Ipaddress', type=str, location='headers', required=True)
 
-parser.add_argument('RequestType', type=str, location='json', required=True, help='Accepted Values: [Admin|SecurityQuestion|Email]')
+parser.add_argument('request_type', type=str, location='json', required=True, help='Accepted Values: [Admin|SecurityQuestion|Email]')
 parser.add_argument('username', type=str, location='headers', required=True)
 parser.add_argument('Answer', type=str, location='json', required=False)
 parser.add_argument('Email', type=str, location='json', required=False)
@@ -45,21 +45,21 @@ class PasswordReset(Resource):
         if user == None:
             raise UnprocessableEntity('User not found')
 
-        if args['RequestType'] == 'SecurityQuestion':
+        if args['request_type'] == 'SecurityQuestion':
             if 'Answer' not in args or user['Answer'] != Encryption().encrypt(args['Answer']):
                 raise UnprocessableEntity('Invalid Answer')
 
-        elif args['RequestType'] == 'Email':
+        elif args['request_type'] == 'Email':
             if 'Email' not in args or user["Email"] != args['Email']:
                 raise UnprocessableEntity('User not found')
 
-        elif args['RequestType'] == 'Admin':
+        elif args['request_type'] == 'Admin':
             pass
 
         else:
             raise BadRequest('Invalid RequestType')
 
-        return self._change_pass(username, user.Email)
+        return self._change_password(username, user.Email)
 
     def _change_password(self, username, email):
         try:
