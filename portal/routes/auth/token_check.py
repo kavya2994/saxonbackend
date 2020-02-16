@@ -6,18 +6,17 @@ from werkzeug.exceptions import Unauthorized
 from . import ns
 from ...helpers import token_verify_or_raise
 
-
 parser = reqparse.RequestParser()
 parser.add_argument('Authorization', type=str, location='headers', required=True)
 parser.add_argument('Username', type=str, location='headers', required=True)
 parser.add_argument('IpAddress', type=str, location='headers', required=True)
 
+
 @ns.route('/token/check')
 class TokenCheck(Resource):
     @ns.doc(parser=parser,
-        description='Validates the user token',
-        responses={400: 'Bad Request', 401: 'Unauthorized', 200: 'OK'})
-
+            description='Validates the user token',
+            responses={400: 'Bad Request', 401: 'Unauthorized', 200: 'OK'})
     @ns.expect(parser, validate=True)
     def post(self):
         args = parser.parse_args()
@@ -27,4 +26,4 @@ class TokenCheck(Resource):
         if auth["Username"] != args["Username"] or auth["IpAddress"] != args["IpAddress"]:
             raise Unauthorized()
 
-        return { "result": True }
+        return {"result": True}

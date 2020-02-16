@@ -14,8 +14,6 @@ from ...models.users import Users
 from ...models.security_question import SecurityQuestion
 from . import ns
 
-
-
 parser = reqparse.RequestParser()
 parser.add_argument('Authorization', type=str, location='headers', required=True)
 parser.add_argument('Username', type=str, location='headers', required=True)
@@ -36,7 +34,6 @@ def check_user():
             return jsonify({"error": "user doesn't exist"}), 400
     else:
         return abort(404)
-
 
 
 # @user_blueprint.route('/login_cred', methods=['POST', 'OPTIONS'])
@@ -122,4 +119,3 @@ def login_cred_mail():
         except Exception as e:
             print(str(e))
             return jsonify({"error": "sorry"}), 500
-

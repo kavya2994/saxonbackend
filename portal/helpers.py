@@ -8,20 +8,20 @@ from flask import current_app as app
 from flask_cors import CORS
 from werkzeug.exceptions import Unauthorized
 
+
 def init_cors(app):
     CORS(app, resources={r"*": {"origins": "*"}})
 
 
-
 def delete_excel(filename):
-    time.sleep(5) #??!!
+    time.sleep(5)  # ??!!
     print("deleting file" + filename)
     os.remove(filename)
 
 
 def token_verify_or_raise(token, user, ip):
     decoded_token = token_verify(token, user, ip)
-    if decoded_token == None:
+    if decoded_token is None:
         raise Unauthorized()
     return decoded_token
 

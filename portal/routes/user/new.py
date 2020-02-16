@@ -35,7 +35,7 @@ class UserNew(Resource):
             if "Authorization" in request.headers.keys() and token_verify(token=request.headers["Authorization"], ip=request.headers["Ipaddress"], user=request.headers["User"]):
                 auth = request.headers["Authorization"]
                 auth1 = jwt.decode(auth, key=app.config['JWT_SECRET'])
-                if auth1["role"] == "admin" and token_verify(token=request.headers["Authorization"], ip=request.headers["Ipaddress"], user=request.headers["User"]):
+                if auth1["role"] == "Admin" and token_verify(token=request.headers["Authorization"], ip=request.headers["Ipaddress"], user=request.headers["User"]):
                     data = json.loads(str(request.data, encoding='utf-8'))
                     username = data["Username"]
                     displayname = data["DisplayName"]

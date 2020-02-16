@@ -4,7 +4,7 @@ from flask_restplus import Api, Resource
 
 
 def get_config_file_path():
-    env = os.getenv("FLASK_ENV", default="development")
+    env = os.getenv("FLASK_ENV", default="production")
     base = os.path.dirname(os.path.abspath(__file__))
     absolute_path = os.path.abspath(os.path.join(base, '..', 'config', env + '.py'))
     return absolute_path

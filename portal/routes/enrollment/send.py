@@ -81,7 +81,7 @@ class EnrollmentFile(Resource):
                                        '<p>-----------------------------------------</p>'
                                        '<p>http://183.82.0.186:812/enrollment-form/%s</p>'
                                        '<p>To learn more about the Silver Thatch Pension Plan,'
-                                       ' click here to review our members handbook. </p>' % (member_name, token),
+                                       ' click here to review our members handbook. </p>' % (member_name, token_id),
                                        'html')
                     # if time == 3:
                     #     notify = True
@@ -149,7 +149,7 @@ class EnrollmentFile(Resource):
                                '<p>http://183.82.0.186:812/enrollment-form/%s</p>'
                                '<p>To learn more about the Silver Thatch Pension '
                                'Plan, click here to review our members handbook. </p>' % (
-                                   member_name, data["comments"], token),
+                                   member_name, data["comments"], token_id),
                                'html')
             try:
                 msg.attach(msgtext)

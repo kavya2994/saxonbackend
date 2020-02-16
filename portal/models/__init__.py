@@ -3,6 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
 
+
 def init_app(app):
     readonly_db_connection_string = app.config['DBAAS_READONLY_CONNECTION_STRING'] \
         if 'DBAAS_READONLY_CONNECTION_STRING' in app.config else "sqlite:///../data/readonly.sqlite"
@@ -31,6 +32,8 @@ def init_app(app):
         from .employer import Employer
         from .member import Member
         from .employer_member_relation import EmpMemRel
+        from .employer_view import EmployerView
+        from .member_view import MemberView
 
-        db.create_all(bind=['writeonly'])
+        db.create_all(bind=['writeonly', 'readonly'])
         db.session.commit()

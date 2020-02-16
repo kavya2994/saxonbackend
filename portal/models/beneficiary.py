@@ -18,7 +18,6 @@ class Beneficiary(db.Model):
     Percentage = db.Column(db.Float)
 
 
-
 BeneficiaryResponseModel = {
     'BeneficiaryID': fields.String,
     'EnrollmentformID': fields.String,

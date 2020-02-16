@@ -9,7 +9,7 @@ DBAAS_WRITEONLY_CONNECTION_STRING = "oracle+cx_oracle://system:Sportal_DB#23@140
 
 SERVER_WEB_URL = 'https://portal.silverthatch.org.ky/'
 SERVER_ADDRESS = "0.0.0.0"
-SERVER_PORT = 443
+SERVER_PORT = 811
 
 CERT_KEY_FILE = "/var/www/certs/privkey.pem"
 CERT_FILE = "/var/www/certs/fullchain.pem"
