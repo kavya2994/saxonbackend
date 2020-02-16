@@ -11,7 +11,7 @@ from functools import update_wrapper
 from . import APP
 
 
-RESPONSE_OK = { "Result": "Success" }
+RESPONSE_OK = { "result": "Success" }
 
 def delete_excel(filename):
     time.sleep(5) #??!!
@@ -31,7 +31,7 @@ def token_verify(token, user, ip):
 
     try:
         decoded = jwt.decode(token, key=APP.config['JWT_SECRET'])
-        if decoded["Username"] != user or decoded["IpAddress"] != ip:
+        if decoded["username"] != user or decoded["ipAddress"] != ip:
             decoded = None
 
     except jwt.DecodeError:

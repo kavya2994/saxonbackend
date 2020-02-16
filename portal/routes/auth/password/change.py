@@ -18,11 +18,11 @@ from .... import APP
 
 parser = reqparse.RequestParser()
 parser.add_argument('Authorization', type=str, location='headers', required=True)
-parser.add_argument('IpAddress', type=str, location='headers', required=True)
+parser.add_argument('ipAddress', type=str, location='headers', required=True)
 
-parser.add_argument('Username', type=str, location='json', required=True)
-parser.add_argument('OldPassword', type=str, location='json', required=True)
-parser.add_argument('NewPassword', type=str, location='json', required=True)
+parser.add_argument('username', type=str, location='json', required=True)
+parser.add_argument('oldPassword', type=str, location='json', required=True)
+parser.add_argument('newPassword', type=str, location='json', required=True)
 
 @ns.route("/password/change")
 class PasswordChange(Resource):
@@ -37,14 +37,14 @@ class PasswordChange(Resource):
     @ns.expect(parser, validate=True)
     def post(self):
         args = parser.parse_args(strict=False)
-        token = token_verify_or_raise(token=args["Authorization"], ip=args["IpAddress"], user=args["Username"])
+        token = token_verify_or_raise(token=args["Authorization"], ip=args["ipAddress"], user=args["username"])
 
         # TODO:
         # Verify the role from token before proceeding with password chanaging
 
-        username = args["Username"]
-        old_pass = args["OldPassword"]
-        new_pass = args["NewPassword"]
+        username = args["username"]
+        old_pass = args["oldPassword"]
+        new_pass = args["newPassword"]
 
         user = Users.query.filter_by(Username=username).first()
         if user is None:

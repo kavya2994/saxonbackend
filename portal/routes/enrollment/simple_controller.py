@@ -19,8 +19,8 @@ from ... import APP
 
 parser = reqparse.RequestParser()
 parser.add_argument('Authorization', type=str, location='headers', required=True)
-parser.add_argument('Username', type=str, location='headers', required=True)
-parser.add_argument('IpAddress', type=str, location='headers', required=True)
+parser.add_argument('username', type=str, location='headers', required=True)
+parser.add_argument('ipAddress', type=str, location='headers', required=True)
 
 
 @ns.route("/<FormID>")
@@ -42,7 +42,7 @@ class SimpleEnrollmentController(Resource):
     @ns.marshal_with(EnrollmentformResponseModel)
     def get(self, FormID):
         args = parser.parse_args()
-        auth = token_verify_or_raise(token=args["Authorization"], ip=args["IpAddress"], user=args["Username"])
+        auth = token_verify_or_raise(token=args["Authorization"], ip=args["ipAddress"], user=args["username"])
 
         enrollmentform = Enrollmentform.query.get(FormID)
 

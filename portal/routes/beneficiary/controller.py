@@ -21,13 +21,13 @@ from ... import APP
 
 parser = reqparse.RequestParser()
 parser.add_argument('Authorization', type=str, location='headers', required=True)
-parser.add_argument('Username', type=str, location='headers', required=True)
-parser.add_argument('IpAddress', type=str, location='headers', required=True)
+parser.add_argument('username', type=str, location='headers', required=True)
+parser.add_argument('ipAddress', type=str, location='headers', required=True)
 
 postParser = reqparse.RequestParser()
 postParser.add_argument('Authorization', type=str, location='headers', required=True)
-postParser.add_argument('Username', type=str, location='headers', required=True)
-postParser.add_argument('IpAddress', type=str, location='headers', required=True)
+postParser.add_argument('username', type=str, location='headers', required=True)
+postParser.add_argument('ipAddress', type=str, location='headers', required=True)
 
 postParser.add_argument('FirstName', type=str, location='json', required=True)
 postParser.add_argument('LastName', type=str, location='json', required=True)
@@ -39,8 +39,8 @@ postParser.add_argument('Percentage', type=float, location='json', required=True
 
 deleteParser = reqparse.RequestParser()
 deleteParser.add_argument('Authorization', type=str, location='headers', required=True)
-deleteParser.add_argument('Username', type=str, location='headers', required=True)
-deleteParser.add_argument('IpAddress', type=str, location='headers', required=True)
+deleteParser.add_argument('username', type=str, location='headers', required=True)
+deleteParser.add_argument('ipAddress', type=str, location='headers', required=True)
 deleteParser.add_argument('BeneficiaryID', type=str, location='json', required=True)
 
 
@@ -63,9 +63,9 @@ class BeneficiaryFormController(Resource):
     @ns.marshal_with(BeneficiaryResponseModel)
     def get(self, FormID):
         args = parser.parse_args()
-        auth = token_verify_or_raise(token=args['Authorization'], ip=args['IpAddress'], user=args['Username'])
+        auth = token_verify_or_raise(token=args['Authorization'], ip=args['ipAddress'], user=args['username'])
 
-        if auth['Role'] not in [ROLES_EMPLOYER, ROLES_ADMIN]:
+        if auth['role'] not in [ROLES_EMPLOYER, ROLES_ADMIN]:
             raise Unauthorized()
 
         beneficiaries = Beneficiary.query.filter_by(EnrollmentformID=FormID).all()
@@ -86,9 +86,9 @@ class BeneficiaryFormController(Resource):
     @ns.expect(postParser, validate=True)
     def post(self, FormID):
         args = postParser.parse_args(strict=True)
-        auth = token_verify_or_raise(token=args['Authorization'], ip=args['IpAddress'], user=args['Username'])
+        auth = token_verify_or_raise(token=args['Authorization'], ip=args['ipAddress'], user=args['username'])
 
-        if auth['Role'] not in [ROLES_EMPLOYER, ROLES_ADMIN]:
+        if auth['role'] not in [ROLES_EMPLOYER, ROLES_ADMIN]:
             raise Unauthorized()
 
         form = Enrollmentform.query.get(FormID)
@@ -104,7 +104,7 @@ class BeneficiaryFormController(Resource):
             LastName=args['LastName'],
             DOB=args['DOB'],
             Relationship=args['Relationship'],
-            Role=args['Role'],
+            Role=args['role'],
             PhoneNumber=args['PhoneNumber'],
             Percentage=args['Percentage'],
         )
@@ -134,9 +134,9 @@ class BeneficiaryFormController(Resource):
     @ns.expect(deleteParser, validate=True)
     def delete(self, FormID):
         args = deleteParser.parse_args(strict=True)
-        auth = token_verify_or_raise(token=args['Authorization'], ip=args['IpAddress'], user=args['Username'])
+        auth = token_verify_or_raise(token=args['Authorization'], ip=args['ipAddress'], user=args['username'])
 
-        if auth['Role'] not in [ROLES_EMPLOYER, ROLES_ADMIN]:
+        if auth['role'] not in [ROLES_EMPLOYER, ROLES_ADMIN]:
             raise Unauthorized()
 
         form = Enrollmentform.query.get(FormID)

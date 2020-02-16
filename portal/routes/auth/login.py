@@ -14,19 +14,19 @@ from ... import APP
 
 
 parser = reqparse.RequestParser()
-parser.add_argument('IpAddress', type=str, location='headers', required=True)
-parser.add_argument('Username', type=str, location='json', required=True)
-parser.add_argument('Password', type=str, location='json', required=True)
+parser.add_argument('ipAddress', type=str, location='headers', required=True)
+parser.add_argument('username', type=str, location='json', required=True)
+parser.add_argument('password', type=str, location='json', required=True)
 
 response_model = {
-    'Email': fields.String,
-    'Username': fields.String,
-    'FirstName': fields.String,
-    'LastName': fields.String,
-    'Role': fields.String,
-    'TemporaryPassword': fields.Boolean(default=False),
-    'Token': fields.String,
-    'SecurityQuestion': fields.String,
+    'email': fields.String,
+    'username': fields.String,
+    'firstName': fields.String,
+    'lastName': fields.String,
+    'role': fields.String,
+    'temporaryPassword': fields.Boolean(default=False),
+    'token': fields.String,
+    'securityQuestion': fields.String,
 }
 
 
@@ -44,9 +44,9 @@ class Login(Resource):
     @ns.marshal_with(response_model)
     def post(self):
         args = parser.parse_args(strict=False)
-        username = args['Username']
-        password = args['Password']
-        ip = args['IpAddress']
+        username = args['username']
+        password = args['password']
+        ip = args['ipAddress']
 
         encrypt_password = Encryption().encrypt(password)
         userinfo = Users.query.filter_by(Username=username, Password=encrypt_password).first()
@@ -64,10 +64,10 @@ class Login(Resource):
             exp = datetime.utcnow() + timedelta(hours=1, minutes=30)
 
             payload = {
-                'Username': username,
-                'Exp': str(exp),
-                'Role': role,
-                'IpAddress': ip,
+                'username': username,
+                'exp': str(exp),
+                'role': role,
+                'ipAddress': ip,
             }
 
             token = jwt.encode(key=APP.config['JWT_SECRET'], algorithm='HS256', payload=payload,)
@@ -75,14 +75,14 @@ class Login(Resource):
             securityQuestion = None if userinfo.SecurityQuestion is None else userinfo.SecurityQuestion.Question
 
             return {
-                    "Email": userinfo.Email,
-                    "Username": username,
-                    "FirstName": name,
+                    "email": userinfo.Email,
+                    "username": username,
+                    "firstname": name,
                     "lastname": name,
-                    "Role": role,
-                    "TemporaryPassword": userinfo.TemporaryPassword,
-                    'Token': str(token),
-                    "SecurityQuestion": securityQuestion,
+                    "role": role,
+                    "temporaryPassword": userinfo.TemporaryPassword,
+                    'token': str(token),
+                    "securityQuestion": securityQuestion,
             }
 
         except json.decoder.JSONDecodeError:

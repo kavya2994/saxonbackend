@@ -18,13 +18,13 @@ from ... import APP
 
 getParser = reqparse.RequestParser()
 getParser.add_argument('Authorization', type=str, location='headers', required=True)
-getParser.add_argument('Username', type=str, location='headers', required=True)
-getParser.add_argument('IpAddress', type=str, location='headers', required=True)
+getParser.add_argument('username', type=str, location='headers', required=True)
+getParser.add_argument('ipAddress', type=str, location='headers', required=True)
 
 postParser = reqparse.RequestParser()
 postParser.add_argument('Authorization', type=str, location='headers', required=True)
-postParser.add_argument('IpAddress', type=str, location='headers', required=True)
-postParser.add_argument('Username', type=str, location='headers', required=True)
+postParser.add_argument('ipAddress', type=str, location='headers', required=True)
+postParser.add_argument('username', type=str, location='headers', required=True)
 
 postParser.add_argument('SecurityQuestionID', type=int, location='json', required=True)
 postParser.add_argument('SecurityAnswer', type=str, location='json', required=True)
@@ -48,7 +48,7 @@ class SecurityQuestion(Resource):
     def get(self):
         args = getParser.parse_args(strict=True)
 
-        user = Users.query.filter_by(Username=args['Username']).first()
+        user = Users.query.filter_by(Username=args['username']).first()
         if user is None:
             raise NotFound('User not found')
 
@@ -68,10 +68,10 @@ class SecurityQuestion(Resource):
     def post(self):
         args = postParser.parse_args(strict=False)
         token = args["Authorization"]
-        if not token_verify(token=token, ip=args["IpAddress"], user=args["Username"]):
+        if not token_verify(token=token, ip=args["ipAddress"], user=args["username"]):
             raise Unauthorized()
 
-        user = Users.query.filter_by(Username=args["Username"]).first()
+        user = Users.query.filter_by(Username=args["username"]).first()
         if not user:
             raise NotFound()
 

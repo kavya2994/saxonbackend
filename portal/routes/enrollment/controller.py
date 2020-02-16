@@ -30,8 +30,8 @@ getParser = reqparse.RequestParser()
 parser = reqparse.RequestParser()
 
 parser.add_argument('Authorization', type=str, location='headers', required=False)
-parser.add_argument('Username', type=str, location='headers', required=False)
-parser.add_argument('IpAddress', type=str, location='headers', required=False)
+parser.add_argument('username', type=str, location='headers', required=False)
+parser.add_argument('ipAddress', type=str, location='headers', required=False)
 
 parser.add_argument('RequestType', type=str, location='json', required=True,
     help=f"Valid Values: [{RequestType_MemberSubmission}, {RequestType_SaveFormData}, {RequestType_EmployerSubmission}, {RequestType_ApprovalConfirmation}, {RequestType_Reject}]")
@@ -216,7 +216,7 @@ class EnrollmentController(Resource):
         if 'Authorization' not in args or 'IpAddress' not in args or 'Username' not in args:
             raise Unauthorized()
 
-        token_verify_or_raise(token=args["Authorization"], ip=args["IpAddress"], user=args["Username"])
+        token_verify_or_raise(token=args["Authorization"], ip=args["ipAddress"], user=args["username"])
 
         if token is None:
             raise NotFound()
@@ -233,9 +233,9 @@ class EnrollmentController(Resource):
         if 'Authorization' not in args or 'IpAddress' not in args or 'Username' not in args:
             raise Unauthorized()
 
-        auth = token_verify_or_raise(token=args["Authorization"], ip=args["IpAddress"], user=args["Username"])
+        auth = token_verify_or_raise(token=args["Authorization"], ip=args["ipAddress"], user=args["username"])
 
-        if auth['Role'] != ROLES_EMPLOYER:
+        if auth['role'] != ROLES_EMPLOYER:
             raise Unauthorized()
 
         if token is None or form is None:
@@ -256,9 +256,9 @@ class EnrollmentController(Resource):
         if 'Authorization' not in args or 'IpAddress' not in args or 'Username' not in args:
             raise Unauthorized()
 
-        auth = token_verify_or_raise(token=args["Authorization"], ip=args["IpAddress"], user=args["Username"])
+        auth = token_verify_or_raise(token=args["Authorization"], ip=args["ipAddress"], user=args["username"])
 
-        if auth['Role'] != ROLES_REVIEW_MANAGER:
+        if auth['role'] != ROLES_REVIEW_MANAGER:
             raise Unauthorized()
 
         if token is None or form is None:
@@ -280,9 +280,9 @@ class EnrollmentController(Resource):
         if 'Authorization' not in args or 'IpAddress' not in args or 'Username' not in args:
             raise Unauthorized()
 
-        auth = token_verify_or_raise(token=args["Authorization"], ip=args["IpAddress"], user=args["Username"])
+        auth = token_verify_or_raise(token=args["Authorization"], ip=args["ipAddress"], user=args["username"])
 
-        if auth['Role'] != ROLES_REVIEW_MANAGER:
+        if auth['role'] != ROLES_REVIEW_MANAGER:
             raise Unauthorized()
 
         if token is None or form is None:
@@ -296,11 +296,11 @@ class EnrollmentController(Resource):
         token.FormStatus = 'Rejected'
         db.session.commit()
 
-        auth = token_verify_or_raise(token=args["Authorization"], ip=args["IpAddress"], user=args["Username"])
+        auth = token_verify_or_raise(token=args["Authorization"], ip=args["ipAddress"], user=args["username"])
         if 'RejectionReason' in args and args['RejectionReason'] != '':
             comment = Comments(
                 FormID = form.FormID,
-                Role = auth['Role'],
+                Role = auth['role'],
                 Comment = args['RejectionReason'],
                 Date = datetime.utcnow(),
             )

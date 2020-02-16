@@ -17,8 +17,8 @@ from ... import APP
 
 parser = reqparse.RequestParser()
 parser.add_argument('Authorization', type=str, location='headers', required=True)
-parser.add_argument('Username', type=str, location='headers', required=True)
-parser.add_argument('IpAddress', type=str, location='headers', required=True)
+parser.add_argument('username', type=str, location='headers', required=True)
+parser.add_argument('ipAddress', type=str, location='headers', required=True)
 
 
 # @user_blueprint.route('/createuser', methods=['POST', 'OPTIONS'])
@@ -41,7 +41,7 @@ class UserNew(Resource):
                 auth1 = jwt.decode(auth, key=app.config['JWT_SECRET'])
                 if auth1["role"] == "admin" and token_verify(token=request.headers["Authorization"], ip=request.headers["Ipaddress"], user=request.headers["User"]):
                     data = json.loads(str(request.data, encoding='utf-8'))
-                    username = data["Username"]
+                    username = data["username"]
                     displayname = data["DisplayName"]
                     email = data["Email"]
                     session_duration = data["SessionDuration"]

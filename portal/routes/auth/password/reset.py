@@ -16,10 +16,10 @@ from .... import APP
 
 parser = reqparse.RequestParser()
 parser.add_argument('Authorization', type=str, location='headers', required=True)
-parser.add_argument('IpAddress', type=str, location='headers', required=True)
+parser.add_argument('ipAddress', type=str, location='headers', required=True)
 
 parser.add_argument('RequestType', type=str, location='json', required=True, help='Accepted Values: [Admin|SecurityQuestion|Email]')
-parser.add_argument('Username', type=str, location='headers', required=True)
+parser.add_argument('username', type=str, location='headers', required=True)
 parser.add_argument('Answer', type=str, location='json', required=False)
 parser.add_argument('Email', type=str, location='json', required=False)
 
@@ -38,8 +38,8 @@ class PasswordReset(Resource):
         args = parser.parse_args(strict=False)
         change_pass = False
 
-        username = args["Username"]
-        token = token_verify_or_raise(token=args["Authorization"], ip=args["IpAddress"], user=args["Username"])
+        username = args["username"]
+        token = token_verify_or_raise(token=args["Authorization"], ip=args["ipAddress"], user=args["username"])
 
         user = Users.query.filter_by(Username=username).first()
         if user == None:

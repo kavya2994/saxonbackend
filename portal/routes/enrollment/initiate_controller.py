@@ -23,8 +23,8 @@ from ... import APP
 
 parser = reqparse.RequestParser()
 parser.add_argument('Authorization', type=str, location='headers', required=True)
-parser.add_argument('Username', type=str, location='headers', required=True)
-parser.add_argument('IpAddress', type=str, location='headers', required=True)
+parser.add_argument('username', type=str, location='headers', required=True)
+parser.add_argument('ipAddress', type=str, location='headers', required=True)
 
 parser.add_argument('MemberEmail', type=str, location='json', required=True)
 parser.add_argument('MemberFirstName', type=str, location='json', required=True)
@@ -43,13 +43,13 @@ class EnrollmentInitiationController(Resource):
     @ns.expect(parser, validate=True)
     def post(self):
         args = parser.parse_args()
-        auth = token_verify_or_raise(token=args["Authorization"], ip=args["IpAddress"], user=args["Username"])
+        auth = token_verify_or_raise(token=args["Authorization"], ip=args["ipAddress"], user=args["username"])
 
         if auth["Role"] != ROLES_EMPLOYER:
             raise Unauthorized()
 
         try:
-            employer_username = auth['Username']
+            employer_username = auth['username']
             initiation_date = datetime.utcnow()
 
             # if str(employer_id)[-2:].__contains__("HR"):
@@ -83,7 +83,7 @@ class EnrollmentInitiationController(Resource):
             if 'Comment' in args and args['Comment'] != '':
                 comment = Comments(
                     FormID = new_enrollment.FormID,
-                    Role = auth['Role'],
+                    Role = auth['role'],
                     Comment = args['Comment'],
                     Date = initiation_date,
                 )
@@ -105,7 +105,7 @@ click here to review our members handbook. </p>"""
             send_email(to_address=args["MemberEmail"], subject=email_subject, body=email_body)
 
             return {
-                    "Result": "Success",
+                    "result": "Success",
                     "TokenID": token_data.TokenID
                 }
 
