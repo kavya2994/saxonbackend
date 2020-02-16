@@ -2,6 +2,9 @@ from . import db
 from ..helpers import uuid_generator
 
 
+TOKEN_FORMTYPE_ENROLLMENT = "Enrollment"
+TOKEN_FORMTYPE_TERMINATION = "Termination"
+
 class Token(db.Model):
     __bind_key__ = 'writeonly'
 

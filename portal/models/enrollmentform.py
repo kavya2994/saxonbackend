@@ -9,7 +9,7 @@ class Enrollmentform(db.Model):
     FormID = db.Column(db.Integer, Sequence('enrollmentform_id_seq'), primary_key=True, nullable=False)
     EmployerName = db.Column(db.String(255))
     EmployerID = db.Column(db.String(255), nullable=True)
-    InitiatedDate = db.Column(db.DateTime(255), nullable=True)
+    InitiatedDate = db.Column(db.DateTime, nullable=True)
     AlreadyEnrolled = db.Column(db.String(255), nullable=True)
     Status = db.Column(db.String(255), nullable=True)
     FirstName = db.Column(db.String(255), nullable=True)
@@ -30,7 +30,7 @@ class Enrollmentform(db.Model):
     ConfirmationStatus = db.Column(db.String(255), nullable=True)
     SignersName = db.Column(db.String(255), nullable=True)
     Signature = db.Column(db.String(255), nullable=True)
-    Estimatedannualincomerange = db.Column(db.String(255), nullable=True)
+    EstimatedAnnualIncomeRange = db.Column(db.String(255), nullable=True)
     ImmigrationStatus = db.Column(db.String(255), nullable=True)
     PendingFrom = db.Column(db.String(255), nullable=True)
     SpouseName = db.Column(db.String(255), nullable=True)
@@ -62,7 +62,7 @@ EnrollmentformResponseModel = {
     'ConfirmationStatus': fields.String,
     'SignersName': fields.String,
     'Signature': fields.String,
-    'Estimatedannualincomerange': fields.String,
+    'EstimatedAnnualIncomeRange': fields.String,
     'ImmigrationStatus': fields.String,
     'PendingFrom': fields.String,
     'SpouseName': fields.String,

@@ -51,7 +51,7 @@ parser.add_argument('Telephone', type=str, location='json', required=True)
 parser.add_argument('StartDateofContribution', type=inputs.date_from_iso8601, location='json', required=True, help='iso8601 format. eg: 2012-11-25')
 parser.add_argument('StartDateofEmployment', type=inputs.date_from_iso8601, location='json', required=True, help='iso8601 format. eg: 2012-11-25')
 parser.add_argument('ConfirmationStatus', type=str, location='json', required=True)
-parser.add_argument('Estimatedannualincomerange', type=str, location='json', required=True)
+parser.add_argument('EstimatedAnnualIncomeRange', type=str, location='json', required=True)
 parser.add_argument('ImmigrationStatus', type=str, location='json', required=True)
 parser.add_argument('SpouseName', type=str, location='json', required=True)
 parser.add_argument('SpouseDOB', type=inputs.date_from_iso8601, location='json', required=True)
@@ -145,7 +145,7 @@ class EnrollmentController(Resource):
             form.StartDateofContribution = args['StartDateofContribution']
             form.StartDateofEmployment = args['StartDateofEmployment']
             form.ConfirmationStatus = args['ConfirmationStatus']
-            form.Estimatedannualincomerange = args['Estimatedannualincomerange']
+            form.EstimatedAnnualIncomeRange = args['EstimatedAnnualIncomeRange']
             form.ImmigrationStatus = args['ImmigrationStatus']
             form.SpouseName = args['SpouseName']
             form.SpouseDOB = args['SpouseDOB']

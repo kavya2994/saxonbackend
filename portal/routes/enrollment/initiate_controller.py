@@ -11,7 +11,7 @@ from werkzeug.utils import secure_filename
 from werkzeug.exceptions import NotFound, BadRequest, Unauthorized, UnprocessableEntity, InternalServerError
 from ...helpers import token_verify_or_raise, crossdomain
 from ...models.enrollmentform import Enrollmentform
-from ...models.token import Token
+from ...models.token import Token, TOKEN_FORMTYPE_ENROLLMENT
 from ...models.comments import Comments
 from ...models.roles import *
 from ...models import db
@@ -70,10 +70,10 @@ class EnrollmentInitiationController(Resource):
                 InitiatedBy = employer_username,
                 InitiatedDate = initiation_date,
                 FormStatus = "Pending",
-                FormType = "Enrollment",
+                FormType = TOKEN_FORMTYPE_ENROLLMENT,
                 PendingFrom = 'Member',
                 TokenStatus = 'Active',
-                EmployerID = '',
+                EmployerID = employer_username,
                 LastModifiedDate=datetime.utcnow(),
             )
 

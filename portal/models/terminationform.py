@@ -1,5 +1,6 @@
 from . import db
 from sqlalchemy import Sequence
+from flask_restplus import fields
 
 
 class Terminationform(db.Model):
@@ -7,42 +8,44 @@ class Terminationform(db.Model):
 
     FormID = db.Column(db.Integer, Sequence('terminationform_id_seq'), primary_key=True, nullable=False)
 
-    EmployerName = db.Column(db.String(255))
-    Date = db.Column(db.String(255))
-    MemberName = db.Column(db.String(255))
-    MemberNumber = db.Column(db.String(255))
-    EmailAddress = db.Column(db.String(255))
-    Finaldateofemployment = db.Column(db.String(255))
-    ReasonforTermination = db.Column(db.String(255))
-    LastDeduction = db.Column(db.String(255))
-    Address = db.Column(db.String(255))
-    AddressLine2 = db.Column(db.String(255))
-    District = db.Column(db.String(255))
-    PostalCode = db.Column(db.String(255))
-    Country = db.Column(db.String(255))
-    Estimatedannualincomerange = db.Column(db.String(255))
-    Status = db.Column(db.String(255))
+    EmployerName = db.Column(db.String(255), nullable=True)
     EmployerID = db.Column(db.String(255))
-    PendingFrom = db.Column(db.String(255))
+    InitiatedDate = db.Column(db.DateTime)
+    MemberName = db.Column(db.String(255))
+    MemberNumber = db.Column(db.String(255), nullable=True)
+    EmailAddress = db.Column(db.String(255), nullable=True)
+    FinalDateOfEmployment = db.Column(db.Date, nullable=True)
+    ReasonforTermination = db.Column(db.String(255), nullable=True)
+    LastDeduction = db.Column(db.String(255), nullable=True)
+    Address = db.Column(db.String(255), nullable=True)
+    AddressLine2 = db.Column(db.String(255), nullable=True)
+    District = db.Column(db.String(255), nullable=True)
+    PostalCode = db.Column(db.String(255), nullable=True)
+    Country = db.Column(db.String(255), nullable=True)
+    EstimatedAnnualIncomeRange = db.Column(db.String(255), nullable=True)
+    Status = db.Column(db.String(255), nullable=True)
+    PendingFrom = db.Column(db.String(255), nullable=True)
+    FilePath = db.Column(db.String(255), nullable=True)
 
 
-#  {'address': '503, Cherry Street Apartment',
-#   'addressLine2': '118',
-#   'comments': 'term',
-#   'country': 'AF',
-#   'district': 'k',
-#   'email': 'helloo@gmail.com',
-#   'employername': 'Saxon Pensions',
-#   'employernumber': 'saxon',
-#   'finalDateofEmployement': DatetimeWithNanoseconds(2019, 12, 5, 18, 30, tzinfo=<UTC>),
-#   'formCreatedDate': DatetimeWithNanoseconds(2019, 12, 6, 8, 4, 22, 565843, tzinfo=<UTC>),
-#   'formType': 'termination',
-#   'incomerange': '20',
-#   'lastDeductionPeriod': DatetimeWithNanoseconds(2019, 12, 5, 18, 30, tzinfo=<UTC>),
-#   'member_id': '28634',
-#   'memberfirstName': 'Member124',
-#   'pendingFrom': 'member',
-#   'phoneNumber': '9866989999',
-#   'postalcode': '77844',
-#   'reasonForTermination': 'Left Employment',
-#   'status': 'pending'},
+TerminationformResponseModel = {
+    'FormID': fields.String,
+    'EmployerName': fields.String,
+    'InitiatedDate': fields.DateTime,
+    'MemberName': fields.String,
+    'MemberNumber': fields.String,
+    'EmailAddress': fields.String,
+    'FinalDateOfEmployment': fields.Date,
+    'ReasonforTermination': fields.Date,
+    'LastDeduction': fields.String,
+    'Address': fields.String,
+    'AddressLine2': fields.String,
+    'District': fields.String,
+    'PostalCode': fields.String,
+    'Country': fields.String,
+    'EstimatedAnnualIncomeRange': fields.String,
+    'Status': fields.String,
+    'EmployerID': fields.String,
+    'PendingFrom': fields.String,
+    'FilePath': fields.String,
+}

@@ -2,7 +2,7 @@ from flask import request
 from flask_restplus import Resource
 from .. import APP
 from ..api import api
-from ..helpers import crossdomain
+from ..helpers import crossdomain, RESPONSE_OK
 
 
 @api.route("/my-ip", methods=["GET"])
@@ -27,4 +27,4 @@ class Status(Resource):
 
     @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
     def get(self):
-        return 'OK'
+        return RESPONSE_OK
