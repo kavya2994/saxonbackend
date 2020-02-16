@@ -55,7 +55,7 @@ class Login(Resource):
             print("Username or password is incorrect")
             raise UnprocessableEntity('Username or Password is incorrect')
 
-        if userinfo.Status != "Active":
+        if str(userinfo.Status).upper() != "ACTIVE":
             raise UnprocessableEntity('User is not active')
 
         try:
