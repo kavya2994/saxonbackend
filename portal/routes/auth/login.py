@@ -65,7 +65,7 @@ class Login(Resource):
 
             payload = {
                 'username': username,
-                'exp': str(exp),
+                'exp': exp,
                 'role': role,
                 'Ipaddress': ip,
             }

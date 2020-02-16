@@ -34,8 +34,8 @@ def token_verify(token, user, ip):
         if decoded["username"] != user or decoded["Ipaddress"] != ip:
             decoded = None
 
-    except jwt.DecodeError:
-        print("decode error")
+    except jwt.DecodeError as e:
+        print(f"decode error: {e}")
     except jwt.ExpiredSignatureError:
         print("sign")
     except KeyError:
