@@ -26,6 +26,9 @@ CORS_HEADERS = [
 ]
 
 CORS_ORIGIN_WHITELIST = [
+    "http://generator.swagger.io",
+    "https://generator.swagger.io",
+
     "http://127.0.0.1",
     "https://127.0.0.1",
     "http://127.0.0.1:5000",
