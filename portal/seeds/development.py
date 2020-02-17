@@ -1,6 +1,7 @@
 from portal.models.users import Users
 from portal.models.roles import *
 from portal.models.employer import Employer
+from portal.models.status import *
 from portal.models.member import Member
 
 class DevelopmentSeeder(object):
@@ -17,7 +18,7 @@ class DevelopmentSeeder(object):
         admin_user = Users(UserID=1,
             Username="saxon",
             Password="6Q9usKHCRmlaNgufji0mJg==",
-            Status="Active",
+            Status=STATUS_ACTIVE,
             TemporaryPassword=False,
             Role=ROLES_ADMIN,
             SecurityQuestionID=1)
@@ -25,7 +26,7 @@ class DevelopmentSeeder(object):
         employer_user = Users(UserID=2,
             Username="saxonemployer",
             Password="6Q9usKHCRmlaNgufji0mJg==",
-            Status="Active",
+            Status=STATUS_ACTIVE,
             TemporaryPassword=True,
             Role=ROLES_EMPLOYER,
             SecurityQuestionID=1)

@@ -57,10 +57,10 @@ class Login(Resource):
             exp = datetime.utcnow() + timedelta(hours=1, minutes=30)
 
             payload = {
-                'Username': username,
-                'Exp': str(exp),
-                'Role': role,
-                'IpAddress': ip,
+                'username': username,
+                'exp': exp,
+                'role': role,
+                'Ipaddress': ip,
             }
 
             token = jwt.encode(key=app.config['JWT_SECRET'], algorithm='HS256', payload=payload, )

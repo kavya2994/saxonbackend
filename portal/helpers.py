@@ -31,14 +31,15 @@ def token_verify(token, user, ip):
 
     try:
         decoded = jwt.decode(token, key=app.config['JWT_SECRET'])
-        if decoded["Username"] != user or decoded["IpAddress"] != ip:
+        if decoded["username"] != user or decoded["Ipaddress"] != ip:
             decoded = None
-
-    except jwt.DecodeError:
-        print("decode error")
+        print(decoded)
+    except jwt.DecodeError as e:
+        print("decode error", e)
     except jwt.ExpiredSignatureError:
         print("sign")
     except KeyError:
+        decoded = None
         print("key error")
     return decoded
 

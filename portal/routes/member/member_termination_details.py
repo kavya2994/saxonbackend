@@ -24,7 +24,7 @@ parser.add_argument('memberid', type=str, location='json', required=True)
 
 
 @ns.route("/member/terminationdetails")
-class PasswordChange(Resource):
+class MemberTerminationDetails(Resource):
     @ns.doc(parser=parser,
             description='Get member termination details ',
             responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 422: 'UnprocessableEntity',
@@ -32,7 +32,7 @@ class PasswordChange(Resource):
     @ns.expect(parser, validate=True)
     def get(self):
         args = parser.parse_args(strict=False)
-        token = token_verify_or_raise(token=args["Authorization"], ip=args["IpAddress"], user=args["Username"])
+        token = token_verify_or_raise(token=args["Authorization"], ip=args["Ipaddress"], user=args["username"])
 
         # TODO:
         # Verify the role from token before proceeding with password chanaging

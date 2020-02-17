@@ -21,9 +21,11 @@ def init_app(app):
     with app.app_context():
         from .contributionform import Contributionform
         from .jwttokenblacklist import JWTTokenBlacklist
-        from .terminationform import Terminationform
+
         from .beneficiary import Beneficiary
         from .token import Token
+        from .terminationform import Terminationform
+
         from .comments import Comments
         from .enrollmentform import Enrollmentform
         from .security_question import SecurityQuestion
@@ -35,5 +37,5 @@ def init_app(app):
         from .employer_view import EmployerView
         from .member_view import MemberView
 
-        db.create_all(bind=['writeonly', 'readonly'])
+        db.create_all(bind=['writeonly'])
         db.session.commit()
