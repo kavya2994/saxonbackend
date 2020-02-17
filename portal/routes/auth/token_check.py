@@ -4,7 +4,8 @@ from flask import request, current_app as app
 from flask_restplus import Resource, reqparse
 from werkzeug.exceptions import Unauthorized
 from . import ns
-from ...helpers import token_verify_or_raise
+from ... import APP
+from ...helpers import token_verify_or_raise, crossdomain
 
 parser = reqparse.RequestParser()
 parser.add_argument('Authorization', type=str, location='headers', required=True)
@@ -14,6 +15,11 @@ parser.add_argument('Ipaddress', type=str, location='headers', required=True)
 
 @ns.route('/token/check')
 class TokenCheck(Resource):
+    @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
+    def options(self):
+        pass
+
+    @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
     @ns.doc(parser=parser,
             description='Validates the user token',
             responses={400: 'Bad Request', 401: 'Unauthorized', 200: 'OK'})

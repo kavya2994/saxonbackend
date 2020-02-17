@@ -4,13 +4,14 @@ from datetime import datetime
 from email.mime.text import MIMEText
 from flask import Blueprint, jsonify, request, abort, current_app as app
 from flask_restplus import Resource, reqparse
-from ...helpers import randomStringwithDigitsAndSymbols, token_verify
+from ...helpers import randomStringwithDigitsAndSymbols, token_verify, crossdomain
 from ...encryption import Encryption
 from ...models import db, status
 from ...models.users import Users
 from ...services.mail import send_email
 from ...models.security_question import SecurityQuestion
 from . import ns
+from ... import APP
 
 parser = reqparse.RequestParser()
 parser.add_argument('Authorization', type=str, location='headers', required=True)
@@ -22,6 +23,11 @@ parser.add_argument('Ipaddress', type=str, location='headers', required=True)
 # @cross_origin(origins=['*'], allow_headers=['Content-Type', 'Authorization', 'Ipaddress', 'User'])
 @ns.route("/createuser")
 class AddUser(Resource):
+    @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
+    def options(self):
+        pass
+
+    @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
     @ns.doc(parser=parser,
             description='Create New User',
             responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 500: 'Internal Server Error'})
@@ -79,9 +85,9 @@ class AddUser(Resource):
             else:
                 return {"error": "Not Authorized"}, 401
         except jwt.DecodeError:
-            return jsonify({"error": "Not Authorized"}), 401
+            return {"error": "Not Authorized"}, 401
         except jwt.ExpiredSignatureError:
-            return jsonify({"error": "Not Authorized"}), 401
+            return {"error": "Not Authorized"}, 401
         except Exception as e:
             print(str(e))
-            return {"error": "Not Authorized"}, 401
+            return {"error": str(e)}, 500

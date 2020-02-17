@@ -5,23 +5,30 @@ from flask import Blueprint, jsonify, request, abort, current_app as app, Respon
 from flask_restplus import Resource, reqparse
 from werkzeug.exceptions import UnprocessableEntity
 
-from ...helpers import randomStringwithDigitsAndSymbols, token_verify, token_verify_or_raise
+from ...helpers import randomStringwithDigitsAndSymbols, token_verify, token_verify_or_raise, crossdomain
 from ...encryption import Encryption
 from ...models import db, roles
 from ...models.users import Users
 from ...services.mail import send_email
 from . import ns
+from ... import APP
+
 
 parser = reqparse.RequestParser()
 parser.add_argument('Authorization', type=str, location='headers', required=True)
 parser.add_argument('username', type=str, location='headers', required=True)
-parser.add_argument('IpAddress', type=str, location='headers', required=True)
+parser.add_argument('Ipaddress', type=str, location='headers', required=True)
 
 
 # @user_blueprint.route('/createuser', methods=['POST', 'OPTIONS'])
 # @cross_origin(origins=['*'], allow_headers=['Content-Type', 'Authorization', 'Ipaddress', 'User'])
-@ns.route("/updateuserdata")
+@ns.route("/user/update")
 class UpdateUser(Resource):
+    @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
+    def options(self):
+        pass
+
+    @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
     @ns.doc(parser=parser,
             description='Update user data',
             responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 500: 'Internal Server Error'})
@@ -30,7 +37,7 @@ class UpdateUser(Resource):
         args = parser.parse_args(strict=False)
         username = args['username']
         token = args["Authorization"]
-        ip = args['IpAddress']
+        ip = args['Ipaddress']
         decoded_token = token_verify_or_raise(token, username, ip)
         data = json.loads(str(request.data, encoding='utf-8'))
         print(data)

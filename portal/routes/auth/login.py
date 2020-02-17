@@ -6,13 +6,15 @@ from flask_cors import cross_origin
 from flask_restplus import Resource, reqparse, fields
 from werkzeug.exceptions import NotFound, BadRequest, UnprocessableEntity, InternalServerError
 from ...encryption import Encryption
+from ...helpers import crossdomain
 from ...models.users import Users
 from ...models import status
 from ...api import api
 from . import ns
+from ... import APP
 
 parser = reqparse.RequestParser()
-parser.add_argument('ip', type=str, location='json', required=True)
+parser.add_argument('Ipaddress', type=str, location='json', required=True)
 parser.add_argument('username', type=str, location='json', required=True)
 parser.add_argument('password', type=str, location='json', required=True)
 
@@ -30,6 +32,11 @@ response_model = {
 
 @ns.route('/login')
 class Login(Resource):
+    @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
+    def options(self):
+        pass
+
+    @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
     @ns.doc(parser=parser,
             description='Login',
             responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 500: 'Internal Server Error'})
@@ -39,7 +46,7 @@ class Login(Resource):
         args = parser.parse_args(strict=False)
         username = args['username']
         password = args['password']
-        ip = args['ip']
+        ip = args['Ipaddress']
 
         encrypt_password = Encryption().encrypt(password)
         userinfo = Users.query.filter_by(Username=username, Password=encrypt_password).first()

@@ -8,13 +8,13 @@ from flask import Blueprint, jsonify, request, abort
 from flask_cors import cross_origin
 from flask_restplus import Resource, reqparse
 from werkzeug.exceptions import NotFound, BadRequest, Unauthorized
-from ...helpers import randomStringwithDigitsAndSymbols, token_verify
+from ...helpers import randomStringwithDigitsAndSymbols, token_verify, crossdomain
 from ...encryption import Encryption
 from ...models import db
 from ...models.users import Users
 from ...models.security_question import SecurityQuestion
 from . import ns
-
+from ... import APP
 
 getParser = reqparse.RequestParser()
 getParser.add_argument('Authorization', type=str, location='headers', required=True)
@@ -29,17 +29,22 @@ postParser.add_argument('Username', type=str, location='headers', required=True)
 postParser.add_argument('SecurityQuestionID', type=int, location='json', required=True)
 postParser.add_argument('SecurityAnswer', type=str, location='json', required=True)
 
+
 @ns.route("/security-question")
 class SecurityQuestion(Resource):
-    @ns.doc(parser=getParser,
-        description='Get security question of a user',
-        responses={
-            200: 'OK',
-            400: 'Bad Request',
-            401: 'Unauthorized',
-            404: 'Not Found',
-            500: 'Internal Server Error'})
+    @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
+    def options(self):
+        pass
 
+    @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
+    @ns.doc(parser=getParser,
+            description='Get security question of a user',
+            responses={
+                200: 'OK',
+                400: 'Bad Request',
+                401: 'Unauthorized',
+                404: 'Not Found',
+                500: 'Internal Server Error'})
     @ns.expect(getParser)
     def get(self):
         args = getParser.parse_args(strict=True)
@@ -50,16 +55,13 @@ class SecurityQuestion(Resource):
 
         question = user.SecurityQuestion.Question
         return {
-            "Question": question,
-            "Email": user.Email
-        }, 200
-
-
+                   "Question": question,
+                   "Email": user.Email
+               }, 200
 
     @ns.doc(parser=postParser,
-        description='Set Security Question',
-        responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 500: 'Internal Server Error'})
-
+            description='Set Security Question',
+            responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 500: 'Internal Server Error'})
     @ns.expect(postParser, validate=True)
     def post(self):
         args = postParser.parse_args(strict=False)
@@ -75,7 +77,7 @@ class SecurityQuestion(Resource):
         user.SecurityAnswer = Encryption().encrypt(args["SecurityAnswer"])
         try:
             db.session.commit()
-            return { "result": "success" }
+            return {"result": "success"}
 
         except KeyError as e:
             print(str(e))
