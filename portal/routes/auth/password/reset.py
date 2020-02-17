@@ -16,15 +16,8 @@ from .... import APP
 parser = reqparse.RequestParser()
 parser.add_argument('Authorization', type=str, location='headers', required=True)
 parser.add_argument('Ipaddress', type=str, location='headers', required=True)
-
-<<<<<<< HEAD
-parser.add_argument('RequestType', type=str, location='json', required=True,
-                    help='Accepted Values: [Admin|SecurityQuestion|Email]')
-parser.add_argument('Username', type=str, location='headers', required=True)
-=======
 parser.add_argument('request_type', type=str, location='json', required=True, help='Accepted Values: [Admin|SecurityQuestion|Email]')
 parser.add_argument('username', type=str, location='headers', required=True)
->>>>>>> 13543a4317fee544b8064596456e1b86768d7433
 parser.add_argument('Answer', type=str, location='json', required=False)
 parser.add_argument('Email', type=str, location='json', required=False)
 
@@ -37,14 +30,10 @@ class PasswordReset(Resource):
 
     @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
     @ns.doc(parser=parser,
-<<<<<<< HEAD
             description='Reset Password',
             responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 422: 'UnprocessableEntity',
                        500: 'Internal Server Error'})
-=======
-        description='Reset Password',
-        responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 422: 'UnprocessableEntity', 500: 'Internal Server Error'})
->>>>>>> 13543a4317fee544b8064596456e1b86768d7433
+
     @ns.expect(parser, validate=True)
     def post(self):
         args = parser.parse_args(strict=False)
