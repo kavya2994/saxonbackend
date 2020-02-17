@@ -4,6 +4,8 @@ from flask_restplus import Api, Resource
 
 APP = None
 
+APP = None
+
 def get_config_file_path():
     env = os.getenv("FLASK_ENV", default="production")
     base = os.path.dirname(os.path.abspath(__file__))
@@ -30,4 +32,6 @@ def create_app():
     services.init_app(APP)
     seeds.init_app(APP)
 
+
     return APP
+

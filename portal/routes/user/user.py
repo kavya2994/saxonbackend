@@ -5,7 +5,6 @@ from datetime import datetime
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from flask import Blueprint, jsonify, request, abort
-from flask_cors import cross_origin
 from flask_restplus import Resource, reqparse
 from ...helpers import randomStringwithDigitsAndSymbols, token_verify
 from ...encryption import Encryption
@@ -16,8 +15,8 @@ from . import ns
 
 parser = reqparse.RequestParser()
 parser.add_argument('Authorization', type=str, location='headers', required=True)
-parser.add_argument('Username', type=str, location='headers', required=True)
-parser.add_argument('IpAddress', type=str, location='headers', required=True)
+parser.add_argument('username', type=str, location='headers', required=True)
+parser.add_argument('Ipaddress', type=str, location='headers', required=True)
 
 
 # @user_blueprint.route('/checkuserexists', methods=['GET', 'POST', 'OPTIONS'])
@@ -25,7 +24,7 @@ parser.add_argument('IpAddress', type=str, location='headers', required=True)
 def check_user():
     if request.method == "POST":
         data = json.loads(str(request.data, encoding='utf-8'))
-        user_details = Users.query.filter_by(Username=data["Username"]).first()
+        user_details = Users.query.filter_by(Username=data["username"]).first()
         if user_details is not None:
             return jsonify({
                 "result": True

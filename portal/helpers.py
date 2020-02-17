@@ -4,15 +4,18 @@ import time
 import uuid
 import random
 import string
+
 from flask import current_app as app
 from datetime import timedelta
 from werkzeug.exceptions import Unauthorized
+from werkzeug.exceptions import Unauthorized
+from datetime import timedelta
+
 from flask import make_response, request
 from functools import update_wrapper
 from . import APP
 
 RESPONSE_OK = {"result": "Success"}
-
 
 def delete_excel(filename):
     time.sleep(5)  # ??!!
@@ -37,6 +40,7 @@ def token_verify(token, user, ip):
         print(decoded)
     except jwt.DecodeError as e:
         print("decode error", e)
+
     except jwt.ExpiredSignatureError:
         print("sign")
     except KeyError:

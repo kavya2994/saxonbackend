@@ -5,11 +5,10 @@ import smtplib
 from datetime import datetime
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-from flask import Blueprint, jsonify, request, current_app as app
-from flask_cors import cross_origin
-from flask_restplus import Resource, reqparse, fields, inputs
+from flask import Blueprint, jsonify, request
+from flask_restplus import Resource, reqparse, fields, inputs, cors
 from werkzeug.exceptions import NotFound, BadRequest, Unauthorized, UnprocessableEntity, InternalServerError
-from ...helpers import token_verify, token_verify_or_raise
+from ...helpers import token_verify_or_raise, crossdomain
 from ...models.enrollmentform import Enrollmentform, EnrollmentformResponseModel
 from ...models.token import Token
 from ...models.comments import Comments
@@ -18,6 +17,8 @@ from ...models import db
 from ...api import api
 from ...services.mail import send_email
 from . import ns
+from ... import APP
+
 
 RequestType_MemberSubmission = 'MemberSubmission'
 RequestType_SaveFormData = 'SaveFormData'
@@ -25,15 +26,12 @@ RequestType_EmployerSubmission = 'EmployerSubmission'
 RequestType_ApprovalConfirmation = 'ApprovalConfirmation'
 RequestType_Reject = 'Rejected'
 
-
-
-
 getParser = reqparse.RequestParser()
 parser = reqparse.RequestParser()
 
 parser.add_argument('Authorization', type=str, location='headers', required=False)
-parser.add_argument('Username', type=str, location='headers', required=False)
-parser.add_argument('IpAddress', type=str, location='headers', required=False)
+parser.add_argument('username', type=str, location='headers', required=False)
+parser.add_argument('Ipaddress', type=str, location='headers', required=False)
 
 parser.add_argument('RequestType', type=str, location='json', required=True,
     help=f"Valid Values: [{RequestType_MemberSubmission}, {RequestType_SaveFormData}, {RequestType_EmployerSubmission}, {RequestType_ApprovalConfirmation}, {RequestType_Reject}]")
@@ -53,7 +51,7 @@ parser.add_argument('Telephone', type=str, location='json', required=True)
 parser.add_argument('StartDateofContribution', type=inputs.date_from_iso8601, location='json', required=True, help='iso8601 format. eg: 2012-11-25')
 parser.add_argument('StartDateofEmployment', type=inputs.date_from_iso8601, location='json', required=True, help='iso8601 format. eg: 2012-11-25')
 parser.add_argument('ConfirmationStatus', type=str, location='json', required=True)
-parser.add_argument('Estimatedannualincomerange', type=str, location='json', required=True)
+parser.add_argument('EstimatedAnnualIncomeRange', type=str, location='json', required=True)
 parser.add_argument('ImmigrationStatus', type=str, location='json', required=True)
 parser.add_argument('SpouseName', type=str, location='json', required=True)
 parser.add_argument('SpouseDOB', type=inputs.date_from_iso8601, location='json', required=True)
@@ -66,6 +64,11 @@ parser.add_argument('RejectionReason', type=str, location='json', required=False
 
 @ns.route("/token/<TokenID>")
 class EnrollmentController(Resource):
+    @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
+    def options(self):
+        pass
+
+    @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
     @ns.doc(parser=getParser,
         description='Get Enrollment Data by TokenID',
         responses={
@@ -73,7 +76,6 @@ class EnrollmentController(Resource):
             400: 'BadRequest',
             500: 'Internal Server Error'
         })
-
     @ns.expect(getParser, validate=True)
     @ns.marshal_with(EnrollmentformResponseModel)
     def get(self, TokenID):
@@ -91,6 +93,7 @@ class EnrollmentController(Resource):
             raise InternalServerError()
 
 
+    @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
     @ns.doc(parser=parser,
         description='Update Enrollment Data by TokenID',
         responses={
@@ -142,7 +145,7 @@ class EnrollmentController(Resource):
             form.StartDateofContribution = args['StartDateofContribution']
             form.StartDateofEmployment = args['StartDateofEmployment']
             form.ConfirmationStatus = args['ConfirmationStatus']
-            form.Estimatedannualincomerange = args['Estimatedannualincomerange']
+            form.EstimatedAnnualIncomeRange = args['EstimatedAnnualIncomeRange']
             form.ImmigrationStatus = args['ImmigrationStatus']
             form.SpouseName = args['SpouseName']
             form.SpouseDOB = args['SpouseDOB']
@@ -200,18 +203,20 @@ class EnrollmentController(Resource):
             TokenStatus='Active',
             EmployerID=token.EmployerID,
             OlderTokenID=token.TokenID,
+            LastModifiedDate=datetime.utcnow(),
         )
 
         db.session.add(newToken)
         token.FormStatus = 'Submitted'
         token.TokenStatus = 'Inactive'
+        token.LastModifiedDate = datetime.utcnow()
 
 
     def _saveFormData_pre_update(self, token, form, args):
         if 'Authorization' not in args or 'IpAddress' not in args or 'Username' not in args:
             raise Unauthorized()
 
-        token_verify_or_raise(token=args["Authorization"], ip=args["IpAddress"], user=args["Username"])
+        token_verify_or_raise(token=args["Authorization"], ip=args["Ipaddress"], user=args["username"])
 
         if token is None:
             raise NotFound()
@@ -228,9 +233,9 @@ class EnrollmentController(Resource):
         if 'Authorization' not in args or 'IpAddress' not in args or 'Username' not in args:
             raise Unauthorized()
 
-        auth = token_verify_or_raise(token=args["Authorization"], ip=args["IpAddress"], user=args["Username"])
+        auth = token_verify_or_raise(token=args["Authorization"], ip=args["Ipaddress"], user=args["username"])
 
-        if auth['Role'] != ROLES_EMPLOYER:
+        if auth['role'] != ROLES_EMPLOYER:
             raise Unauthorized()
 
         if token is None or form is None:
@@ -243,6 +248,7 @@ class EnrollmentController(Resource):
     def _employerSubmission_post_update(self, token, form, args):
         form.PendingFrom = 'ReviewerManager'
         token.PendingFrom = 'ReviewerManager'
+        token.LastModifiedDate = datetime.utcnow()
         db.session.commit()
 
 
@@ -250,9 +256,9 @@ class EnrollmentController(Resource):
         if 'Authorization' not in args or 'IpAddress' not in args or 'Username' not in args:
             raise Unauthorized()
 
-        auth = token_verify_or_raise(token=args["Authorization"], ip=args["IpAddress"], user=args["Username"])
+        auth = token_verify_or_raise(token=args["Authorization"], ip=args["Ipaddress"], user=args["username"])
 
-        if auth['Role'] != ROLES_REVIEW_MANAGER:
+        if auth['role'] != ROLES_REVIEW_MANAGER:
             raise Unauthorized()
 
         if token is None or form is None:
@@ -274,9 +280,9 @@ class EnrollmentController(Resource):
         if 'Authorization' not in args or 'IpAddress' not in args or 'Username' not in args:
             raise Unauthorized()
 
-        auth = token_verify_or_raise(token=args["Authorization"], ip=args["IpAddress"], user=args["Username"])
+        auth = token_verify_or_raise(token=args["Authorization"], ip=args["Ipaddress"], user=args["username"])
 
-        if auth['Role'] != ROLES_REVIEW_MANAGER:
+        if auth['role'] != ROLES_REVIEW_MANAGER:
             raise Unauthorized()
 
         if token is None or form is None:
@@ -290,11 +296,11 @@ class EnrollmentController(Resource):
         token.FormStatus = 'Rejected'
         db.session.commit()
 
-        auth = token_verify_or_raise(token=args["Authorization"], ip=args["IpAddress"], user=args["Username"])
+        auth = token_verify_or_raise(token=args["Authorization"], ip=args["Ipaddress"], user=args["username"])
         if 'RejectionReason' in args and args['RejectionReason'] != '':
             comment = Comments(
                 FormID = form.FormID,
-                Role = auth['Role'],
+                Role = auth['role'],
                 Comment = args['RejectionReason'],
                 Date = datetime.utcnow(),
             )

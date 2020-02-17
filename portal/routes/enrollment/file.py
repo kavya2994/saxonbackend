@@ -5,25 +5,30 @@ import smtplib
 from datetime import datetime
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-from flask import Blueprint, jsonify, request, current_app as app
-from flask_cors import cross_origin
-from flask_restplus import Resource, reqparse
+from flask import Blueprint, jsonify, request
+from flask_restplus import Resource, reqparse, cors
 from werkzeug.utils import secure_filename
-from ...helpers import token_verify
+from ...helpers import token_verify, crossdomain
 from ...models.enrollmentform import Enrollmentform
 from ...models.token import Token
 from ...models import db
 from ...api import api
 from . import ns
+from ... import APP
+
 
 parser = reqparse.RequestParser()
 parser.add_argument('Authorization', type=str, location='headers', required=True)
-parser.add_argument('Username', type=str, location='headers', required=True)
-parser.add_argument('IpAddress', type=str, location='headers', required=True)
+parser.add_argument('username', type=str, location='headers', required=True)
+parser.add_argument('Ipaddress', type=str, location='headers', required=True)
 
 
 @ns.route("/file")
 class EnrollmentFile(Resource):
+    @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
+    def options(self):
+        pass
+
     @ns.doc(parser=parser,
         description='Delete Enrollment File',
         responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 500: 'Internal Server Error'})

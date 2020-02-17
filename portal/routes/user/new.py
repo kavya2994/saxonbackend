@@ -6,7 +6,8 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from flask import Blueprint, jsonify, request, abort, current_app as app
 from flask_cors import cross_origin
-from flask_restplus import Resource, reqparse
+from flask_restplus import Resource, reqparse, cors
+
 from ...helpers import randomStringwithDigitsAndSymbols, token_verify, crossdomain
 from ...encryption import Encryption
 from ...models import db
@@ -17,8 +18,8 @@ from ... import APP
 
 parser = reqparse.RequestParser()
 parser.add_argument('Authorization', type=str, location='headers', required=True)
-parser.add_argument('Username', type=str, location='headers', required=True)
-parser.add_argument('IpAddress', type=str, location='headers', required=True)
+parser.add_argument('username', type=str, location='headers', required=True)
+parser.add_argument('Ipaddress', type=str, location='headers', required=True)
 
 
 # @user_blueprint.route('/createuser', methods=['POST', 'OPTIONS'])
@@ -28,6 +29,11 @@ class UserNew(Resource):
     @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
     def options(self):
         pass
+
+
+    @ns.doc(parser=parser,
+        description='Create New User',
+        responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 500: 'Internal Server Error'})
 
     @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
     @ns.doc(parser=parser,
@@ -45,7 +51,7 @@ class UserNew(Resource):
                                                              ip=request.headers["Ipaddress"],
                                                              user=request.headers["User"]):
                     data = json.loads(str(request.data, encoding='utf-8'))
-                    username = data["Username"]
+                    username = data["username"]
                     displayname = data["DisplayName"]
                     email = data["Email"]
                     session_duration = data["SessionDuration"]

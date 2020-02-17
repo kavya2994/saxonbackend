@@ -5,21 +5,25 @@ from datetime import datetime
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from flask import Blueprint, jsonify, request, abort
-from flask_cors import cross_origin
-from flask_restplus import Resource, reqparse, fields
+from flask_restplus import Resource, reqparse, fields, cors
 from werkzeug.exceptions import NotFound, BadRequest
-from ...helpers import randomStringwithDigitsAndSymbols, token_verify
+from ...helpers import randomStringwithDigitsAndSymbols, token_verify, crossdomain
 from ...encryption import Encryption
 from ...models import db
 from ...models.users import Users
 from ...models.security_question import SecurityQuestion , SecurityQuestionModel
 from . import ns
+from ... import APP
 
 
 parser = reqparse.RequestParser()
 
 @ns.route("/security-questions")
 class SecurityQuestions(Resource):
+    @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
+    def options(self):
+        pass
+
     @ns.doc(parser=parser,
         description='Get list of security questions',
         responses={
@@ -28,11 +32,24 @@ class SecurityQuestions(Resource):
             401: 'Unauthorized',
             404: 'Not Found',
             500: 'Internal Server Error'})
-
     @ns.expect(parser)
-    @ns.marshal_with(ns.model('SecurityQuestions', SecurityQuestionModel))
+    @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
+    # @ns.marshal_with((ns.model('SecurityQuestions', )))
     def get(self):
         args = parser.parse_args(strict=False)
         questions = SecurityQuestion.query.all()
-        return questions
+        return {
+            "questions": [
+                {
+                    'SecurityQuestionID': questions[0].SecurityQuestionID,
+                    'Question': questions[0].Question,
+                }, {
+                    'SecurityQuestionID': questions[1].SecurityQuestionID,
+                    'Question': questions[1].Question,
+                }, {
+                    'SecurityQuestionID': questions[2].SecurityQuestionID,
+                    'Question': questions[2].Question,
+                }
+            ]
+        }
 

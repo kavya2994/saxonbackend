@@ -7,11 +7,10 @@ import threading
 import zipfile
 from datetime import datetime
 from flask import Blueprint, jsonify, request, send_file
-from flask_cors import cross_origin
 from flask_restplus import Resource, reqparse
 from werkzeug.utils import secure_filename
 from xlutils.copy import copy
-from ...helpers import token_verify, delete_excel
+from ...helpers import delete_excel
 from ...models import db
 from ...models.token import Token
 from . import ns
@@ -19,8 +18,8 @@ from . import ns
 
 parser = reqparse.RequestParser()
 parser.add_argument('Authorization', type=str, location='headers', required=True)
-parser.add_argument('Username', type=str, location='headers', required=True)
-parser.add_argument('IpAddress', type=str, location='headers', required=True)
+parser.add_argument('username', type=str, location='headers', required=True)
+parser.add_argument('Ipaddress', type=str, location='headers', required=True)
 
 
 @ns.route("/download")

@@ -11,8 +11,8 @@ SERVER_WEB_URL = 'https://portal.silverthatch.org.ky/'
 SERVER_ADDRESS = "0.0.0.0"
 SERVER_PORT = 811
 
-CERT_KEY_FILE = "/var/www/certs/privkey.pem"
-CERT_FILE = "/var/www/certs/fullchain.pem"
+CERT_KEY_FILE = "/var/www/ops/certs/privkey.pem"
+CERT_FILE = "/var/www/ops/certs/fullchain.pem"
 
 SECRET_KEY = 'f^I7q!(S(O]|"]%<+,Hz&vyQ^"exx9'
 JWT_SECRET = 'H7|=1fq[:`.;MtY02Me]w9_XPRqt^S'
@@ -51,7 +51,9 @@ CORS_ORIGIN_WHITELIST = [
 
     "http://132.145.107.163",
     "https://132.145.107.163",
+
     "http://192.168.2.132:812",
+
     "http://portal.silverthatch.org.ky",
     "https://portal.silverthatch.org.ky"
 ]

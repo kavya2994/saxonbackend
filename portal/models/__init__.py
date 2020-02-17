@@ -19,23 +19,23 @@ def init_app(app):
 
     db.init_app(app)
     with app.app_context():
-        from .contributionform import Contributionform
-        from .jwttokenblacklist import JWTTokenBlacklist
-
-        from .beneficiary import Beneficiary
-        from .token import Token
-        from .terminationform import Terminationform
-
         from .comments import Comments
-        from .enrollmentform import Enrollmentform
-        from .security_question import SecurityQuestion
-        from .users import Users
-        from .subsidiaries import Subsidiaries
+        from .contributionform import Contributionform
         from .employer import Employer
         from .member import Member
         from .employer_member_relation import EmpMemRel
+        from .enrollmentform import Enrollmentform
+        from .jwttokenblacklist import JWTTokenBlacklist
+        from .beneficiary import Beneficiary
+        from .token import Token
+        from .terminationform import Terminationform
+        from .security_question import SecurityQuestion
+        from .users import Users
+        from .subsidiaries import Subsidiaries
         from .employer_view import EmployerView
         from .member_view import MemberView
+        from .settings import Settings
+
 
         db.create_all(bind=['writeonly'])
         db.session.commit()
