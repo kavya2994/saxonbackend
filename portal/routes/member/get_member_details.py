@@ -4,18 +4,19 @@ from datetime import datetime
 from email.mime.text import MIMEText
 from flask import Blueprint, jsonify, request, abort, current_app as app
 from flask_restplus import Resource, reqparse, fields
-from ...helpers import randomStringwithDigitsAndSymbols, token_verify, token_verify_or_raise
+from ...helpers import randomStringwithDigitsAndSymbols, token_verify, token_verify_or_raise, crossdomain
 from ...encryption import Encryption
 from ...models import db, status, roles
 from ...models.member_view import MemberView
 from werkzeug.exceptions import Unauthorized, BadRequest, UnprocessableEntity, InternalServerError
 from . import ns
+from ... import APP
 
 parser = reqparse.RequestParser()
 parser.add_argument('Authorization', type=str, location='headers', required=True)
 parser.add_argument('username', type=str, location='headers', required=True)
 parser.add_argument('Ipaddress', type=str, location='headers', required=True)
-parser.add_argument('user', type=str, location='args', required=True)
+parser.add_argument('membernumber', type=str, location='args', required=True)
 
 response_model = {
     'MKEY': fields.String,
@@ -40,8 +41,13 @@ response_model = {
 
 # @user_blueprint.route('/createuser', methods=['POST', 'OPTIONS'])
 # @cross_origin(origins=['*'], allow_headers=['Content-Type', 'Authorization', 'Ipaddress', 'User'])
-@ns.route("/get")
+@ns.route("/data/get")
 class GetMemberDetails(Resource):
+    @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
+    def options(self):
+        pass
+
+    @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
     @ns.doc(parser=parser,
             description='Get profile details',
             responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 500: 'Internal Server Error'})
@@ -52,7 +58,7 @@ class GetMemberDetails(Resource):
         username = args['username']
         token = args["Authorization"]
         ip = args['Ipaddress']
-        user = args["user"]
+        user = args["membernumber"]
         print(user)
         decoded_token = token_verify_or_raise(token, username, ip)
         member = MemberView.query.filter_by(MEMNO=user).first()
