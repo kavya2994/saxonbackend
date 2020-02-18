@@ -28,6 +28,7 @@ postParser.add_argument('username', type=str, location='headers', required=True)
 
 postParser.add_argument('SecurityQuestionID', type=int, location='json', required=True)
 postParser.add_argument('SecurityAnswer', type=str, location='json', required=True)
+postParser.add_argument('Email', type=str, location='json', required=True)
 
 
 @ns.route("/security-question")
@@ -45,7 +46,6 @@ class SecurityQuestion(Resource):
                 401: 'Unauthorized',
                 404: 'Not Found',
                 500: 'Internal Server Error'})
-
     @ns.expect(getParser)
     def get(self):
         args = getParser.parse_args(strict=True)
@@ -64,7 +64,6 @@ class SecurityQuestion(Resource):
     @ns.doc(parser=postParser,
             description='Set Security Question',
             responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 500: 'Internal Server Error'})
-
     @ns.expect(postParser, validate=True)
     def post(self):
         args = postParser.parse_args(strict=False)
@@ -78,10 +77,10 @@ class SecurityQuestion(Resource):
 
         user.SecurityQuestionID = args["SecurityQuestionID"]
         user.SecurityAnswer = Encryption().encrypt(args["SecurityAnswer"])
+        user.Email = args["Email"]
         try:
             db.session.commit()
             return RESPONSE_OK
-
 
         except KeyError as e:
             print(str(e))

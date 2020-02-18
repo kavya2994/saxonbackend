@@ -16,8 +16,8 @@ parser = reqparse.RequestParser()
 parser.add_argument('Authorization', type=str, location='headers', required=True)
 parser.add_argument('username', type=str, location='headers', required=True)
 parser.add_argument('Ipaddress', type=str, location='headers', required=True)
-# parser.add_argument('min', type=str, location='json', required=True)
-# parser.add_argument('max', type=str, location='json', required=True)
+parser.add_argument('offset', type=str, location='json', required=True)
+
 
 response_model = {
     'ERKEY': fields.String,
@@ -49,12 +49,13 @@ class GetEmployers(Resource):
         username = args['username']
         token = args["Authorization"]
         ip = args['Ipaddress']
-        # minimum = args["min"]
-        # maximum = args["max"]
-        decoded_token = token_verify_or_raise(token, username, ip)
+        offset = args["offset"]
 
-        if decoded_token["role"] == roles.ROLES_ADMIN:
-            employers = EmployerView.query.all()  # limit(minimum).offset(maximum)
+        decoded_token = token_verify_or_raise(token, username, ip)
+        if offset is None or str(offset) == "":
+            offset = 0
+        if decoded_token["role"] == roles.ROLES_ADMIN or decoded_token["role"] == roles.ROLES_REVIEW_MANAGER:
+            employers = EmployerView.query.offset(offset).limit(50).all()
             employer_list = []
             for emp in employers:
                 employer_list.append({

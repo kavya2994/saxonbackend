@@ -20,10 +20,11 @@ parser = reqparse.RequestParser()
 parser.add_argument('Authorization', type=str, location='headers', required=True)
 parser.add_argument('username', type=str, location='headers', required=True)
 parser.add_argument('Ipaddress', type=str, location='headers', required=True)
+parser.add_argument('offset', type=str, location='json', required=True)
 
 
-@ns.route("/myqueue")
-class FormQueue(Resource):
+@ns.route("/employees")
+class MyForms(Resource):
     @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
     def options(self):
         pass
@@ -36,50 +37,18 @@ class FormQueue(Resource):
     def get(self):
         args = parser.parse_args(strict=False)
         token = token_verify_or_raise(token=args["Authorization"], user=args["username"], ip=args["Ipaddress"])
+        offset = args["offset"]
+        if offset is None or str(offset) == "":
+            offset = 0
         if token["role"] == roles.ROLES_REVIEW_MANAGER:
-            forms_data = []
-            enrollment_form_data = db.session.query(Token, Enrollmentform).filter(
-                                                                          Token.FormID == Enrollmentform.FormID,
-                                                                          Token.FormStatus == status.STATUS_PENDING,
-                                                                          Token.PendingFrom == token["role"],
-                                                                          Token.TokenStatus == status.STATUS_ACTIVE)
-
-            for tokens_data, enrollments in enrollment_form_data:
-                forms_data.append({
-                    "Token": tokens_data.TokenID,
-                    "EmployerID": tokens_data.EmployerID,
-                    "MemberName": enrollments.MemberName,
-                    "FormType": tokens_data.FormType,
-                    "FormStatus": tokens_data.FormStatus,
-                    "LastModifiedDate": Token.LastModifiedDate
-                })
-
-            termination_form_data = db.session.query(Token, Terminationform).filter(
-                                                                         Token.FormID == Terminationform.FormID,
-                                                                         Token.FormStatus == status.STATUS_PENDING,
-                                                                         Token.PendingFrom == token["role"],
-                                                                         Token.TokenStatus == status.STATUS_ACTIVE)
-
-            for tokens_data, terminations in termination_form_data:
-                forms_data.append({
-                    "Token": tokens_data.TokenID,
-                    "EmployerID": tokens_data.EmployerID,
-                    "MemberName": terminations.MemberName,
-                    "FormType": tokens_data.FormType,
-                    "FormStatus": tokens_data.FormStatus,
-                    "LastModifiedDate": Token.LastModifiedDate
-                })
-
-            return {"forms_queue": forms_data}, 200
-        elif token["role"] == roles.ROLES_EMPLOYER:
-            employer_id = args["username"]
             forms_data = []
             enrollment_form_data = db.session.query(Token, Enrollmentform).filter(
                 Token.FormID == Enrollmentform.FormID,
                 Token.FormStatus == status.STATUS_PENDING,
-                Token.PendingFrom == token["role"],
-                Token.TokenStatus == status.STATUS_ACTIVE,
-                Token.EmployerID == employer_id)
+                Token.PendingFrom != roles.ROLES_REVIEW_MANAGER,
+                Token.TokenStatus == status.STATUS_ACTIVE) \
+                .offset(offset) \
+                .limit(25)
 
             for tokens_data, enrollments in enrollment_form_data:
                 forms_data.append({
@@ -94,9 +63,57 @@ class FormQueue(Resource):
             termination_form_data = db.session.query(Token, Terminationform).filter(
                 Token.FormID == Terminationform.FormID,
                 Token.FormStatus == status.STATUS_PENDING,
-                Token.PendingFrom == token["role"],
+                Token.PendingFrom != roles.ROLES_REVIEW_MANAGER,
+                Token.TokenStatus == status.STATUS_ACTIVE)\
+                .offset(offset) \
+                .limit(25)
+
+            for tokens_data, terminations in termination_form_data:
+                forms_data.append({
+                    "Token": tokens_data.TokenID,
+                    "EmployerID": tokens_data.EmployerID,
+                    "MemberName": terminations.MemberName,
+                    "FormType": tokens_data.FormType,
+                    "FormStatus": tokens_data.FormStatus,
+                    "LastModifiedDate": Token.LastModifiedDate
+                })
+
+            # contribution_forms = Con
+
+            return {"forms_queue": forms_data}, 200
+        elif token["role"] == roles.ROLES_EMPLOYER:
+            employer_id = args["username"]
+            offset = args["offset"]
+            if offset is None or str(offset) == "":
+                offset = 0
+            forms_data = []
+            enrollment_form_data = db.session.query(Token, Enrollmentform).filter(
+                Token.FormID == Enrollmentform.FormID,
+                Token.FormStatus == status.STATUS_PENDING,
+                Token.PendingFrom != token["role"],
                 Token.TokenStatus == status.STATUS_ACTIVE,
-                Token.EmployerID == employer_id)
+                Token.EmployerID == employer_id)\
+                .offset(offset) \
+                .limit(25)
+
+            for tokens_data, enrollments in enrollment_form_data:
+                forms_data.append({
+                    "Token": tokens_data.TokenID,
+                    "EmployerID": tokens_data.EmployerID,
+                    "MemberName": enrollments.MemberName,
+                    "FormType": tokens_data.FormType,
+                    "FormStatus": tokens_data.FormStatus,
+                    "LastModifiedDate": Token.LastModifiedDate
+                })
+
+            termination_form_data = db.session.query(Token, Terminationform).filter(
+                Token.FormID == Terminationform.FormID,
+                Token.FormStatus == status.STATUS_PENDING,
+                Token.PendingFrom != token["role"],
+                Token.TokenStatus == status.STATUS_ACTIVE,
+                Token.EmployerID == employer_id)\
+                .offset(offset) \
+                .limit(25)
 
             for tokens_data, terminations in termination_form_data:
                 forms_data.append({
@@ -109,4 +126,3 @@ class FormQueue(Resource):
                 })
 
             return {"forms_queue": forms_data}, 200
-
