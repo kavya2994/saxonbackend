@@ -1,3 +1,3 @@
 from ...api import api
 
-ns = api.namespace('reviewer')
+ns = api.namespace('forms')

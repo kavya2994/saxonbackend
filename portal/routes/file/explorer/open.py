@@ -14,7 +14,7 @@ from ....helpers import token_verify, delete_excel
 from ....models import db
 from ....models.token import Token
 from .. import ns
-
+from .... import APP
 
 parser = reqparse.RequestParser()
 parser.add_argument('Authorization', type=str, location='headers', required=True)
@@ -25,34 +25,32 @@ parser.add_argument('Ipaddress', type=str, location='headers', required=True)
 @ns.route("/explorer/open")
 class FileExplorerOpen(Resource):
     @ns.doc(parser=parser,
-        description='File Explorer Open',
-        responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 500: 'Internal Server Error'})
-
+            description='File Explorer Open',
+            responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 500: 'Internal Server Error'})
     @ns.expect(parser, validate=True)
     def get(self):
         print(request.headers)
         path = request.args.get('path')
         print(path)
-        return send_file(os.path.join(app.config['DATA_DIR'], path)), 200
+        return send_file(os.path.join(APP.config['DATA_DIR'], path)), 200
 
 
 @ns.route("/explorer/open/zip")
 class FileExplorerOpen(Resource):
     @ns.doc(parser=parser,
-        description='File Explorer Open',
-        responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 500: 'Internal Server Error'})
-
+            description='File Explorer Open',
+            responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 500: 'Internal Server Error'})
     @ns.expect(parser, validate=True)
     def get(self):
         if 'Authorization' in request.headers.keys() and token_verify(token=request.headers["Authorization"],
                                                                       ip=request.headers["Ipaddress"],
                                                                       user=request.headers["User"]):
-            root = app.config['DATA_DIR']
+            root = APP.config['DATA_DIR']
             data = json.loads(str(request.data, encoding='utf-8'))
             print("-------------")
             print(data)
             root = os.path.join(root, data["request_folder"])
-            path_ = os.path.join(app.config['DATA_DIR'], data["request_folder"])
+            path_ = os.path.join(APP.config['DATA_DIR'], data["request_folder"])
             paths = list(data["path"])
             print(paths)
 

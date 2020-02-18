@@ -26,9 +26,11 @@ response_model = {
     "Role": fields.String
 }
 
+response = {
+    "users": fields.List(fields.Nested(response_model))
+}
 
-# @user_blueprint.route('/createuser', methods=['POST', 'OPTIONS'])
-# @cross_origin(origins=['*'], allow_headers=['Content-Type', 'Authorization', 'Ipaddress', 'User'])
+
 @ns.route("/users/internal/get")
 class GetInternalUsers(Resource):
     @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
@@ -40,7 +42,7 @@ class GetInternalUsers(Resource):
             description='Get all internal users',
             responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 500: 'Internal Server Error'})
     @ns.expect(parser, validate=True)
-    @ns.marshal_with(response_model)
+    # @ns.marshal_with(response_model)
     def get(self):
         args = parser.parse_args(strict=False)
         username = args['username']
@@ -49,8 +51,9 @@ class GetInternalUsers(Resource):
         decoded_token = token_verify_or_raise(token, username, ip)
         if decoded_token["role"] == roles.ROLES_ADMIN:
             users = Users.query.filter(Users.Role.in_([roles.ROLES_REVIEW_MANAGER, roles.ROLES_ADMIN]),
-                                       Users.Status != status.STATUS_DELETE)
+                                       Users.Status != status.STATUS_DELETE).all()
             internal_users = []
+            print(users)
             for user in users:
                 internal_users.append({
                     "Username": user.Username,
@@ -60,6 +63,7 @@ class GetInternalUsers(Resource):
                     "PhoneNumber": user.PhoneNumber,
                     "Role": user.Role
                 })
+            print(internal_users)
             return {"users": internal_users}, 200
         else:
             raise Unauthorized()

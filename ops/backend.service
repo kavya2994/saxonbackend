@@ -1,4 +1,4 @@
-# sudo ln -s /var/www/ops/backend.service /etc/systemd/system/backend.service
+# sudo ln -s /var/www/backend/backend-0/ops/backend.service /etc/systemd/system/backend.service
 
 [Unit]
 Description=Backend Portal
@@ -11,7 +11,7 @@ RestartSec=1
 StartLimitBurst=5
 User=backend
 Environment="FLASK_ENV=production"
-ExecStart=/bin/bash -c '/var/www/venv/bin/python /var/www/app.py'
+ExecStart=/bin/bash -c '/var/www/venv/bin/python /var/www/backend/backend-0/app.py'
 
 [Install]
 WantedBy=multi-user.target

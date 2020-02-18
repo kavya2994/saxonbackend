@@ -27,9 +27,11 @@ response_model = {
     'EMAIL': fields.String
 }
 
+response = {
+    "employers": fields.List(fields.Nested(response_model))
+}
 
-# @user_blueprint.route('/createuser', methods=['POST', 'OPTIONS'])
-# @cross_origin(origins=['*'], allow_headers=['Content-Type', 'Authorization', 'Ipaddress', 'User'])
+
 @ns.route("/employers/get")
 class GetEmployers(Resource):
     @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
@@ -41,7 +43,7 @@ class GetEmployers(Resource):
             description='Get all employers in b/w min and max',
             responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 500: 'Internal Server Error'})
     @ns.expect(parser, validate=True)
-    @ns.marshal_with(response_model)
+    @ns.marshal_with(response)
     def post(self):
         args = parser.parse_args(strict=False)
         username = args['username']
@@ -52,7 +54,7 @@ class GetEmployers(Resource):
         decoded_token = token_verify_or_raise(token, username, ip)
 
         if decoded_token["role"] == roles.ROLES_ADMIN:
-            employers = EmployerView.query.all()#limit(minimum).offset(maximum)
+            employers = EmployerView.query.all()  # limit(minimum).offset(maximum)
             employer_list = []
             for emp in employers:
                 employer_list.append({

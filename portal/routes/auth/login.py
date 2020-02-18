@@ -14,7 +14,7 @@ from . import ns
 from ... import APP
 
 parser = reqparse.RequestParser()
-parser.add_argument('Ipaddress', type=str, location='headers', required=True)
+parser.add_argument('Ipaddress', type=str, location='json', required=True)
 parser.add_argument('username', type=str, location='json', required=True)
 parser.add_argument('password', type=str, location='json', required=True)
 
@@ -23,7 +23,6 @@ response_model = {
     'username': fields.String,
     'firstName': fields.String,
     'lastName': fields.String,
-
     'role': fields.String,
     'temppass': fields.Boolean(default=False),
     'token': fields.String,
@@ -56,7 +55,6 @@ class Login(Resource):
             print("Username or password is incorrect")
             raise UnprocessableEntity('Username or Password is incorrect')
 
-
         if userinfo.Status == status.STATUS_DELETE:
             raise UnprocessableEntity('User is not active')
 
@@ -72,8 +70,7 @@ class Login(Resource):
                 'Ipaddress': ip,
             }
 
-
-            token = jwt.encode(key=APP.config['JWT_SECRET'], algorithm='HS256', payload=payload,)
+            token = jwt.encode(key=APP.config['JWT_SECRET'], algorithm='HS256', payload=payload, )
             token = token.decode('utf-8')
             securityQuestion = None if userinfo.SecurityQuestion is None else userinfo.SecurityQuestion.Question
 

@@ -14,7 +14,7 @@ from ....helpers import token_verify, delete_excel
 from ....models import db
 from ....models.token import Token
 from .. import ns
-
+from .... import APP
 
 parser = reqparse.RequestParser()
 parser.add_argument('Authorization', type=str, location='headers', required=True)
@@ -25,9 +25,8 @@ parser.add_argument('Ipaddress', type=str, location='headers', required=True)
 @ns.route("/explorer/operation")
 class FileExplorerOperation(Resource):
     @ns.doc(parser=parser,
-        description='File Explorer Operation',
-        responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 500: 'Internal Server Error'})
-
+            description='File Explorer Operation',
+            responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 500: 'Internal Server Error'})
     @ns.expect(parser, validate=True)
     def post(self):
         print(request.headers)
@@ -52,7 +51,7 @@ class FileExplorerOperation(Resource):
                     formtype = request.form["formType"]
                     userid = request.form["employerusername"]
                     employer = request.form["employer"]
-                    path = os.path.join(root, "Employers")
+                    path = os.path.join(path, "Employers")
                     if not os.path.exists(path):
                         os.mkdir(path)
                     path = os.path.join(path, userid)

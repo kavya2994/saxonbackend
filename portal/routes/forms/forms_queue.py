@@ -22,7 +22,7 @@ parser.add_argument('username', type=str, location='headers', required=True)
 parser.add_argument('Ipaddress', type=str, location='headers', required=True)
 
 
-@ns.route("/initiate")
+@ns.route("/myqueue")
 class FormQueue(Resource):
     @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
     def options(self):
@@ -33,13 +33,22 @@ class FormQueue(Resource):
             description='Initiate Termination',
             responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 500: 'Internal Server Error'})
     @ns.expect(parser, validate=True)
-    @ns.marshal_with(TerminationformResponseModel)
     def get(self):
         args = parser.parse_args(strict=False)
         token = token_verify_or_raise(token=args["Authorization"], user=args["username"], ip=args["Ipaddress"])
-        if token["role"] == roles.ROLES_REVIEW_MANAGER:
+        if token["role"] in [roles.ROLES_REVIEW_MANAGER, roles.ROLES_EMPLOYER]:
             forms_data = []
-            db.session.query(Token, Enrollmentform).filter(Token.FormID == Enrollmentform.FormID,
-                                                           Token.FormStatus.in_([status.STATUS_PENDING, status.]))
+            enrollment_form_data = db.session.query(Token, Enrollmentform).filter(Token.FormID == Enrollmentform.FormID,
+                                                                                  Token.FormStatus == status.STATUS_PENDING,
+                                                                                  Token.PendingFrom == token["role"],
+                                                                                  Token.TokenStatus == status.STATUS_ACTIVE)
 
-
+            for tokens_data, enrollments in enrollment_form_data:
+                forms_data.append({
+                    "Token": tokens_data.TokenID,
+                    "EmployerID": tokens_data.EmployerID,
+                    "MemberName": enrollments.MemberName,
+                    "FormType": tokens_data.FormType,
+                    "FormStatus": tokens_data.FormStatus,
+                    "LAST_MODIFIED_DATE": Token.LastModifiedDate
+                })

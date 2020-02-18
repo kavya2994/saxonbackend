@@ -39,6 +39,10 @@ response_model = {
     'RELNAME': fields.String
 }
 
+response = {
+    "members": fields.List(fields.Nested(response_model))
+}
+
 
 # @user_blueprint.route('/createuser', methods=['POST', 'OPTIONS'])
 # @cross_origin(origins=['*'], allow_headers=['Content-Type', 'Authorization', 'Ipaddress', 'User'])
@@ -53,7 +57,7 @@ class GetMembers(Resource):
             description='Get all members in b/w min and max',
             responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 500: 'Internal Server Error'})
     @ns.expect(parser, validate=True)
-    @ns.marshal_with(response_model)
+    @ns.marshal_with(response)
     def post(self):
         args = parser.parse_args(strict=False)
         username = args['username']
@@ -64,7 +68,7 @@ class GetMembers(Resource):
         decoded_token = token_verify_or_raise(token, username, ip)
 
         if decoded_token["role"] == roles.ROLES_ADMIN:
-            members = MemberView.query.all()#limit(minimum).offset(maximum)
+            members = MemberView.query.all()  # limit(minimum).offset(maximum)
             member_list = []
             for mem in members:
                 member_list.append({
@@ -86,6 +90,6 @@ class GetMembers(Resource):
                     'BEN_NAMES': mem.BEN_NAMES,
                     'RELNAME': mem.RELNAME
                 })
-            return {"employers": member_list}, 200
+            return {"members": member_list}, 200
         else:
             raise Unauthorized()

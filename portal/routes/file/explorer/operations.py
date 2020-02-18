@@ -15,7 +15,6 @@ from ....models import db
 from ....models.token import Token
 from .. import ns
 
-
 parser = reqparse.RequestParser()
 parser.add_argument('Authorization', type=str, location='headers', required=True)
 parser.add_argument('username', type=str, location='headers', required=True)
@@ -25,9 +24,8 @@ parser.add_argument('Ipaddress', type=str, location='headers', required=True)
 @ns.route("/explorer/operations")
 class FileExplorerOperations(Resource):
     @ns.doc(parser=parser,
-        description='File Explorer Operations',
-        responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 500: 'Internal Server Error'})
-
+            description='File Explorer Operations',
+            responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 500: 'Internal Server Error'})
     @ns.expect(parser, validate=True)
     def post(self):
         print("---------------operations_headers---------------")
@@ -63,7 +61,8 @@ class FileExplorerOperations(Resource):
                                 print(destination)
                                 len_of_source = len(source.split("/"))
                                 if os.path.isdir(source):
-                                    shutil.copytree(source, os.path.join(destination, source.split("/")[len_of_source - 1]))
+                                    shutil.copytree(source,
+                                                    os.path.join(destination, source.split("/")[len_of_source - 1]))
                                 elif os.path.isfile(source):
                                     shutil.copy(source, destination)
                                 else:
@@ -126,4 +125,3 @@ class FileExplorerOperations(Resource):
                 return jsonify({"error": "Un Authorised"}), 401
         else:
             return jsonify({"error": "Un Authorised"}), 401
-
