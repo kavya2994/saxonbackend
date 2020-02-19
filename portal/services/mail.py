@@ -13,7 +13,7 @@ def send_email(to_address, subject, body=None, template=None):
     if template:
         body = render_template(os.path.join('emails', template))
 
-    return _send_mail_via_mailgun(to_address, subject, body)
+    return send_mail_with_domain(to_address, subject, body)
 
 
 def _send_mail_via_mailgun(to_address, subject, body):
@@ -30,3 +30,19 @@ def _send_mail_via_mailgun(to_address, subject, body):
             "html": body
         }
     )
+
+
+def send_mail_with_domain(to_address, subject, body):
+    domain = app.config["MAILDOMAIN"]
+    port = int(app.config["MAILPORT"])
+    email = app.config["EMAIL"]
+    password = app.config["PASSWORD"]
+    smtp_obj = smtplib.SMTP_SSL(domain, port=port)
+    msg = MIMEMultipart()
+    msg['subject'] = subject
+    msg['from'] = email
+    msg['to'] = to_address
+
+    msg.attach(body)
+    smtp_obj.login(email, password)
+    smtp_obj.sendmail(email, to_address, msg.as_string())

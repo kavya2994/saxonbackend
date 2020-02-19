@@ -64,7 +64,7 @@ class GetInternalUsers(Resource):
                     "PhoneNumber": user.PhoneNumber,
                     "Role": user.Role
                 })
-            print(internal_users)
+            # print(internal_users)
             return {"users": internal_users}, 200
         else:
             raise Unauthorized()

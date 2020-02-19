@@ -12,7 +12,7 @@ parser = reqparse.RequestParser()
 parser.add_argument('Authorization', type=str, location='headers', required=True)
 parser.add_argument('username', type=str, location='headers', required=True)
 parser.add_argument('Ipaddress', type=str, location='headers', required=True)
-parser.add_argument('username', type=str, location='json', required=True)
+parser.add_argument('user', type=str, location='json', required=True)
 
 
 # @user_blueprint.route('/createuser', methods=['POST', 'OPTIONS'])
@@ -34,8 +34,8 @@ class DeleteUser(Resource):
         token = args["Authorization"]
         ip = args['Ipaddress']
         decoded_token = token_verify_or_raise(token, username, ip)
-        if decoded_token["Role"] == roles.ROLES_ADMIN:
-            user_id_to_delete = args["username"]
+        if decoded_token["role"] == roles.ROLES_ADMIN:
+            user_id_to_delete = args["user"]
             user = Users.query.filter_by(Username=user_id_to_delete).first()
             role = user.Role
             if not user.Role == roles.ROLES_EMPLOYER and not user.Role == roles.ROLES_MEMBER:

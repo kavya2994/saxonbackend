@@ -15,14 +15,14 @@ from ....models.security_question import SecurityQuestion
 from .. import ns
 from .... import APP
 
-
 parser = reqparse.RequestParser()
 parser.add_argument('Authorization', type=str, location='headers', required=True)
 parser.add_argument('Ipaddress', type=str, location='headers', required=True)
-
-parser.add_argument('username', type=str, location='json', required=True)
+parser.add_argument('username', type=str, location='headers', required=True)
+parser.add_argument('user', type=str, location='json', required=True)
 parser.add_argument('oldPassword', type=str, location='json', required=True)
 parser.add_argument('newPassword', type=str, location='json', required=True)
+
 
 @ns.route("/password/change")
 class PasswordChange(Resource):
@@ -32,8 +32,9 @@ class PasswordChange(Resource):
 
     @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
     @ns.doc(parser=parser,
-        description='Change Password',
-        responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 422: 'UnprocessableEntity', 500: 'Internal Server Error'})
+            description='Change Password',
+            responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 422: 'UnprocessableEntity',
+                       500: 'Internal Server Error'})
     @ns.expect(parser, validate=True)
     def post(self):
         args = parser.parse_args(strict=False)
@@ -42,7 +43,7 @@ class PasswordChange(Resource):
         # TODO:
         # Verify the role from token before proceeding with password chanaging
 
-        username = args["username"]
+        username = args["user"]
         old_pass = args["oldPassword"]
         new_pass = args["newPassword"]
 
@@ -57,9 +58,8 @@ class PasswordChange(Resource):
             user.Password = Encryption().encrypt(new_pass)
             user.TemporaryPassword = False
             db.session.commit()
-            return {"result": "Password changed successfully"}
+            return {"result": "Password changed successfully"}, 200
 
         except KeyError as e:
             print(e)
             raise InternalServerError()
-

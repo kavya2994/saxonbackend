@@ -3,12 +3,12 @@ import json
 from datetime import datetime, timedelta
 from flask import request
 from flask_cors import cross_origin
-from flask_restplus import Resource, reqparse, fields, cors
+from flask_restplus import Resource, reqparse, fields
 from werkzeug.exceptions import NotFound, BadRequest, UnprocessableEntity, InternalServerError
 from ...encryption import Encryption
 from ...helpers import crossdomain
 from ...models.users import Users
-from ...models import status
+from ...models import status, roles
 from ...api import api
 from . import ns
 from ... import APP
@@ -27,6 +27,7 @@ response_model = {
     'temppass': fields.Boolean(default=False),
     'token': fields.String,
     'securityQuestion': fields.String,
+    'securityanswer': fields.Boolean
 }
 
 
@@ -50,12 +51,12 @@ class Login(Resource):
 
         encrypt_password = Encryption().encrypt(password)
         userinfo = Users.query.filter_by(Username=username, Password=encrypt_password).first()
-        print(userinfo.Username)
-        if userinfo == None:
+        if userinfo is None:
             print("Username or password is incorrect")
             raise UnprocessableEntity('Username or Password is incorrect')
-
-        if userinfo.Status == status.STATUS_DELETE:
+        if (userinfo.Status == status.STATUS_DELETE) or \
+                (userinfo.Role in [roles.ROLES_REVIEW_MANAGER, roles.ROLES_ADMIN] and str(userinfo.Status).upper()
+                 == status.STATUS_INACTIVE):
             raise UnprocessableEntity('User is not active')
 
         try:
@@ -80,9 +81,10 @@ class Login(Resource):
                 "firstName": name,
                 "lastname": name,
                 "role": role,
-                "temppass": userinfo.TemporaryPassword,
+                "temppass": bool(userinfo.TemporaryPassword),
                 'token': str(token),
                 "securityQuestion": securityQuestion,
+                "securityanswer": True if userinfo.SecurityAnswer is not None else False
             }
 
         except json.decoder.JSONDecodeError:

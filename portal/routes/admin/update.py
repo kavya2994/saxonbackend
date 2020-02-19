@@ -71,6 +71,7 @@ class UpdateUser(Resource):
                     user.Email = email
                     user.PhoneNumber = phone_number
                     user.Password = password_enc
+                    user.TemporaryPassword = True
                     msgtext = MIMEText('<p>Your password has been reset. The temporary password is: %s</p>'
                                        '<p>Please log into your system as soon as possible to set your new password.</p>'
                                        % password, 'html')
@@ -94,7 +95,7 @@ class UpdateUser(Resource):
                     #                                                           username))
             else:
                 status = data["status"]
-                user.Status = status
+                user.Status = str(status).upper()
             #     cursor = conn.cursor()
             #     cursor.execute(
             #         'UPDATE Users set "Status"=\'%s\' WHERE "Username"=\'%s\'' % (status, username))

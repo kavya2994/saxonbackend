@@ -53,8 +53,9 @@ class MemberTerminationDetails(Resource):
         tokens = db.session.query(Token, Terminationform).filter(Token.FormID == Terminationform.FormID,
                                                                  Terminationform.MemberNumber == str(username),
                                                                  Token.FormType == "Termination",
-                                                                 Token.FormStatus == status.STATUS_APPROVE,
-                                                                 Token.TokenStatus == status.STATUS_INACTIVE).all()
+                                                                 # Token.FormStatus == status.STATUS_APPROVE,
+                                                                 # Token.TokenStatus == status.STATUS_INACTIVE
+                                                                 ).all()
         # terminations = Terminationform.query.filter_by(MemberNumber='25360').all()
         # for termination in terminations:
         #     print(termination.FormStatus)

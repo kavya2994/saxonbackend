@@ -1,3 +1,5 @@
+from email.mime.text import MIMEText
+
 import jwt
 import json
 from datetime import datetime
@@ -14,12 +16,35 @@ from .. import ns
 from .... import APP
 
 parser = reqparse.RequestParser()
-parser.add_argument('Authorization', type=str, location='headers', required=True)
-parser.add_argument('Ipaddress', type=str, location='headers', required=True)
-parser.add_argument('request_type', type=str, location='json', required=True, help='Accepted Values: [Admin|SecurityQuestion|Email]')
-parser.add_argument('username', type=str, location='headers', required=True)
+parser.add_argument('request_type', type=str, location='json', required=True,
+                    help='Accepted Values: [Admin|SecurityQuestion|Email]')
+parser.add_argument('username', type=str, location='json', required=True)
 parser.add_argument('Answer', type=str, location='json', required=False)
 parser.add_argument('Email', type=str, location='json', required=False)
+
+
+def _change_password(username, email, display_name):
+    try:
+        password = randomStringwithDigitsAndSymbols()
+        pass_encrypt = Encryption().encrypt(password)
+        # message = f'<p>Dear <p>Your password has been reset. The temporary password is: {password}</p>' + \
+        #           '<p>Please log into your system as soon as possible to set your new password.</p>'
+        message = MIMEText('<p>Dear %s</p>'
+                           '<p>Your password has been reset.</p>'
+                           '<p>The temporary password is: %s</p>'
+                           % (display_name, password), 'html')
+
+        user = Users.query.filter_by(Username=username).first()
+        user.Password = pass_encrypt
+        user.TemporaryPassword = True
+        db.session.commit()
+
+        send_email(to_address=email, subject='Reset Password', body=message)
+        return RESPONSE_OK
+
+    except Exception as e:
+        print(str(e))
+        raise InternalServerError()
 
 
 @ns.route("/password/reset")
@@ -33,26 +58,25 @@ class PasswordReset(Resource):
             description='Reset Password',
             responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 422: 'UnprocessableEntity',
                        500: 'Internal Server Error'})
-
     @ns.expect(parser, validate=True)
     def post(self):
         args = parser.parse_args(strict=False)
         change_pass = False
 
         username = args["username"]
-        token = token_verify_or_raise(token=args["Authorization"], ip=args["Ipaddress"], user=args["username"])
+        # token = token_verify_or_raise(token=args["Authorization"], ip=args["Ipaddress"], user=args["username"])
 
         user = Users.query.filter_by(Username=username).first()
-        if user == None:
+        if user is None:
             raise UnprocessableEntity('User not found')
 
         if args['request_type'] == 'SecurityQuestion':
-            if 'Answer' not in args or user['Answer'] != Encryption().encrypt(args['Answer']):
+            if 'Answer' not in args or user.SecurityAnswer != Encryption().encrypt(args['Answer']):
                 raise UnprocessableEntity('Invalid Answer')
 
         elif args['request_type'] == 'Email':
-            if 'Email' not in args or user["Email"] != args['Email']:
-                raise UnprocessableEntity('User not found')
+            if 'Email' not in args or user.Email != args['Email']:
+                raise UnprocessableEntity('User not found/ Email is not valid')
 
         elif args['request_type'] == 'Admin':
             pass
@@ -60,23 +84,4 @@ class PasswordReset(Resource):
         else:
             raise BadRequest('Invalid RequestType')
 
-        return self._change_password(username, user.Email)
-
-    def _change_password(self, username, email):
-        try:
-            password = randomStringwithDigitsAndSymbols()
-            pass_encrypt = Encryption().encrypt(password)
-            message = f'<p>Your password has been reset. The temporary password is: {password}</p>' + \
-                      '<p>Please log into your system as soon as possible to set your new password.</p>'
-
-            user = Users.query.filter_by(Username=username).first()
-            user.Password = pass_encrypt
-            user.TemporaryPassword = True
-            db.session.commit()
-
-            send_email(to_address=email, subject='Reset Password', body=message)
-            return RESPONSE_OK
-
-        except Exception as e:
-            print(str(e))
-            raise InternalServerError()
+        return _change_password(username, user.Email, user.DisplayName)

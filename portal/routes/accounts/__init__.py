@@ -1,3 +1,3 @@
 from ...api import api
 
-ns = api.namespace('users')
+ns = api.namespace('account')

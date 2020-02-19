@@ -16,7 +16,7 @@ parser = reqparse.RequestParser()
 parser.add_argument('Authorization', type=str, location='headers', required=True)
 parser.add_argument('username', type=str, location='headers', required=True)
 parser.add_argument('Ipaddress', type=str, location='headers', required=True)
-parser.add_argument('offset', type=str, location='json', required=True)
+parser.add_argument('offset', type=str, location='args', required=True)
 
 
 response_model = {
@@ -58,7 +58,7 @@ class GetMembers(Resource):
             responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 500: 'Internal Server Error'})
     @ns.expect(parser, validate=True)
     @ns.marshal_with(response)
-    def post(self):
+    def get(self):
         args = parser.parse_args(strict=False)
         username = args['username']
         token = args["Authorization"]

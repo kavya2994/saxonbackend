@@ -35,7 +35,7 @@ def init_app(app):
         from .employer_view import EmployerView
         from .member_view import MemberView
         from .settings import Settings
-
+        from .messages import Messages
 
         db.create_all(bind=['writeonly'])
         db.session.commit()

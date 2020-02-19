@@ -29,6 +29,7 @@ postParser.add_argument('username', type=str, location='headers', required=True)
 postParser.add_argument('SecurityQuestionID', type=int, location='json', required=True)
 postParser.add_argument('SecurityAnswer', type=str, location='json', required=True)
 postParser.add_argument('Email', type=str, location='json', required=True)
+postParser.add_argument('PhoneNumber', type=str, location='json', required=False)
 
 
 @ns.route("/security-question")
