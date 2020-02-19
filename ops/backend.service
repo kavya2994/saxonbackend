@@ -11,6 +11,10 @@ RestartSec=1
 StartLimitBurst=5
 User=backend
 Environment="FLASK_ENV=production"
+Environment="ORACLE_HOME=/usr/lib/oracle/18.3/client64"
+Environment="PATH=$PATH:/usr/lib/oracle/18.3/client64/bin"
+Environment="LD_LIBRARY_PATH=/usr/lib/oracle/18.3/client64/lib"
+Environment="TNS_ADMIN=/usr/lib/oracle/18.3/client64/network/admin/tnsnames.ora"
 ExecStart=/bin/bash -c '/var/www/venv/bin/python /var/www/backend/backend-0/app.py'
 
 [Install]
