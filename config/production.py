@@ -62,7 +62,8 @@ CORS_ORIGIN_WHITELIST = [
 
     "http://132.145.107.163",
     "https://132.145.107.163",
-
+    "http://192.168.2.146:8080",
+    "http://192.168.2.146:812",
     "http://192.168.2.132:812",
 
     "http://portal.silverthatch.org.ky",

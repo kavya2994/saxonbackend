@@ -16,7 +16,7 @@ parser = reqparse.RequestParser()
 parser.add_argument('Authorization', type=str, location='headers', required=True)
 parser.add_argument('username', type=str, location='headers', required=True)
 parser.add_argument('Ipaddress', type=str, location='headers', required=True)
-parser.add_argument('offset', type=str, location='args', required=True)
+parser.add_argument('offset', type=str, location='args', required=False)
 
 
 response_model = {
@@ -44,8 +44,6 @@ response = {
 }
 
 
-# @user_blueprint.route('/createuser', methods=['POST', 'OPTIONS'])
-# @cross_origin(origins=['*'], allow_headers=['Content-Type', 'Authorization', 'Ipaddress', 'User'])
 @ns.route("/members/get")
 class GetMembers(Resource):
     @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
