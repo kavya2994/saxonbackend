@@ -2,7 +2,6 @@ from ..models import db
 from ..helpers import isDev
 
 
-
 def init_app(app):
     with app.app_context():
         from .production import ProductionSeeder
@@ -13,3 +12,6 @@ def init_app(app):
 
         from .development import DevelopmentSeeder
         DevelopmentSeeder(db).run()
+
+        from .create_folder_structure import create_folders
+        create_folders()

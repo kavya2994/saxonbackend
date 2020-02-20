@@ -10,11 +10,12 @@ from flask import Blueprint, jsonify, request, send_file, current_app as app
 from flask_restplus import Resource, reqparse
 from werkzeug.utils import secure_filename
 from xlutils.copy import copy
-from ...helpers import delete_excel
+
+from ... import APP
+from ...helpers import delete_excel, token_verify_or_raise, crossdomain
 from ...models import db
 from ...models.token import Token
 from . import ns
-
 
 parser = reqparse.RequestParser()
 parser.add_argument('Authorization', type=str, location='headers', required=True)
@@ -24,18 +25,24 @@ parser.add_argument('Ipaddress', type=str, location='headers', required=True)
 
 @ns.route("/download")
 class FileDownload(Resource):
-    @ns.doc(parser=parser,
-        description='Download File',
-        responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 500: 'Internal Server Error'})
+    @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
+    def options(self):
+        pass
 
+    @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
+    @ns.doc(parser=parser,
+            description='Download File',
+            responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 500: 'Internal Server Error'})
     @ns.expect(parser, validate=True)
-    def get(self):
+    def post(self):
+        args = parser.parse_args()
+        token_verify_or_raise(token=args["Authorization"], user=args["username"], ip=args["Ipaddress"])
         root = app.config['DATA_DIR']
         data = json.loads(str(request.data, encoding='utf-8'))
         print("-------------")
         print(data)
-        root = os.path.join(root, data["request_folder"])
-        path_ = os.path.join(app.config['DATA_DIR'], data["request_folder"])
+        root = os.path.join(root, data["requestfolder"])
+        path_ = os.path.join(app.config['DATA_DIR'], data["requestfolder"])
         paths = list(data["path"])
         print(paths)
         return send_file(os.path.join(path_, paths[0])), 200

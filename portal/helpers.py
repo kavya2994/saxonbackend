@@ -17,9 +17,10 @@ from . import APP
 
 RESPONSE_OK = {"result": "Success"}
 
+
 def delete_excel(filename):
     time.sleep(5)  # ??!!
-    print("deleting file" + filename)
+    print("deleting file -" + filename)
     os.remove(filename)
 
 

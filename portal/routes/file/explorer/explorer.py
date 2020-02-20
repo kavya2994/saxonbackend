@@ -12,10 +12,11 @@ from flask import Blueprint, jsonify, request, send_file, current_app as app
 from flask_restplus import Resource, reqparse
 from werkzeug.utils import secure_filename
 from xlutils.copy import copy
-from ....helpers import token_verify, delete_excel, token_verify_or_raise
+from ....helpers import token_verify, delete_excel, token_verify_or_raise, crossdomain
 from ....models import db
 from ....models.token import Token
 from .. import ns
+from .... import APP
 
 parser = reqparse.RequestParser()
 parser.add_argument('Authorization', type=str, location='headers', required=True)
@@ -27,12 +28,17 @@ get_parser = reqparse.RequestParser()
 get_parser.add_argument('Authorization', type=str, location='headers', required=True)
 get_parser.add_argument('username', type=str, location='headers', required=True)
 get_parser.add_argument('Ipaddress', type=str, location='headers', required=True)
-get_parser.add_argument('request_folder', type=str, location='args', required=True)
+get_parser.add_argument('requestfolder', type=str, location='args', required=True)
 
 
 @ns.route("/explorer")
 class FileExplorer(Resource):
-    @ns.doc(parser=parser,
+    @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
+    def options(self):
+        pass
+
+    @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
+    @ns.doc(parser=get_parser,
             description='File Explorer',
             responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 500: 'Internal Server Error'})
     @ns.expect(get_parser, validate=True)
@@ -40,8 +46,9 @@ class FileExplorer(Resource):
 
         print(request + " get requesttt")
         data = json.loads(str(request.data, encoding='utf-8'))
-        return send_file(os.path.join(app.config['DATA_DIR'], data["request_folder"])), 200
+        return send_file(os.path.join(app.config['DATA_DIR'], data["requestfolder"])), 200
 
+    @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
     @ns.doc(parser=parser,
             description='File Explorer',
             responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 500: 'Internal Server Error'})
@@ -51,7 +58,7 @@ class FileExplorer(Resource):
         request_folder = args["requestfolder"]
         # print(request_folder)
         # print('post dataa')
-        # token_verify_or_raise(token=args["Authorization"], user=args["username"], ip=args["Ipaddress"])
+        token_verify_or_raise(token=args["Authorization"], user=args["username"], ip=args["Ipaddress"])
 
         path = os.path.join(app.config['DATA_DIR'], request_folder)
         folders = {}
@@ -61,9 +68,11 @@ class FileExplorer(Resource):
         for r, d, f in os.walk(path):
             # folders[parent] = {}
             for folder in d:
+
+                r = r.replace("\\", "/")
                 p = r.split("/")
                 parent = p[len(p) - 1]
-                print(parent)
+
                 if parent == '' or parent == request_folder:
                     parent = 'root'
                     # print(r.split("\\"))
@@ -91,21 +100,23 @@ class FileExplorer(Resource):
                                                                                  os.path.join(r, folder))))})
                         folders[parent][folder] = id
                         id += 1
-            print(folders)
+            # print(folders)
             for file in f:
                 # files.append(os.path.join(r, file))
-                print(r)
+                # print(r)
+                r = r.replace("\\", "/")
                 p = r.split("/")
                 parent = p[len(p) - 1]
-                print(parent)
-                if parent == '' or request_folder:
-                    parent = 'root'
+                # print(parent)
+                if parent == '' or parent == request_folder:
+                    # parent = 'root'
                     # print(r.split("\\"))
                     object_to_send.append({"id": id, "name": file, "isFolder": False, "parent": 'root',
                                            "modifiedtime": time.strftime('%Y-%m-%d %H:%M:%S',
                                                                          time.localtime(os.path.getmtime(
                                                                              os.path.join(r, file))))})
                     id += 1
+
                 else:
 
                     # print(p)
@@ -120,5 +131,6 @@ class FileExplorer(Resource):
                                                        time.localtime(
                                                            os.path.getmtime(os.path.join(r, file))))})
                     id += 1
+
         print(object_to_send)
         return {"paths": object_to_send}, 200

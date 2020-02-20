@@ -51,7 +51,7 @@ class GetInternalUsers(Resource):
         decoded_token = token_verify_or_raise(token, username, ip)
         if decoded_token["role"] == roles.ROLES_ADMIN:
             users = Users.query.filter(Users.Role.in_([roles.ROLES_REVIEW_MANAGER, roles.ROLES_ADMIN]),
-                                       Users.Status != status.STATUS_DELETE).all()
+                                       Users.Status != status.STATUS_DELETE).order_by(Users.UserCreatedTime.desc()).all()
             # users = Users.query.offset(2).limit(3).all()
             internal_users = []
             print(users)

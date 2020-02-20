@@ -1,6 +1,7 @@
 DATA_DIR = "E:/Saxons_folders/"
 DEBUG = True
-
+DIRECTORIES = "termination,Statements,rev_inbox,Resources,pensioninfo,Monthly,member_resources,enrollment,Employers,emp_inbox,contribution,batch,Annual"
+ZIP_DATA_DIR = "C:/Users/Manomay/Desktop/backend-0/ZIP/"
 SERVER_ADDRESS = "0.0.0.0"
 SERVER_PORT = 811
 SERVER_WEB_URL = f'http://{SERVER_ADDRESS}:{SERVER_PORT}/static/'

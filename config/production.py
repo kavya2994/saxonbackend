@@ -2,7 +2,9 @@ import os
 
 
 DATA_DIR = "/var/www/data/"
+ZIP_DATA_DIR = "/var/www/backend/backend-0/ZIP/"
 DEBUG = False
+DIRECTORIES = "termination,Statements,rev_inbox,Resources,pensioninfo,Monthly,member_resources,enrollment,Employers,emp_inbox,contribution,batch,Annual"
 
 # DBAAS_READONLY_CONNECTION_STRING = "oracle+cx_oracle://system:Sportal_DB#23@152.67.0.98:1521/?service_name=Dev_bom1sn.devpublic.dev.oraclevcn.com"
 # DBAAS_WRITEONLY_CONNECTION_STRING = "oracle+cx_oracle://system:Sportal_DB#23@140.238.248.176:1521/?service_name=PDB1.svcsubnetad1.svcvcn.oraclevcn.com"
