@@ -131,6 +131,7 @@ dmypy.json
 
 ######
 .DS_Store
+*.log
 .vscode/
 .idea/
 secret/

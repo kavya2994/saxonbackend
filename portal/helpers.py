@@ -58,11 +58,11 @@ def randomStringwithDigitsAndSymbols(stringLength=10):
 
 
 def isDev():
-    return "development" == os.getenv("FLASK_ENV", default="")
+    return "development" == os.getenv("BACKEND_ENV", default="")
 
 
 def isProd():
-    return "production" == os.getenv("FLASK_ENV", default="")
+    return "production" == os.getenv("BACKEND_ENV", default="")
 
 
 def uuid_generator():

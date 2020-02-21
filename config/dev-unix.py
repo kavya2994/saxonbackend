@@ -1,11 +1,8 @@
-from .base import *
-
-
 DEBUG = True
 
-DATA_DIR = "E:/Saxons_folders/"
-ZIP_DATA_DIR = "C:/Users/Manomay/Desktop/backend-0/ZIP/"
-LOG_DIR = "C:/Users/Manomay/Desktop/backend-0/"
+DATA_DIR = "./data/"
+ZIP_DATA_DIR = "./ZIP/"
+LOG_DIR = "./data/"
 
 DIRECTORIES = [
     'termination', 'Statements', 'rev_inbox', 'Resources', 'pensioninfo',
@@ -13,8 +10,8 @@ DIRECTORIES = [
     'contribution', 'batch', 'Annual',
 ]
 
-DBAAS_READONLY_CONNECTION_STRING = "oracle+cx_oracle://system:Sportal_DB#23@152.67.0.98:1521/?service_name=Dev_bom1sn.devpublic.dev.oraclevcn.com"
-DBAAS_WRITEONLY_CONNECTION_STRING = "oracle+cx_oracle://system:Sportal_DB#23@140.238.248.176:1521/?service_name=PDB1.svcsubnetad1.svcvcn.oraclevcn.com"
+DBAAS_READONLY_CONNECTION_STRING = "sqlite:///../data/readonly.sqlite"
+DBAAS_WRITEONLY_CONNECTION_STRING = "sqlite:///../data/writeonly.sqlite"
 
 SERVER_ADDRESS = "0.0.0.0"
 SERVER_PORT = 811

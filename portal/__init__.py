@@ -2,12 +2,11 @@ import os
 from flask import Flask
 from flask_restplus import Api, Resource
 
-APP = None
 
 APP = None
 
 def get_config_file_path():
-    env = os.getenv("FLASK_ENV", default="development")
+    env = os.getenv("BACKEND_ENV", default="development")
     base = os.path.dirname(os.path.abspath(__file__))
     absolute_path = os.path.abspath(os.path.join(base, '..', 'config', env + '.py'))
     return absolute_path
@@ -25,13 +24,12 @@ def create_app():
         elif config_file_path.endswith('.py'):
             APP.config.from_pyfile(config_file_path)
 
-    from . import routes, models, services, helpers, api, seeds
+    from . import routes, models, services, api, seeds
     api.init_app(APP)
     models.init_app(APP)
     routes.init_app(APP)
     services.init_app(APP)
     seeds.init_app(APP)
-
 
     return APP
 

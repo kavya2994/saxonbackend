@@ -10,6 +10,7 @@ Restart=always
 RestartSec=1
 StartLimitBurst=5
 User=backend
+Environment="BACKEND_ENV=staging"
 Environment="FLASK_ENV=staging"
 Environment="ORACLE_HOME=/usr/lib/oracle/18.3/client64"
 Environment="PATH=$PATH:/usr/lib/oracle/18.3/client64/bin"

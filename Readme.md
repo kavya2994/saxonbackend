@@ -13,7 +13,11 @@ pip install -r requirements.txt
 
 For development:
 ```bash
-FLASK_ENV=development flask run
+# for Windows:
+BACKEND_ENV=development FLASK_ENV=development  flask run
+
+# for Unix:
+BACKEND_ENV=dev-unix FLASK_ENV=development  flask run
 ```
 
 http://localhost:5000/v1/my-ip

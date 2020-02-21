@@ -6,6 +6,13 @@ DEBUG = False
 
 DATA_DIR = "/var/www/data/"
 ZIP_DATA_DIR = "/var/www/backend/backend-0/ZIP/"
+LOG_DIR = "/var/log/"
+
+DIRECTORIES = [
+    'termination', 'Statements', 'rev_inbox', 'Resources', 'pensioninfo',
+    'Monthly', 'member_resources', 'enrollment', 'Employers', 'emp_inbox',
+    'contribution', 'batch', 'Annual',
+]
 
 DBAAS_READONLY_CONNECTION_STRING = "oracle+cx_oracle://SAXON_PORTAL:SAxon0123$$$@10.147.0.2:1521/?service_name=dtq.app.saxon.oraclevcn.com"
 DBAAS_WRITEONLY_CONNECTION_STRING = "oracle+cx_oracle://system:BL_H#iP3EzA9Nx#m@portal-db-test.app.primary.oraclevcn.com:1521/?service_name=test.app.primary.oraclevcn.com"
@@ -16,6 +23,11 @@ SERVER_WEB_URL = 'https://portal.silverthatch.org.ky/'
 
 SECRET_KEY = 'f^I7q!(S(O]|"]%<+,Hz&vyQ^"exx9'
 JWT_SECRET = 'H7|=1fq[:`.;MtY02Me]w9_XPRqt^S'
+
+CORS_HEADERS = [
+    'Ipaddress', 'Authorization', 'username',
+    'Content-Type'
+]
 
 CORS_ORIGIN_WHITELIST = [
     "http://generator.swagger.io",
@@ -50,3 +62,11 @@ CORS_ORIGIN_WHITELIST = [
     "http://portal.silverthatch.org.ky",
     "https://portal.silverthatch.org.ky"
 ]
+
+MAILGUN_API_KEY = "1dcbf1bdff3416543d67867101b08e49-52b6835e-5b18bf8e"
+MAILGUN_DOMAIN = "sandbox6edce741885a45088acf63216cdf5660.mailgun.org"
+
+MAILDOMAIN = "smtp.gmail.com"
+MAILPORT = 465
+EMAIL = "portals.uat@gmail.com"
+PASSWORD = "Portal@Success"
