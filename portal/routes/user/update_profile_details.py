@@ -46,3 +46,4 @@ class UpdateProfileDetails(Resource):
         users.Language = language
         users.Timezone = timezone
         db.session.commit()
+        return {"result": "success"}, 200

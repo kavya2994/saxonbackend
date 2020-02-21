@@ -27,7 +27,9 @@ response_model = {
     'temppass': fields.Boolean(default=False),
     'token': fields.String,
     'securityQuestion': fields.String,
-    'securityanswer': fields.Boolean
+    'securityanswer': fields.Boolean,
+    "timezone": fields.String,
+    "language": fields.String
 }
 
 
@@ -87,7 +89,9 @@ class Login(Resource):
                 "temppass": bool(userinfo.TemporaryPassword),
                 'token': str(token),
                 "securityQuestion": securityQuestion,
-                "securityanswer": True if userinfo.SecurityAnswer is not None else False
+                "securityanswer": True if userinfo.SecurityAnswer is not None else False,
+                "timezone": userinfo.Timezone,
+                "language": userinfo.Language
             }
 
         except Exception as e:

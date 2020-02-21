@@ -29,9 +29,10 @@ class Terminationform(db.Model):
     EstimatedAnnualIncomeRange = db.Column(db.String(255), nullable=True)
     Status = db.Column(db.String(255), nullable=True)
     PendingFrom = db.Column(db.String(255), nullable=True)
-    FilePath = db.Column(db.String(255), nullable=True)
+    # FilePath = db.Column(db.String(255), nullable=True)
 
     # termination_form = relationship('Token', foreign_keys='Token.FormID')
+
 
 TerminationformResponseModel = {
     'FormID': fields.String,
@@ -52,5 +53,5 @@ TerminationformResponseModel = {
     'Status': fields.String,
     'EmployerID': fields.String,
     'PendingFrom': fields.String,
-    'FilePath': fields.String,
+    # 'FilePath': fields.String,
 }
