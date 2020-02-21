@@ -10,7 +10,6 @@ if __name__ == "__main__":
     server_port = app.config['SERVER_PORT']
 
     print(f"Starting server on {server_address}:{server_port}")
-    http_server = WSGIServer((server_address, server_port),
-        app)#, keyfile=app.config['CERT_KEY_FILE'], certfile=app.config['CERT_FILE'])
+    http_server = WSGIServer((server_address, server_port), app)
 
     http_server.serve_forever()

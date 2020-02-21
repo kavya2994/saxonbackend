@@ -1,32 +1,20 @@
-DATA_DIR = "E:/Saxons_folders/"
+from .base import *
+
+
 DEBUG = True
-DIRECTORIES = "termination,Statements,rev_inbox,Resources,pensioninfo,Monthly,member_resources,enrollment,Employers,emp_inbox,contribution,batch,Annual"
+
+DATA_DIR = "E:/Saxons_folders/"
 ZIP_DATA_DIR = "C:/Users/Manomay/Desktop/backend-0/ZIP/"
-SERVER_ADDRESS = "0.0.0.0"
-SERVER_PORT = 811
-SERVER_WEB_URL = f'http://{SERVER_ADDRESS}:{SERVER_PORT}/static/'
 
 DBAAS_READONLY_CONNECTION_STRING = "oracle+cx_oracle://system:Sportal_DB#23@152.67.0.98:1521/?service_name=Dev_bom1sn.devpublic.dev.oraclevcn.com"
 DBAAS_WRITEONLY_CONNECTION_STRING = "oracle+cx_oracle://system:Sportal_DB#23@140.238.248.176:1521/?service_name=PDB1.svcsubnetad1.svcvcn.oraclevcn.com"
 
+SERVER_ADDRESS = "0.0.0.0"
+SERVER_PORT = 811
+SERVER_WEB_URL = f'http://{SERVER_ADDRESS}:{SERVER_PORT}/static/'
+
 SECRET_KEY = 'BT-=f~i1IlIHF(#'
 JWT_SECRET = 'R]B+=46,e=gKtI/'
-
-CERT_KEY_FILE = ""
-CERT_FILE = ""
-
-MAILGUN_API_KEY = "1dcbf1bdff3416543d67867101b08e49-52b6835e-5b18bf8e"
-MAILGUN_DOMAIN = "sandbox6edce741885a45088acf63216cdf5660.mailgun.org"
-
-MAILDOMAIN = "smtp.gmail.com"
-MAILPORT = 465
-EMAIL = "portals.uat@gmail.com"
-PASSWORD = "Portal@Success"
-
-CORS_HEADERS = [
-    'Ipaddress', 'username', 'Authorization',
-    'Content-Type'
-]
 
 CORS_ORIGIN_WHITELIST = [
     "http://127.0.0.1",
