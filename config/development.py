@@ -1,6 +1,3 @@
-from .base import *
-
-
 DEBUG = True
 
 DATA_DIR = "E:/Saxons_folders/"

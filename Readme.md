@@ -20,4 +20,4 @@ BACKEND_ENV=development FLASK_ENV=development  flask run
 BACKEND_ENV=dev-unix FLASK_ENV=development  flask run
 ```
 
-http://localhost:5000/v1/my-ip
+http://127.0.0.1:5000/v1/health/status
