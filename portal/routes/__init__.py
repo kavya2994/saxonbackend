@@ -17,3 +17,4 @@ def init_app(app):
     from .member import get_member_details, member_termination_details
     from .accounts import get_employers, get_members
     from .messages import get_messages
+    from .health import status
