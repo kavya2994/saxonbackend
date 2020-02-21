@@ -13,7 +13,8 @@ from ....models.users import Users
 from ....models.security_question import SecurityQuestion
 from ....services.mail import send_email
 from .. import ns
-from .... import APP
+from .... import APP, LOG
+
 
 parser = reqparse.RequestParser()
 parser.add_argument('request_type', type=str, location='json', required=True,
@@ -43,7 +44,7 @@ def _change_password(username, email, display_name):
         return RESPONSE_OK
 
     except Exception as e:
-        print(str(e))
+        LOG.warning('Unexpected error happened during changing password: %s', e)
         raise InternalServerError()
 
 

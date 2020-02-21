@@ -11,7 +11,7 @@ from ...models.users import Users
 from ...models import status, roles
 from ...api import api
 from . import ns
-from ... import APP
+from ... import APP, LOG
 
 parser = reqparse.RequestParser()
 parser.add_argument('Ipaddress', type=str, location='json', required=True)
@@ -52,11 +52,13 @@ class Login(Resource):
         encrypt_password = Encryption().encrypt(password)
         userinfo = Users.query.filter_by(Username=username, Password=encrypt_password).first()
         if userinfo is None:
-            print("Username or password is incorrect")
+            LOG.debug("Auth failed. Username (%s) or Password is wrong", username)
             raise UnprocessableEntity('Username or Password is incorrect')
+
         if (userinfo.Status == status.STATUS_DELETE) or \
                 (userinfo.Role in [roles.ROLES_REVIEW_MANAGER, roles.ROLES_ADMIN] and str(userinfo.Status).upper()
                  == status.STATUS_INACTIVE):
+            LOG.debug("Auth failed. User is not active. Username:%s, status:%s, role:%s", username)
             raise UnprocessableEntity('User is not active')
 
         try:
@@ -75,6 +77,7 @@ class Login(Resource):
             token = token.decode('utf-8')
             securityQuestion = None if userinfo.SecurityQuestion is None else userinfo.SecurityQuestion.Question
 
+            LOG.debug('User %s authenticated successfully', username)
             return {
                 "email": userinfo.Email,
                 "username": username,
@@ -87,10 +90,6 @@ class Login(Resource):
                 "securityanswer": True if userinfo.SecurityAnswer is not None else False
             }
 
-        except json.decoder.JSONDecodeError:
-            raise BadRequest
-
         except Exception as e:
-            print(str(e))
-            print("in exception", e)
+            LOG.warning('Exception happened during authenticating user: %s', e)
             raise InternalServerError(e)

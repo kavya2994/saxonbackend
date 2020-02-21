@@ -3,9 +3,8 @@ import json
 
 from flask import Blueprint, jsonify, request, abort, current_app as app, Response
 from flask_restplus import Resource, reqparse
-from werkzeug.exceptions import UnprocessableEntity
-
-from ...helpers import randomStringwithDigitsAndSymbols, token_verify, token_verify_or_raise, crossdomain
+from werkzeug.exceptions import NotFound, BadRequest, Unauthorized, UnprocessableEntity, InternalServerError
+from ...helpers import randomStringwithDigitsAndSymbols, token_verify_or_raise, crossdomain, RESPONSE_OK
 from ...encryption import Encryption
 from ...models import db, roles
 from ...models.users import Users
@@ -48,8 +47,10 @@ class UpdateUser(Resource):
         user = Users.query.filter_by(Username=user_name).first()
         msgtext = None
         subject = None
+
         if user is None:
             raise UnprocessableEntity('Username is not valid')
+
         if role == roles.ROLES_REVIEW_MANAGER or role == roles.ROLES_ADMIN:
 
             status_change = data["statuschange"]
@@ -104,7 +105,7 @@ class UpdateUser(Resource):
             db.session.commit()
             if msgtext is not None and subject is not None:
                 send_email(user.Email, subject=subject, body=msgtext)
-            return jsonify({"result": "Success"}), 200
+            return RESPONSE_OK
         elif role == roles.ROLES_EMPLOYER or role == roles.ROLES_MEMBER:
             display_name = data["displayname"]
             email = data["email"]
@@ -137,9 +138,9 @@ class UpdateUser(Resource):
             db.session.commit()
             if msgtext is not None and subject is not None:
                 send_email(user.Email, subject=subject, body=msgtext)
-            return jsonify({"result": "Success"}), 200
+            return RESPONSE_OK
 
         else:
-            return jsonify({"error": "Invalid role"}), 400
+            raise BadRequest('Invalid Role')
 
 

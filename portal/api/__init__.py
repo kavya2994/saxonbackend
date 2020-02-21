@@ -13,3 +13,5 @@ def init_app(app):
     @api.errorhandler(HTTPException)
     def handle_http_exception_with_cors(error):
         return {'message': str(error)}, getattr(error, 'code', 500), {'Access-Control-Allow-Origin': '*'}
+
+    app.logger.info('Initialized api')

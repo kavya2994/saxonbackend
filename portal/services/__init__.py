@@ -1,2 +1,2 @@
 def init_app(app):
-    pass
+    app.logger.info('Initialized services')

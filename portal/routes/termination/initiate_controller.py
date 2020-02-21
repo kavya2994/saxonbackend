@@ -13,7 +13,8 @@ from ...models.comments import Comments
 from ...models.roles import *
 from ...services.mail import send_email
 from . import ns
-from ... import APP
+from ... import APP, LOG
+
 
 parser = reqparse.RequestParser()
 parser.add_argument('Authorization', type=str, location='headers', required=True)
@@ -128,5 +129,5 @@ class TerminationInitiationController(Resource):
             send_email(to_address=form.EmailAddress, subject=subject, template='termination_initiation_to_member.html')
             return RESPONSE_OK
         except Exception as e:
-            print(e)
+            LOG.warning('Unexpected error happened during initiating termination: %s', e)
             raise InternalServerError

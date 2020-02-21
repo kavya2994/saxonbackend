@@ -11,7 +11,7 @@ from flask_restplus import Resource, reqparse
 from werkzeug.utils import secure_filename
 from xlutils.copy import copy
 from werkzeug.exceptions import Unauthorized, BadRequest, UnprocessableEntity, InternalServerError
-from ... import APP
+from ... import APP, LOG
 from ...helpers import token_verify, delete_excel, token_verify_or_raise, crossdomain
 from ...models import db, roles
 from ...models.settings import Settings
@@ -66,7 +66,7 @@ class AddSettings(Resource):
                 db.session.commit()
                 return {"result": "success"}, 200
             except Exception as e:
-                print(str(e))
+                LOG.warning('Unexpected error happened on handling adding new setting: %s', e)
                 raise InternalServerError(str(e))
         else:
             raise Unauthorized()

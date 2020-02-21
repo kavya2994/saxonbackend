@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, request, abort, current_app as app
+from flask import Blueprint, request, abort, current_app as app
 from flask_restplus import Resource, reqparse
 from ...helpers import randomStringwithDigitsAndSymbols, token_verify, token_verify_or_raise, crossdomain
 from ...models import db, status, roles
@@ -36,15 +36,16 @@ class AddSubsidiary(Resource):
         token = args["Authorization"]
         ip = args['Ipaddress']
         decoded_token = token_verify_or_raise(token, username, ip)
-        if decoded_token["Role"] == roles.ROLES_ADMIN:
-            new_subsidiary = Subsidiaries(
-                                EmployerId=args["EmployerId"],
-                                EmployerName=args["EmployerName"],
-                                SubsidiaryID=args["SubsidiaryID"],
-                                SubsidiaryName=args["SubsidiaryName"])
-            db.session.add(new_subsidiary)
-            db.session.commit()
 
-            return jsonify({"result": "Subsidiary added successfully"}), 200
-        else:
+        if decoded_token["Role"] not in [roles.ROLES_ADMIN]:
             raise Unauthorized()
+
+        new_subsidiary = Subsidiaries(
+                            EmployerId=args["EmployerId"],
+                            EmployerName=args["EmployerName"],
+                            SubsidiaryID=args["SubsidiaryID"],
+                            SubsidiaryName=args["SubsidiaryName"])
+        db.session.add(new_subsidiary)
+        db.session.commit()
+
+        return {"result": "Subsidiary added successfully"}

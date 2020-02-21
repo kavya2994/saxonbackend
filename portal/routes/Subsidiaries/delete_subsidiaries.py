@@ -37,13 +37,14 @@ class DeleteSubsidiary(Resource):
         token = args["Authorization"]
         ip = args['Ipaddress']
         decoded_token = token_verify_or_raise(token, username, ip)
-        if decoded_token["Role"] == roles.ROLES_ADMIN:
-            subsidiaries = Subsidiaries.query.filter_by(EmployerID=args["EmployerID"],
-                                                        SubsidiaryID=args["SubsidiaryID"]).first()
-            if subsidiaries is not None:
-                subsidiaries.delete()
-                db.session.commit()
-            else:
-                raise UnprocessableEntity('Cant find the subsidiary')
-        else:
+
+        if decoded_token["role"] not in [roles.ROLES_ADMIN]:
             raise Unauthorized()
+
+        subsidiaries = Subsidiaries.query.filter_by(EmployerID=args["EmployerID"],
+                                                    SubsidiaryID=args["SubsidiaryID"]).first()
+        if subsidiaries is not None:
+            subsidiaries.delete()
+            db.session.commit()
+        else:
+            raise UnprocessableEntity('Cant find the subsidiary')

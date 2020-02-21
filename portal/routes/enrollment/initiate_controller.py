@@ -18,7 +18,8 @@ from ...models import db
 from ...api import api
 from ...services.mail import send_email
 from . import ns
-from ... import APP
+from ... import APP, LOG
+
 
 parser = reqparse.RequestParser()
 parser.add_argument('Authorization', type=str, location='headers', required=True)
@@ -46,7 +47,7 @@ class EnrollmentInitiationController(Resource):
         args = parser.parse_args()
         auth = token_verify_or_raise(token=args["Authorization"], ip=args["Ipaddress"], user=args["username"])
 
-        if auth["Role"] != ROLES_EMPLOYER:
+        if auth["role"] != ROLES_EMPLOYER:
             raise Unauthorized()
 
         try:
@@ -123,5 +124,5 @@ click here to review our members handbook. </p>"""
             }
 
         except Exception as e:
-            print(str(e))
+            LOG.warning('Unexpected error happened initializing an enrollment: %s', e)
             raise InternalServerError

@@ -62,7 +62,7 @@ class UserNew(Resource):
                         new_user = Users(Username=username,
                                          Email=email,
                                          Password=enc_pass,
-                                         Role=data["Role"],
+                                         Role=data["role"],
                                          Status="active",
                                          TemporaryPassword=True,
                                          DisplayName=displayname,

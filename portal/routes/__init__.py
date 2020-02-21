@@ -18,3 +18,5 @@ def init_app(app):
     from .accounts import get_employers, get_members
     from .messages import get_messages
     from .health import status
+
+    app.logger.info('Initialized routes')

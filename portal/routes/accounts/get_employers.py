@@ -54,17 +54,18 @@ class GetEmployers(Resource):
         decoded_token = token_verify_or_raise(token, username, ip)
         if offset is None or str(offset) == "":
             offset = 0
-        if decoded_token["role"] == roles.ROLES_ADMIN or decoded_token["role"] == roles.ROLES_REVIEW_MANAGER:
-            employers = EmployerView.query.offset(offset).limit(50).all()
-            employer_list = []
-            for emp in employers:
-                employer_list.append({
-                    'ERKEY': emp.ERKEY,
-                    'ERNO': emp.ERNO,
-                    'ENAME': emp.ENAME,
-                    'SNAME': emp.SNAME,
-                    'EMAIL': emp.EMAIL
-                })
-            return {"employers": employer_list}, 200
-        else:
+
+        if decoded_token["role"] not in [roles.ROLES_ADMIN, roles.ROLES_REVIEW_MANAGER]:
             raise Unauthorized()
+
+        employers = EmployerView.query.offset(offset).limit(50).all()
+        employer_list = []
+        for emp in employers:
+            employer_list.append({
+                'ERKEY': emp.ERKEY,
+                'ERNO': emp.ERNO,
+                'ENAME': emp.ENAME,
+                'SNAME': emp.SNAME,
+                'EMAIL': emp.EMAIL
+            })
+        return {"employers": employer_list}, 200

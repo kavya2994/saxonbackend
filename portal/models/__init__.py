@@ -18,6 +18,8 @@ def init_app(app):
     }
 
     db.init_app(app)
+    app.logger.info('Initialized models')
+
     with app.app_context():
         from .comments import Comments
         from .contributionform import Contributionform
@@ -39,3 +41,4 @@ def init_app(app):
 
         db.create_all(bind=['writeonly'])
         db.session.commit()
+        app.logger.debug('All tables are created')

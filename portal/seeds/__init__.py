@@ -15,3 +15,5 @@ def init_app(app):
 
         from .create_folder_structure import create_folders
         create_folders()
+
+    app.logger.info('Initialized seeding')

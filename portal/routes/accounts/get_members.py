@@ -63,32 +63,34 @@ class GetMembers(Resource):
         ip = args['Ipaddress']
         offset = args["offset"]
         decoded_token = token_verify_or_raise(token, username, ip)
+
         if offset is None or str(offset) == "":
             offset = 0
 
-        if decoded_token["role"] == roles.ROLES_ADMIN or decoded_token["role"] == roles.ROLES_REVIEW_MANAGER:
-            members = MemberView.query.offset(offset).limit(50).all()
-            member_list = []
-            for mem in members:
-                member_list.append({
-                    'MKEY': mem.MKEY,
-                    'MEMNO': mem.MEMNO,
-                    'FNAME': mem.FNAME,
-                    'LNAME': mem.LNAME,
-                    'EMAIL': mem.EMAIL,
-                    'BIRTH': mem.BIRTH,
-                    'ENTRY_DATE': mem.ENTRY_DATE,
-                    'NR_DATE': mem.NR_DATE,
-                    'HIRE': mem.HIRE,
-                    'PSTATUS': mem.PSTATUS,
-                    'EMPOYER': mem.EMPOYER,
-                    'STREET1': mem.STREET1,
-                    'EM_STATUS': mem.EM_STATUS,
-                    'CITY': mem.CITY,
-                    'COUNTRY': mem.COUNTRY,
-                    'BEN_NAMES': mem.BEN_NAMES,
-                    'RELNAME': mem.RELNAME
-                })
-            return {"members": member_list}, 200
-        else:
+        if decoded_token["role"] not in [roles.ROLES_ADMIN, roles.ROLES_REVIEW_MANAGER]:
             raise Unauthorized()
+
+        members = MemberView.query.offset(offset).limit(50).all()
+        member_list = []
+        for mem in members:
+            member_list.append({
+                'MKEY': mem.MKEY,
+                'MEMNO': mem.MEMNO,
+                'FNAME': mem.FNAME,
+                'LNAME': mem.LNAME,
+                'EMAIL': mem.EMAIL,
+                'BIRTH': mem.BIRTH,
+                'ENTRY_DATE': mem.ENTRY_DATE,
+                'NR_DATE': mem.NR_DATE,
+                'HIRE': mem.HIRE,
+                'PSTATUS': mem.PSTATUS,
+                'EMPOYER': mem.EMPOYER,
+                'STREET1': mem.STREET1,
+                'EM_STATUS': mem.EM_STATUS,
+                'CITY': mem.CITY,
+                'COUNTRY': mem.COUNTRY,
+                'BEN_NAMES': mem.BEN_NAMES,
+                'RELNAME': mem.RELNAME
+            })
+
+        return {"members": member_list}, 200

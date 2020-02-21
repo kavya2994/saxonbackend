@@ -17,7 +17,7 @@ from ...models import db
 from ...api import api
 from ...services.mail import send_email
 from . import ns
-from ... import APP
+from ... import APP, LOG
 
 
 RequestType_MemberSubmission = 'MemberSubmission'
@@ -89,7 +89,7 @@ class EnrollmentController(Resource):
             enrollmentform = Enrollmentform.query.get(token.FormID)
             return enrollmentform
         except Exception as e:
-            print(e)
+            LOG.warning('Unexpected error happened during handling enrollment: %s', e)
             raise InternalServerError()
 
 
@@ -165,7 +165,7 @@ class EnrollmentController(Resource):
 
             db.session.commit()
         except Exception as e:
-            print(e)
+            LOG.warning('Unexpected error happened during updating enrollment: %s', e)
             raise InternalServerError()
 
         if  args['RequestType'] == RequestType_MemberSubmission:
