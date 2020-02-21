@@ -16,22 +16,11 @@ parser = reqparse.RequestParser()
 parser.add_argument('Authorization', type=str, location='headers', required=True)
 parser.add_argument('username', type=str, location='headers', required=True)
 parser.add_argument('Ipaddress', type=str, location='headers', required=True)
+parser.add_argument('MessageID', type=str, location='json', required=True)
 
 
-messages_model = {
-    'Subject': fields.String,
-    'Message': fields.String,
-    'CreatedDate': fields.DateTime,
-    'MessageID': fields.Integer
-    }
-
-response_model = {
-    "messages": fields.List(fields.Nested(messages_model))
-}
-
-
-@ns.route("/get")
-class GetMessages(Resource):
+@ns.route("/delete")
+class DeleteMessage(Resource):
     @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
     def options(self):
         pass
@@ -41,24 +30,20 @@ class GetMessages(Resource):
             description='Get profile details',
             responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 500: 'Internal Server Error'})
     @ns.expect(parser, validate=True)
-    @ns.marshal_with(response_model)
-    def get(self):
+    def post(self):
         args = parser.parse_args(strict=False)
         username = args['username']
         token = args["Authorization"]
         ip = args['Ipaddress']
+        message_id = args["MessageID"]
         decoded_token = token_verify_or_raise(token, username, ip)
-        if decoded_token["role"] in [roles.ROLES_REVIEW_MANAGER, roles.ROLES_MEMBER, roles.ROLES_EMPLOYER]:
-            messages = Messages.query.all()
-            messages_list = []
-            for message in messages:
-                messages_list.append({
-                    "Message": message.Message,
-                    "Subject": message.Subject,
-                    "CreatedDate": message.CreatedDate,
-                    "MessageID": message.MessageID
-                })
-            return {"messages": messages_list}, 200
+        if decoded_token["role"] == roles.ROLES_REVIEW_MANAGER:
+            messages = Messages.query.filter_by(MessageID=message_id).first()
+            if messages is not None:
+                messages.delete(messages)
+                db.session.commit()
+                return {"result": "Success"}, 200
+            else:
+                raise UnprocessableEntity("Message not found")
         else:
             raise Unauthorized()
-

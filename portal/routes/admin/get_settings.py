@@ -52,13 +52,16 @@ class GetSettings(Resource):
         decoded_token = token_verify_or_raise(token, username, ip)
         if decoded_token["role"] == roles.ROLES_ADMIN:
             settings = Settings.query.order_by(Settings.SettingID.desc()).first()
-            return {
-                "NotificationEmail": settings.NotificationEmail,
-                "ArchiveDays": settings.ArchiveDays,
-                "ReviewIP": settings.ReviewIP,
-                "RMIP": settings.RMIP,
-                "LastRun": settings.LastRun,
-                "Sync": settings.Sync
-            }, 200
+            if settings is not None:
+                return {
+                    "NotificationEmail": settings.NotificationEmail,
+                    "ArchiveDays": settings.ArchiveDays,
+                    "ReviewIP": settings.ReviewIP,
+                    "RMIP": settings.RMIP,
+                    "LastRun": settings.LastRun,
+                    "Sync": settings.Sync
+                }, 200
+            else:
+                return {}, 200
         else:
             raise Unauthorized()

@@ -16,20 +16,9 @@ parser = reqparse.RequestParser()
 parser.add_argument('Authorization', type=str, location='headers', required=True)
 parser.add_argument('username', type=str, location='headers', required=True)
 parser.add_argument('Ipaddress', type=str, location='headers', required=True)
-parser.add_argument('Subject', type=str, location='headers', required=True)
-parser.add_argument('Message', type=str, location='headers', required=True)
-parser.add_argument('AddedBy', type=str, location='headers', required=True)
-
-
-messages_model = {
-    'Subject': fields.String,
-    'Message': fields.String,
-    'CreatedDate': fields.DateTime,
-    }
-
-response_model = {
-    "messages": fields.List(fields.Nested(messages_model))
-}
+parser.add_argument('Subject', type=str, location='json', required=True)
+parser.add_argument('Message', type=str, location='json', required=True)
+parser.add_argument('AddedBy', type=str, location='json', required=True)
 
 
 @ns.route("/create")
@@ -43,7 +32,6 @@ class CreateMessages(Resource):
             description='Get profile details',
             responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 500: 'Internal Server Error'})
     @ns.expect(parser, validate=True)
-    @ns.marshal_with(response_model)
     def post(self):
         args = parser.parse_args(strict=False)
         username = args['username']
@@ -66,4 +54,3 @@ class CreateMessages(Resource):
             return {"result": "Success"}, 200
         else:
             raise Unauthorized()
-
