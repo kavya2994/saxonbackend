@@ -24,16 +24,16 @@ parser.add_argument('Ipaddress', type=str, location='headers', required=True)
 parser.add_argument('MemberName', type=str, location='json', required=True)
 parser.add_argument('MemberNumber', type=str, location='json', required=True)
 parser.add_argument('EmailAddress', type=str, location='json', required=True)
-parser.add_argument('FinalDateOfEmployment', type=inputs.date_from_iso8601, location='json', required=True)
-parser.add_argument('ReasonforTermination', type=str, location='json', required=True)
-parser.add_argument('LastDeduction', type=str, location='json', required=True)
-parser.add_argument('Address', type=str, location='json', required=True)
-parser.add_argument('AddressLine2', type=str, location='json', required=True)
-parser.add_argument('District', type=str, location='json', required=True)
-parser.add_argument('PostalCode', type=str, location='json', required=True)
-parser.add_argument('Country', type=str, location='json', required=True)
-parser.add_argument('EstimatedAnnualIncomeRange', type=str, location='json', required=True)
-parser.add_argument('Status', type=str, location='json', required=True)
+# parser.add_argument('FinalDateOfEmployment', type=inputs.date_from_iso8601, location='json', required=True)
+# parser.add_argument('ReasonforTermination', type=str, location='json', required=True)
+# parser.add_argument('LastDeduction', type=str, location='json', required=True)
+# parser.add_argument('Address', type=str, location='json', required=True)
+# parser.add_argument('AddressLine2', type=str, location='json', required=True)
+# parser.add_argument('District', type=str, location='json', required=True)
+# parser.add_argument('PostalCode', type=str, location='json', required=True)
+# parser.add_argument('Country', type=str, location='json', required=True)
+# parser.add_argument('EstimatedAnnualIncomeRange', type=str, location='json', required=True)
+# parser.add_argument('Status', type=str, location='json', required=True)
 parser.add_argument('Comment', type=str, location='json', required=False)
 
 
@@ -58,42 +58,37 @@ class TerminationInitiationController(Resource):
 
         employer_username = auth['username']
         initiation_date = datetime.utcnow()
-
-        # member_email = data["email"]
-        # employer_id = data["id"]
-        # member_name = data["membername"]
-        # employer_comments = data["comments"]
         data = json.loads(str(request.data, encoding='utf-8'))
-        member_email = data["email"]
         employer_id = data["employernumber"]
         employer_name = data["employername"]
-        member_name = data["memberfirstName"]
-        form_type = data["formType"]
-        employer_comments = data["comments"]
+        # member_name = data["memberfirstName"]
+        # form_type = data["formType"]
+        # employer_comments = data["comments"]
         employernumber = employer_id
+        member_name = args['MemberNumber']
 
-        data["formCreatedDate"] = datetime.utcnow()
+        # data["formCreatedDate"] = datetime.utcnow()
         if str(employer_id)[-2:].__contains__("HR"):
             employernumber = str(employer_id)[:-2]
 
         form = Terminationform(
-            EmployerName='',
+            EmployerName=employer_name,
             EmployerID=employer_username,
             InitiatedDate=initiation_date,
             MemberName=args['MemberName'],
             MemberNumber=args['MemberNumber'],
             EmailAddress=args['EmailAddress'],
-            FinalDateOfEmployment=args['FinalDateOfEmployment'],
-            ReasonforTermination=args['ReasonforTermination'],
-            LastDeduction=args['LastDeduction'],
-            Address=args['Address'],
-            AddressLine2=args['AddressLine2'],
-            District=args['District'],
-            PostalCode=args['PostalCode'],
-            Country=args['Country'],
-            EstimatedAnnualIncomeRange=args['EstimatedAnnualIncomeRange'],
-            Status=args['Status'],
-            PendingFrom=args['PendingFrom'],
+            # FinalDateOfEmployment=args['FinalDateOfEmployment'],
+            # ReasonforTermination=args['ReasonforTermination'],
+            # LastDeduction=args['LastDeduction'],
+            # Address=args['Address'],
+            # AddressLine2=args['AddressLine2'],
+            # District=args['District'],
+            # PostalCode=args['PostalCode'],
+            # Country=args['Country'],
+            # EstimatedAnnualIncomeRange=args['EstimatedAnnualIncomeRange'],
+            # Status=args['Status'],
+            # PendingFrom=args['PendingFrom'],
         )
 
         db.session.add(form)
@@ -113,7 +108,7 @@ class TerminationInitiationController(Resource):
 
         db.session.add(token)
         db.session.commit()
-
+        token_id = token.TokenID
         if 'Comment' in args and args['Comment'] != '':
             comment = Comments(
                 FormID=form.FormID,
@@ -126,7 +121,19 @@ class TerminationInitiationController(Resource):
 
         try:
             subject = 'Please complete your Silver Thatch Pensions Employment Termination Form'
-            send_email(to_address=form.EmailAddress, subject=subject, template='termination_initiation_to_member.html')
+            # send_email(to_address=form.EmailAddress, subject=subject, template='termination_initiation_to_member.html')
+            msgtext = MIMEText(
+                '<p>**This is an auto-generated e-mail message. Please do not reply to this message. **</p>'
+                '<p>Dear %s</p>'
+                '<p>In an effort to keep you connected with your Silver Thatch Pension after you leave your '
+                'current position, please click here or copy the link below into a browser to complete the '
+                'termination of employment form. This form notifies us that you are no longer employed with '
+                'your current employer and allows Silver Thatch Pensions to stay in touch with you in regards '
+                'to your pension. </p><p>-----------------------------------------</p> '
+                '<p>https://183.82.0.186:812/terminationform/%s</p>'
+                '<p>To learn more about the Silver Thatch Pension Plan,'
+                ' click here to review our members handbook. </p>' % (member_name, token_id), 'html')
+            send_email(to_address=form.EmailAddress, subject=subject, body=msgtext)
             return RESPONSE_OK
         except Exception as e:
             LOG.warning('Unexpected error happened during initiating termination: %s', e)

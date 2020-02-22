@@ -70,8 +70,8 @@ class MemberTerminationDetails(Resource):
         # for termination in terminations:
         #     print(termination.FormStatus)
         for token_data, termination in tokens:
-            print(token_data.__dict__)
-            print(termination.__dict__)
+            # print(token_data.__dict__)
+            # print(termination.__dict__)
             terminations_list.append({
                 "EmployerName": termination.EmployerName,
                 "FormType": token_data.FormType,

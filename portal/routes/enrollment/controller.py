@@ -19,7 +19,6 @@ from ...services.mail import send_email
 from . import ns
 from ... import APP, LOG
 
-
 RequestType_MemberSubmission = 'MemberSubmission'
 RequestType_SaveFormData = 'SaveFormData'
 RequestType_EmployerSubmission = 'EmployerSubmission'
@@ -34,7 +33,7 @@ parser.add_argument('username', type=str, location='headers', required=False)
 parser.add_argument('Ipaddress', type=str, location='headers', required=False)
 
 parser.add_argument('RequestType', type=str, location='json', required=True,
-    help=f"Valid Values: [{RequestType_MemberSubmission}, {RequestType_SaveFormData}, {RequestType_EmployerSubmission}, {RequestType_ApprovalConfirmation}, {RequestType_Reject}]")
+                    help=f"Valid Values: [{RequestType_MemberSubmission}, {RequestType_SaveFormData}, {RequestType_EmployerSubmission}, {RequestType_ApprovalConfirmation}, {RequestType_Reject}]")
 parser.add_argument('FirstName', type=str, location='json', required=True)
 parser.add_argument('MiddleName', type=str, location='json', required=True)
 parser.add_argument('LastName', type=str, location='json', required=True)
@@ -48,8 +47,10 @@ parser.add_argument('PostalCode', type=str, location='json', required=True)
 parser.add_argument('Country', type=str, location='json', required=True)
 parser.add_argument('EmailAddress', type=str, location='json', required=True)
 parser.add_argument('Telephone', type=str, location='json', required=True)
-parser.add_argument('StartDateofContribution', type=inputs.date_from_iso8601, location='json', required=True, help='iso8601 format. eg: 2012-11-25')
-parser.add_argument('StartDateofEmployment', type=inputs.date_from_iso8601, location='json', required=True, help='iso8601 format. eg: 2012-11-25')
+parser.add_argument('StartDateofContribution', type=inputs.date_from_iso8601, location='json', required=True,
+                    help='iso8601 format. eg: 2012-11-25')
+parser.add_argument('StartDateofEmployment', type=inputs.date_from_iso8601, location='json', required=True,
+                    help='iso8601 format. eg: 2012-11-25')
 parser.add_argument('ConfirmationStatus', type=str, location='json', required=True)
 parser.add_argument('EstimatedAnnualIncomeRange', type=str, location='json', required=True)
 parser.add_argument('ImmigrationStatus', type=str, location='json', required=True)
@@ -70,12 +71,12 @@ class EnrollmentController(Resource):
 
     @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
     @ns.doc(parser=getParser,
-        description='Get Enrollment Data by TokenID',
-        responses={
-            200: 'OK',
-            400: 'BadRequest',
-            500: 'Internal Server Error'
-        })
+            description='Get Enrollment Data by TokenID',
+            responses={
+                200: 'OK',
+                400: 'BadRequest',
+                500: 'Internal Server Error'
+            })
     @ns.expect(getParser, validate=True)
     @ns.marshal_with(EnrollmentformResponseModel)
     def get(self, TokenID):
@@ -92,16 +93,15 @@ class EnrollmentController(Resource):
             LOG.warning('Unexpected error happened during handling enrollment: %s', e)
             raise InternalServerError()
 
-
     @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
     @ns.doc(parser=parser,
-        description='Update Enrollment Data by TokenID',
-        responses={
-            200: 'OK',
-            400: 'BadRequest',
-            404: 'NotFound',
-            500: 'Internal Server Error'
-        })
+            description='Update Enrollment Data by TokenID',
+            responses={
+                200: 'OK',
+                400: 'BadRequest',
+                404: 'NotFound',
+                500: 'Internal Server Error'
+            })
     @ns.expect(parser, validate=True)
     @ns.marshal_with(EnrollmentformResponseModel)
     def post(self, TokenID):
@@ -111,7 +111,7 @@ class EnrollmentController(Resource):
         if token is None:
             raise NotFound('Token Not Found')
 
-        form = Enrollmentform.query.get(token.FormID)
+        form = Enrollmentform.query.get(token.FormID).first()
         if form is None:
             raise NotFound('Form Not Found')
 
@@ -168,13 +168,13 @@ class EnrollmentController(Resource):
             LOG.warning('Unexpected error happened during updating enrollment: %s', e)
             raise InternalServerError()
 
-        if  args['RequestType'] == RequestType_MemberSubmission:
+        if args['RequestType'] == RequestType_MemberSubmission:
             self._memberSubmission_post_update(token, form, args)
-        elif  args['RequestType'] == RequestType_SaveFormData:
+        elif args['RequestType'] == RequestType_SaveFormData:
             self._saveFormData_post_update(token, form, args)
-        elif  args['RequestType'] == RequestType_EmployerSubmission:
+        elif args['RequestType'] == RequestType_EmployerSubmission:
             self._employerSubmission_post_update(token, form, args)
-        elif  args['RequestType'] == RequestType_ApprovalConfirmation:
+        elif args['RequestType'] == RequestType_ApprovalConfirmation:
             self._approvalConfirmation_post_update(token, form, args)
         elif args['RequestType'] == RequestType_Reject:
             self._reject_post_update(token, form, args)
@@ -183,14 +183,12 @@ class EnrollmentController(Resource):
 
         return form
 
-
     def _memberSubmission_pre_update(self, token, form, args):
         if token is None:
             raise NotFound('Token was not found')
 
         if token.PendingFrom != 'Member' or token.TokenStatus != 'Active' or token.FormStatus != 'Pending':
             raise NotFound('Token was not Found or is not Active')
-
 
     def _memberSubmission_post_update(self, token, form, args):
         newToken = Token(
@@ -211,7 +209,6 @@ class EnrollmentController(Resource):
         token.TokenStatus = 'Inactive'
         token.LastModifiedDate = datetime.utcnow()
 
-
     def _saveFormData_pre_update(self, token, form, args):
         if 'Authorization' not in args or 'IpAddress' not in args or 'Username' not in args:
             raise Unauthorized()
@@ -224,10 +221,8 @@ class EnrollmentController(Resource):
         if token.PendingFrom != 'Employer' or token.TokenStatus != 'Active' or token.FormStatus != 'Pending':
             raise NotFound('Token was not Found or is not Active')
 
-
     def _saveFormData_post_update(self, token, form, args):
         pass
-
 
     def _employerSubmission_pre_update(self, token, form, args):
         if 'Authorization' not in args or 'IpAddress' not in args or 'Username' not in args:
@@ -244,13 +239,11 @@ class EnrollmentController(Resource):
         if token.PendingFrom != 'Employer' or token.TokenStatus != 'Active' or token.FormStatus != 'Pending':
             raise NotFound('Token was not Found or is not Active')
 
-
     def _employerSubmission_post_update(self, token, form, args):
         form.PendingFrom = 'ReviewerManager'
         token.PendingFrom = 'ReviewerManager'
         token.LastModifiedDate = datetime.utcnow()
         db.session.commit()
-
 
     def _approvalConfirmation_pre_update(self, token, form, args):
         if 'Authorization' not in args or 'IpAddress' not in args or 'Username' not in args:
@@ -267,14 +260,13 @@ class EnrollmentController(Resource):
         if token.PendingFrom != 'ReviewerManager' or token.TokenStatus != 'Active' or token.FormStatus != 'Pending':
             raise NotFound('Token was not Found or is not Active')
 
-
     def _approvalConfirmation_post_update(self, token, form, args):
         token.FormStatus = 'Approved'
         db.session.commit()
 
         subject = 'Your Enrollment has been approved'
-        send_email(to_address=form.EmailAddress, subject=subject, template='enrollment_approval_confirmation_to_member.html')
-
+        send_email(to_address=form.EmailAddress, subject=subject,
+                   template='enrollment_approval_confirmation_to_member.html')
 
     def _reject_pre_update(self, token, form, args):
         if 'Authorization' not in args or 'IpAddress' not in args or 'Username' not in args:
@@ -291,7 +283,6 @@ class EnrollmentController(Resource):
         if token.PendingFrom != 'ReviewerManager' or token.TokenStatus != 'Active' or token.FormStatus != 'Pending':
             raise NotFound('Token was not Found or is not Active')
 
-
     def _reject_post_update(self, token, form, args):
         token.FormStatus = 'Rejected'
         db.session.commit()
@@ -299,10 +290,10 @@ class EnrollmentController(Resource):
         auth = token_verify_or_raise(token=args["Authorization"], ip=args["Ipaddress"], user=args["username"])
         if 'RejectionReason' in args and args['RejectionReason'] != '':
             comment = Comments(
-                FormID = form.FormID,
-                Role = auth['role'],
-                Comment = args['RejectionReason'],
-                Date = datetime.utcnow(),
+                FormID=form.FormID,
+                Role=auth['role'],
+                Comment=args['RejectionReason'],
+                Date=datetime.utcnow(),
             )
 
             db.session.add(comment)

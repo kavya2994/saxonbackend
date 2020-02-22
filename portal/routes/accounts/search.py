@@ -48,24 +48,31 @@ class Search(Resource):
         ip = args['Ipaddress']
         decoded_token = token_verify_or_raise(token, username, ip)
 
-        if decoded_token["role"] not in [roles.ROLES_ADMIN, roles.ROLES_REVIEW_MANAGER]:
+        if decoded_token["role"] not in [roles.ROLES_ADMIN, roles.ROLES_REVIEW_MANAGER, roles.ROLES_EMPLOYER]:
             raise Unauthorized()
         args_list = ["ID", "name", "user", "status", "email", "key", "employerusername"]
         args_dict = {}
         for arg in args_list:
             if args[arg] is None:
                 args_dict[arg] = ""
+            else:
+                args_dict[arg] = args[arg]
 
         search_role = args["role"]
 
         if search_role == roles.ROLES_MEMBER:
-
+            employer_username = args_dict["employerusername"]
+            employer_sname = ""
+            if not employer_username == "":
+                employer_ = EmployerView.query.filter_by(ERNO=employer_username).first()
+                if employer_ is not None:
+                    employer_sname = employer_.SNAME
             members = MemberView.query.filter(MemberView.MKEY.like("%" + args_dict["ID"] + "%"),
                                               or_(MemberView.FNAME.like("%" + args_dict["name"] + "%"),
                                                   MemberView.LNAME.like("%" + args_dict["name"] + "%")),
                                               MemberView.EMAIL.like("%" + args_dict["email"] + "%"),
                                               MemberView.PSTATUS.like("%" + args_dict["status"] + "%"),
-                                              MemberView.EMPOYER.like("%" + args_dict["employerusername"] + "%")).all()
+                                              MemberView.EMPOYER.like("%" + employer_sname + "%")).all()
             if members is not None:
                 member_list = []
                 for mem in members:
