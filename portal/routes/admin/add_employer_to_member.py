@@ -7,7 +7,10 @@ from flask_restplus import Resource, reqparse
 from ...helpers import randomStringwithDigitsAndSymbols, token_verify, token_verify_or_raise, crossdomain
 from ...encryption import Encryption
 from ...models import db, status, roles
+from ...models.emp_mem_relation import EmpMemRelation
 from ...models.employer_member_relation import EmpMemRel
+from ...models.employer import Employer
+from ...models.member import Member
 from ...services.mail import send_email
 from ...models.security_question import SecurityQuestion
 from werkzeug.exceptions import UnprocessableEntity, Unauthorized
@@ -48,13 +51,22 @@ class AddEmployerMemberRelation(Resource):
         employer_name = args["employer_name"]
         decoded_token = token_verify_or_raise(token, username, ip)
         if decoded_token["role"] == roles.ROLES_ADMIN:
-            relation = EmpMemRel(
+
+            emp_mem = EmpMemRelation(
                 EmployerID=employer_id,
                 EmployerName=employer_name,
                 MemberID=member_id,
                 MemberName=member_name
-                )
-            EmpMemRel.add(relation)
+            )
+
+            # relation = EmpMemRel(
+            # EmployerID=employer_id,
+            #     EmployerName=employer_name,
+            #     MemberID=member_id,
+            #     MemberName=member_name
+            # )
+            db.session.add(emp_mem)
             db.session.commit()
+            return {"result": "Success"}, 200
         else:
             Unauthorized()

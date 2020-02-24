@@ -26,6 +26,7 @@ def init_app(app):
         from .employer import Employer
         from .member import Member
         from .employer_member_relation import EmpMemRel
+        from .emp_mem_relation import EmpMemRelation
         from .enrollmentform import Enrollmentform
         from .jwttokenblacklist import JWTTokenBlacklist
         from .beneficiary import Beneficiary

@@ -103,6 +103,7 @@ class Search(Resource):
             employers = EmployerView.query.filter(EmployerView.EMAIL.like("%" + args_dict["email"] + "%"),
                                                   EmployerView.ERKEY.like("%" + args_dict["key"] + "%"),
                                                   EmployerView.ERNO.like("%" + args_dict["employerusername"] + "%"),
+                                                  EmployerView.ENAME.like("%" + args_dict["name"] + "%")
                                                   ).all()
             employer_list = []
             if employers is not None:

@@ -12,7 +12,7 @@ def init_app(app):
     from .enrollment import controller, simple_controller, initiate_controller, file, send
     from .termination import initiate_controller, send, controller, get_termination
     from .beneficiary import controller
-    from .admin import new, update, delete, add_employer_to_member, get_internal_users, get_settings, new_settings
+    from .admin import new, update, delete, add_employer_to_member, get_internal_users, get_settings, new_settings, get_employer_to_member, get_user_data
     from .Subsidiaries import add_subsidiaries, delete_subsidiaries, get_subsidiary
     from .member import get_member_details, member_termination_details
     from .accounts import get_employers, get_members, search

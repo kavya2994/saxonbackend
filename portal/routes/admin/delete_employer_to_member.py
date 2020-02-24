@@ -7,6 +7,7 @@ from flask_restplus import Resource, reqparse
 from ...helpers import randomStringwithDigitsAndSymbols, token_verify, token_verify_or_raise, crossdomain
 from ...encryption import Encryption
 from ...models import db, status, roles
+from ...models.emp_mem_relation import EmpMemRelation
 from ...models.employer_member_relation import EmpMemRel
 from ...services.mail import send_email
 from ...models.security_question import SecurityQuestion
@@ -44,7 +45,7 @@ class DeleteEmployerMemberRelation(Resource):
         member_id = args["member_id"]
         decoded_token = token_verify_or_raise(token, username, ip)
         if decoded_token["role"] == roles.ROLES_ADMIN:
-            emp_mem_rel = EmpMemRel.query.filter_by(EmployerID=employer_id, MemberID=member_id).first()
+            emp_mem_rel = EmpMemRelation.query.filter_by(EmployerID=employer_id, MemberID=member_id).first()
             emp_mem_rel.delete()
             db.session.commit()
         else:
