@@ -10,7 +10,7 @@ from ...models import db, status, roles
 from ...models.member_view import MemberView
 from werkzeug.exceptions import Unauthorized, BadRequest, UnprocessableEntity, InternalServerError
 from . import ns
-from ... import APP
+from ... import APP, LOG
 
 parser = reqparse.RequestParser()
 parser.add_argument('Authorization', type=str, location='headers', required=True)
@@ -63,23 +63,27 @@ class GetMemberDetails(Resource):
         print(user)
         decoded_token = token_verify_or_raise(token, username, ip)
         member = MemberView.query.filter_by(MEMNO=user).first()
-        return {
-                   'MKEY': member.MKEY,
-                   'MEMNO': member.MEMNO,
-                   'FNAME': member.FNAME,
-                   'LNAME': member.LNAME,
-                   'EMAIL': member.EMAIL,
-                   'BIRTH': member.BIRTH,
-                   'ENTRY_DATE': member.ENTRY_DATE,
-                   'NR_DATE': member.NR_DATE,
-                   'HIRE': member.HIRE,
-                   'PSTATUS': member.PSTATUS,
-                   'EMPOYER': member.EMPOYER,
-                   'STREET1': member.STREET1,
-                   'EM_STATUS': member.EM_STATUS,
-                   'CITY': member.CITY,
-                   'COUNTRY': member.COUNTRY,
-                   'BEN_NAMES': member.BEN_NAMES,
-                   'RELNAME': member.RELNAME,
-                   'ER_DATE': member.NR_DATE.replace(year=member.NR_DATE.year - 10)
-               }, 200
+        if member is not None:
+            return {
+                       'MKEY': member.MKEY,
+                       'MEMNO': member.MEMNO,
+                       'FNAME': member.FNAME,
+                       'LNAME': member.LNAME,
+                       'EMAIL': member.EMAIL,
+                       'BIRTH': member.BIRTH,
+                       'ENTRY_DATE': member.ENTRY_DATE,
+                       'NR_DATE': member.NR_DATE,
+                       'HIRE': member.HIRE,
+                       'PSTATUS': member.PSTATUS,
+                       'EMPOYER': member.EMPOYER,
+                       'STREET1': member.STREET1,
+                       'EM_STATUS': member.EM_STATUS,
+                       'CITY': member.CITY,
+                       'COUNTRY': member.COUNTRY,
+                       'BEN_NAMES': member.BEN_NAMES,
+                       'RELNAME': member.RELNAME,
+                       'ER_DATE': member.NR_DATE.replace(year=member.NR_DATE.year - 10)
+                   }, 200
+        else:
+            LOG.debug("Can't find member details", user)
+            raise UnprocessableEntity("Can't find member")

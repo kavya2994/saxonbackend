@@ -18,7 +18,6 @@ from ...api import api
 from . import ns
 from ... import APP
 
-
 parser = reqparse.RequestParser()
 parser.add_argument('Authorization', type=str, location='headers', required=True)
 parser.add_argument('username', type=str, location='headers', required=True)
@@ -31,7 +30,8 @@ postParser.add_argument('Ipaddress', type=str, location='headers', required=True
 
 postParser.add_argument('FirstName', type=str, location='json', required=True)
 postParser.add_argument('LastName', type=str, location='json', required=True)
-postParser.add_argument('DOB', type=inputs.date_from_iso8601, location='json', required=True, help='iso8601 format. eg: 2012-11-25')
+postParser.add_argument('DOB', type=inputs.date_from_iso8601, location='json', required=True,
+                        help='iso8601 format. eg: 2012-11-25')
 postParser.add_argument('Relationship', type=str, location='json', required=True)
 postParser.add_argument('Role', type=str, location='json', required=True)
 postParser.add_argument('PhoneNumber', type=str, location='json', required=True)
@@ -52,13 +52,13 @@ class BeneficiaryFormController(Resource):
 
     @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
     @ns.doc(parser=parser,
-        description='Get Beneficiary',
-        responses={
-            200: 'OK',
-            401: 'Unauthorized',
-            404: 'NotFound',
-            500: 'Internal Server Error'
-        })
+            description='Get Beneficiary',
+            responses={
+                200: 'OK',
+                401: 'Unauthorized',
+                404: 'NotFound',
+                500: 'Internal Server Error'
+            })
     @ns.expect(parser, validate=True)
     @ns.marshal_with(BeneficiaryResponseModel)
     def get(self, FormID):
@@ -71,17 +71,16 @@ class BeneficiaryFormController(Resource):
         beneficiaries = Beneficiary.query.filter_by(EnrollmentformID=FormID).all()
         return beneficiaries
 
-
     @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
     @ns.doc(parser=postParser,
-        description='Add New Beneficiary',
-        responses={
-            200: 'OK',
-            404: 'BadRequest',
-            401: 'Unauthorized',
-            404: 'NotFound',
-            500: 'Internal Server Error'
-        })
+            description='Add New Beneficiary',
+            responses={
+                200: 'OK',
+                404: 'BadRequest',
+                401: 'Unauthorized',
+                404: 'NotFound',
+                500: 'Internal Server Error'
+            })
     @ns.marshal_with(BeneficiaryResponseModel)
     @ns.expect(postParser, validate=True)
     def post(self, FormID):
@@ -110,7 +109,7 @@ class BeneficiaryFormController(Resource):
         )
 
         beneficaries = Beneficiary.query.filter_by(EnrollmentformID=FormID).all()
-        total_percents = reduce(lambda acc, ben: acc+ben.Percentage, beneficaries, 0)
+        total_percents = reduce(lambda acc, ben: acc + ben.Percentage, beneficaries, 0)
 
         if total_percents + args['Percentage'] > 100:
             raise BadRequest(f'Requested percentage is exceeding 100. Currently {total_percents}% are allocated.')
@@ -122,14 +121,14 @@ class BeneficiaryFormController(Resource):
 
     @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
     @ns.doc(parser=deleteParser,
-        description='Delete A Beneficiary',
-        responses={
-            200: 'OK',
-            404: 'BadRequest',
-            401: 'Unauthorized',
-            404: 'NotFound',
-            500: 'Internal Server Error'
-        })
+            description='Delete A Beneficiary',
+            responses={
+                200: 'OK',
+                400: 'BadRequest',
+                401: 'Unauthorized',
+                404: 'NotFound',
+                500: 'Internal Server Error'
+            })
     @ns.marshal_with(BeneficiaryResponseModel)
     @ns.expect(deleteParser, validate=True)
     def delete(self, FormID):
@@ -150,4 +149,3 @@ class BeneficiaryFormController(Resource):
         db.session.delete(beneficiary)
         db.session.commit()
         return RESPONSE_OK
-

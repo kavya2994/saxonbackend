@@ -11,7 +11,7 @@ from flask_restplus import Resource, reqparse, fields
 from werkzeug.utils import secure_filename
 from xlutils.copy import copy
 from werkzeug.exceptions import Unauthorized, BadRequest, UnprocessableEntity, InternalServerError
-from ... import APP
+from ... import APP, LOG
 from ...helpers import token_verify, delete_excel, token_verify_or_raise, crossdomain
 from ...models import db, roles
 from ...models.settings import Settings
@@ -51,17 +51,21 @@ class GetSettings(Resource):
         ip = args['Ipaddress']
         decoded_token = token_verify_or_raise(token, username, ip)
         if decoded_token["role"] == roles.ROLES_ADMIN:
-            settings = Settings.query.order_by(Settings.SettingID.desc()).first()
-            if settings is not None:
-                return {
-                    "NotificationEmail": settings.NotificationEmail,
-                    "ArchiveDays": settings.ArchiveDays,
-                    "ReviewIP": settings.ReviewIP,
-                    "RMIP": settings.RMIP,
-                    "LastRun": settings.LastRun,
-                    "Sync": settings.Sync
-                }, 200
-            else:
-                return {}, 200
+            try:
+                settings = Settings.query.order_by(Settings.SettingID.desc()).first()
+                if settings is not None:
+                    return {
+                        "NotificationEmail": settings.NotificationEmail,
+                        "ArchiveDays": settings.ArchiveDays,
+                        "ReviewIP": settings.ReviewIP,
+                        "RMIP": settings.RMIP,
+                        "LastRun": settings.LastRun,
+                        "Sync": settings.Sync
+                    }, 200
+                else:
+                    return {}, 200
+            except Exception as e:
+                LOG.error("Exception while retrieving settings", e)
+                raise InternalServerError("Can't retrieve Internal Users")
         else:
             raise Unauthorized()

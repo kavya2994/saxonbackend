@@ -13,9 +13,9 @@ from ...models.employer import Employer
 from ...models.member import Member
 from ...services.mail import send_email
 from ...models.security_question import SecurityQuestion
-from werkzeug.exceptions import UnprocessableEntity, Unauthorized
+from werkzeug.exceptions import UnprocessableEntity, Unauthorized, InternalServerError
 from . import ns
-from ... import APP
+from ... import APP, LOG
 
 parser = reqparse.RequestParser()
 parser.add_argument('Authorization', type=str, location='headers', required=True)
@@ -65,8 +65,12 @@ class AddEmployerMemberRelation(Resource):
             #     MemberID=member_id,
             #     MemberName=member_name
             # )
-            db.session.add(emp_mem)
-            db.session.commit()
-            return {"result": "Success"}, 200
+            try:
+                db.session.add(emp_mem)
+                db.session.commit()
+                return {"result": "Success"}, 200
+            except Exception as e:
+                LOG.error("Exception while adding employer to member", e)
+                raise InternalServerError("Can't add employer to user")
         else:
             Unauthorized()

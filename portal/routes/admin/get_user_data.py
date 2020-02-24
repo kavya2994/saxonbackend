@@ -11,7 +11,7 @@ from flask_restplus import Resource, reqparse, fields
 from werkzeug.utils import secure_filename
 from xlutils.copy import copy
 from werkzeug.exceptions import Unauthorized, BadRequest, UnprocessableEntity, InternalServerError
-from ... import APP
+from ... import APP, LOG
 from ...helpers import token_verify, delete_excel, token_verify_or_raise, crossdomain
 from ...models import db, roles
 from ...models.settings import Settings
@@ -51,14 +51,18 @@ class GetUserData(Resource):
         user = args["user"]
         decoded_token = token_verify_or_raise(token, username, ip)
         if decoded_token["role"] == roles.ROLES_ADMIN:
-            users = Users.query.filter_by(Username=user).first()
-            if users is not None:
-                return {
-                           "Username": users.Username,
-                           "DisplayName": users.DisplayName,
-                           "Email": users.Email,
-                       }, 200
-            else:
-                raise UnprocessableEntity("Can't find user")
+            try:
+                users = Users.query.filter_by(Username=user).first()
+                if users is not None:
+                    return {
+                               "Username": users.Username,
+                               "DisplayName": users.DisplayName,
+                               "Email": users.Email,
+                           }, 200
+                else:
+                    raise UnprocessableEntity("Can't find user")
+            except Exception as e:
+                LOG.error("Exception while getting user data", e)
+                raise InternalServerError("Can't get user data")
         else:
             raise Unauthorized()

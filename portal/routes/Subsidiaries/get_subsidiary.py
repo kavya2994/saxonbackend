@@ -9,9 +9,9 @@ from ...helpers import randomStringwithDigitsAndSymbols, token_verify, token_ver
 from ...encryption import Encryption
 from ...models import db, status, roles
 from ...models.subsidiaries import Subsidiaries
-from werkzeug.exceptions import UnprocessableEntity, Unauthorized
+from werkzeug.exceptions import UnprocessableEntity, Unauthorized, InternalServerError
 from . import ns
-from ... import APP
+from ... import APP, LOG
 
 parser = reqparse.RequestParser()
 parser.add_argument('Authorization', type=str, location='headers', required=True)
@@ -46,24 +46,28 @@ class GetSubsidiary(Resource):
     @ns.marshal_with(response)
     def post(self):
         args = parser.parse_args(strict=False)
-        username = args['username']
-        token = args["Authorization"]
-        ip = args['Ipaddress']
-        employer_id = args["employer_id"]
-        decoded_token = token_verify_or_raise(token, username, ip)
-        # print(decoded_token)
-        if decoded_token["role"] == roles.ROLES_ADMIN or decoded_token["role"] == roles.ROLES_REVIEW_MANAGER:
-            subsidiaries = Subsidiaries.query.filter_by(EmployerID=employer_id).all()
-            subsidiaries_list = []
-            for subsidiary in subsidiaries:
-                subsidiaries_list.append({
-                    'EmployerID': subsidiary.EmployerID,
-                    'EmployerName': subsidiary.EmployerName,
-                    'SubsidiaryID': subsidiary.SubsidiaryID,
-                    'SubsidiaryName': subsidiary.SubsidiaryName
-                })
+        try:
+            username = args['username']
+            token = args["Authorization"]
+            ip = args['Ipaddress']
+            employer_id = args["employer_id"]
+            decoded_token = token_verify_or_raise(token, username, ip)
+            # print(decoded_token)
+            if decoded_token["role"] == roles.ROLES_ADMIN or decoded_token["role"] == roles.ROLES_REVIEW_MANAGER:
 
-            return {'subsidiaries': subsidiaries_list}, 200
+                subsidiaries = Subsidiaries.query.filter_by(EmployerID=employer_id).all()
+                subsidiaries_list = []
+                for subsidiary in subsidiaries:
+                    subsidiaries_list.append({
+                        'EmployerID': subsidiary.EmployerID,
+                        'EmployerName': subsidiary.EmployerName,
+                        'SubsidiaryID': subsidiary.SubsidiaryID,
+                        'SubsidiaryName': subsidiary.SubsidiaryName
+                    })
 
-        else:
-            raise Unauthorized()
+                return {'subsidiaries': subsidiaries_list}, 200
+            else:
+                raise Unauthorized()
+        except Exception as e:
+            LOG.error("Exception while fetching subsidiaries", e)
+            raise InternalServerError("Can't fetch subsidiaries")

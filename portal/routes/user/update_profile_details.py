@@ -10,7 +10,7 @@ from ...models import db, status, roles
 from ...models.users import Users
 from werkzeug.exceptions import Unauthorized, BadRequest, UnprocessableEntity, InternalServerError
 from . import ns
-from ... import APP
+from ... import APP, LOG
 
 parser = reqparse.RequestParser()
 parser.add_argument('Authorization', type=str, location='headers', required=True)
@@ -41,9 +41,13 @@ class UpdateProfileDetails(Resource):
         language = args['language']
         timezone = args['timezone']
         decoded_token = token_verify_or_raise(token, username, ip)
-        users = Users.query.filter_by(Username=username).first()
+        try:
+            users = Users.query.filter_by(Username=username).first()
 
-        users.Language = language
-        users.Timezone = timezone
-        db.session.commit()
-        return {"result": "success"}, 200
+            users.Language = language
+            users.Timezone = timezone
+            db.session.commit()
+            return {"result": "success"}, 200
+        except Exception as e:
+            LOG.error("Exception while updating profile details", e)
+            raise InternalServerError("Can't update profile details")

@@ -10,7 +10,7 @@ from ...models import db, status, roles
 from ...models.member_view import MemberView
 from werkzeug.exceptions import Unauthorized, BadRequest, UnprocessableEntity, InternalServerError
 from . import ns
-from ... import APP
+from ... import APP, LOG
 
 parser = reqparse.RequestParser()
 parser.add_argument('Authorization', type=str, location='headers', required=True)
@@ -72,25 +72,31 @@ class GetMembers(Resource):
 
         members = MemberView.query.offset(offset).limit(50).all()
         member_list = []
-        for mem in members:
-            member_list.append({
-                'MKEY': mem.MKEY,
-                'MEMNO': mem.MEMNO,
-                'FNAME': mem.FNAME,
-                'LNAME': mem.LNAME,
-                'EMAIL': mem.EMAIL,
-                'BIRTH': mem.BIRTH,
-                'ENTRY_DATE': mem.ENTRY_DATE,
-                'NR_DATE': mem.NR_DATE,
-                'HIRE': mem.HIRE,
-                'PSTATUS': mem.PSTATUS,
-                'EMPOYER': mem.EMPOYER,
-                'STREET1': mem.STREET1,
-                'EM_STATUS': mem.EM_STATUS,
-                'CITY': mem.CITY,
-                'COUNTRY': mem.COUNTRY,
-                'BEN_NAMES': mem.BEN_NAMES,
-                'RELNAME': mem.RELNAME
-            })
+        try:
+            if members is not None:
+                for mem in members:
+                    member_list.append({
+                        'MKEY': mem.MKEY,
+                        'MEMNO': mem.MEMNO,
+                        'FNAME': mem.FNAME,
+                        'LNAME': mem.LNAME,
+                        'EMAIL': mem.EMAIL,
+                        'BIRTH': mem.BIRTH,
+                        'ENTRY_DATE': mem.ENTRY_DATE,
+                        'NR_DATE': mem.NR_DATE,
+                        'HIRE': mem.HIRE,
+                        'PSTATUS': mem.PSTATUS,
+                        'EMPOYER': mem.EMPOYER,
+                        'STREET1': mem.STREET1,
+                        'EM_STATUS': mem.EM_STATUS,
+                        'CITY': mem.CITY,
+                        'COUNTRY': mem.COUNTRY,
+                        'BEN_NAMES': mem.BEN_NAMES,
+                        'RELNAME': mem.RELNAME
+                    })
+            return {"members": member_list}, 200
+        except Exception as e:
+            LOG.error(e)
+            raise InternalServerError("Can't ")
 
-        return {"members": member_list}, 200
+

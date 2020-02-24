@@ -12,7 +12,7 @@ from ...services.mail import send_email
 from werkzeug.exceptions import NotFound, BadRequest, Unauthorized, UnprocessableEntity, InternalServerError
 from ...models.security_question import SecurityQuestion
 from . import ns
-from ... import APP
+from ... import APP, LOG
 
 parser = reqparse.RequestParser()
 parser.add_argument('Authorization', type=str, location='headers', required=True)
@@ -47,48 +47,52 @@ class AddUser(Resource):
             password = randomStringwithDigitsAndSymbols(10)
             enc_pass = Encryption().encrypt(password)
             userexist = Users.query.filter_by(Username=username).first()
-            if userexist is None:
-                new_user = Users(Username=username,
-                                 Email=email,
-                                 Password=enc_pass,
-                                 Role=data["role"],
-                                 Status=status.STATUS_ACTIVE,
-                                 TemporaryPassword=True,
-                                 DisplayName=displayname,
-                                 SessionDuration="30",
-                                 UserCreatedTime=datetime.utcnow())
-                db.session.add(new_user)
-                db.session.commit()
-                msg_text = MIMEText('<p>Dear %s</p>'
-                                    '<p>Your account has been reactivated</p>'
-                                    '<p>Username is %s</p>'
-                                    '<p> please use this password %s to log in</p>'
-                                    % (displayname, username, password), 'html')
+            try:
+                if userexist is None:
+                    new_user = Users(Username=username,
+                                     Email=email,
+                                     Password=enc_pass,
+                                     Role=data["role"],
+                                     Status=status.STATUS_ACTIVE,
+                                     TemporaryPassword=True,
+                                     DisplayName=displayname,
+                                     SessionDuration="30",
+                                     UserCreatedTime=datetime.utcnow())
+                    db.session.add(new_user)
+                    db.session.commit()
+                    msg_text = MIMEText('<p>Dear %s</p>'
+                                        '<p>Your account has been reactivated</p>'
+                                        '<p>Username is %s</p>'
+                                        '<p> please use this password %s to log in</p>'
+                                        % (displayname, username, password), 'html')
 
-                send_email(email, "Welcome to Pension Management portal", body=msg_text)
-                return {"result": "Success"}, 200
-            elif userexist.Status == status.STATUS_DELETE:
-                userexist.Username = username
-                userexist.Email = email
-                userexist.Password = enc_pass
-                userexist.Role = data["role"]
-                userexist.Status = status.STATUS_ACTIVE
-                userexist.TemporaryPassword = True
-                userexist.DisplayName = displayname
-                userexist.SessionDuration = "30"
-                userexist.UserCreatedTime = datetime.utcnow()
-                db.session.commit()
-                msg_text = MIMEText('<p>Dear %s</p>'
-                                    '<p>Your account is created</p>'
-                                    '<p>Username is %s</p>'
-                                    '<p> please use this password %s to log in</p>'
-                                    % (displayname, username, password), 'html')
+                    send_email(email, "Welcome to Pension Management portal", body=msg_text)
+                    return {"result": "Success"}, 200
+                elif userexist.Status == status.STATUS_DELETE:
+                    userexist.Username = username
+                    userexist.Email = email
+                    userexist.Password = enc_pass
+                    userexist.Role = data["role"]
+                    userexist.Status = status.STATUS_ACTIVE
+                    userexist.TemporaryPassword = True
+                    userexist.DisplayName = displayname
+                    userexist.SessionDuration = "30"
+                    userexist.UserCreatedTime = datetime.utcnow()
+                    db.session.commit()
+                    msg_text = MIMEText('<p>Dear %s</p>'
+                                        '<p>Your account is created</p>'
+                                        '<p>Username is %s</p>'
+                                        '<p> please use this password %s to log in</p>'
+                                        % (displayname, username, password), 'html')
 
-                send_email(email, "Welcome to Pension Management portal", body=msg_text)
+                    send_email(email, "Welcome to Pension Management portal", body=msg_text)
 
-                return {"result": "Success"}, 200
-            else:
-                raise UnprocessableEntity('Duplicate user cannot be created')
+                    return {"result": "Success"}, 200
+                else:
+                    raise UnprocessableEntity('Duplicate user cannot be created')
+            except Exception as e:
+                LOG.error("Exception while adding new user", e)
+                raise InternalServerError("Can't add user")
         else:
             raise Unauthorized('You have No Authorization')
 

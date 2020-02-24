@@ -16,7 +16,7 @@ from ...models.security_question import SecurityQuestion
 from ...models.terminationform import Terminationform
 from ...models.token import Token
 from . import ns
-from ... import APP
+from ... import APP, LOG
 
 parser = reqparse.RequestParser()
 parser.add_argument('Authorization', type=str, location='headers', required=True)
@@ -60,24 +60,27 @@ class MemberTerminationDetails(Resource):
         terminations_list = []
         username = args["username"]
         print(args)
-        tokens = db.session.query(Token, Terminationform).filter(Token.FormID == Terminationform.FormID,
-                                                                 Terminationform.MemberNumber == str(username),
-                                                                 Token.FormType == "Termination",
-                                                                 # Token.FormStatus == status.STATUS_APPROVE,
-                                                                 # Token.TokenStatus == status.STATUS_INACTIVE
-                                                                 ).all()
-        # terminations = Terminationform.query.filter_by(MemberNumber='25360').all()
-        # for termination in terminations:
-        #     print(termination.FormStatus)
-        for token_data, termination in tokens:
-            # print(token_data.__dict__)
-            # print(termination.__dict__)
-            terminations_list.append({
-                "EmployerName": termination.EmployerName,
-                "FormType": token_data.FormType,
-                "FormStatus": token_data.FormStatus,
-                "LastModifiedDate": token_data.LastModifiedDate,
-                "TokenID": token_data.TokenID
-            })
-        print(terminations_list)
-        return {"TerminationForms": terminations_list}, 200
+        try:
+            tokens = db.session.query(Token, Terminationform).filter(Token.FormID == Terminationform.FormID,
+                                                                     Terminationform.MemberNumber == str(username),
+                                                                     Token.FormType == "Termination",
+                                                                     # Token.FormStatus == status.STATUS_APPROVE,
+                                                                     # Token.TokenStatus == status.STATUS_INACTIVE
+                                                                     ).all()
+            # terminations = Terminationform.query.filter_by(MemberNumber='25360').all()
+            # for termination in terminations:
+            #     print(termination.FormStatus)
+            for token_data, termination in tokens:
+                # print(token_data.__dict__)
+                # print(termination.__dict__)
+                terminations_list.append({
+                    "EmployerName": termination.EmployerName,
+                    "FormType": token_data.FormType,
+                    "FormStatus": token_data.FormStatus,
+                    "LastModifiedDate": token_data.LastModifiedDate,
+                    "TokenID": token_data.TokenID
+                })
+            return {"TerminationForms": terminations_list}, 200
+        except Exception as e:
+            LOG.error("Exception while fetching termination details", e)
+            raise InternalServerError("Can't get termination details")

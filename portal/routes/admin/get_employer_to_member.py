@@ -73,6 +73,7 @@ class GetEmployerMemberRelation(Resource):
                             "EmployerNo": employers.EmployerID,
                             "EmployerName": employers.EmployerName
                         })
+                        employers_list.append(employers.EmployerID)
             return {"employers": employers_data_list}, 200
 
         else:

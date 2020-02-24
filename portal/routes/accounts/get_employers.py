@@ -10,7 +10,7 @@ from ...models import db, status, roles
 from ...models.employer_view import EmployerView
 from werkzeug.exceptions import Unauthorized, BadRequest, UnprocessableEntity, InternalServerError
 from . import ns
-from ... import APP
+from ... import APP, LOG
 
 parser = reqparse.RequestParser()
 parser.add_argument('Authorization', type=str, location='headers', required=True)
@@ -57,15 +57,21 @@ class GetEmployers(Resource):
 
         if decoded_token["role"] not in [roles.ROLES_ADMIN, roles.ROLES_REVIEW_MANAGER]:
             raise Unauthorized()
-
-        employers = EmployerView.query.offset(offset).limit(50).all()
-        employer_list = []
-        for emp in employers:
-            employer_list.append({
-                'ERKEY': emp.ERKEY,
-                'ERNO': emp.ERNO,
-                'ENAME': emp.ENAME,
-                'SNAME': emp.SNAME,
-                'EMAIL': emp.EMAIL
-            })
-        return {"employers": employer_list}, 200
+        try:
+            employers = EmployerView.query.offset(offset).limit(50).all()
+            employer_list = []
+            if employers is not None:
+                for emp in employers:
+                    employer_list.append({
+                        'ERKEY': emp.ERKEY,
+                        'ERNO': emp.ERNO,
+                        'ENAME': emp.ENAME,
+                        'SNAME': emp.SNAME,
+                        'EMAIL': emp.EMAIL
+                    })
+                return {"employers": employer_list}, 200
+            else:
+                return {"employers": []}, 200
+        except Exception as e:
+            LOG.error(e)
+            raise InternalServerError('Error while fetching employers')

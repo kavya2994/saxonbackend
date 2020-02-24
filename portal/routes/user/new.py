@@ -14,7 +14,8 @@ from ...models import db
 from ...models.users import Users
 from ...models.security_question import SecurityQuestion
 from . import ns
-from ... import APP
+from ... import APP, LOG
+from ...services.mail import send_email
 
 parser = reqparse.RequestParser()
 parser.add_argument('Authorization', type=str, location='headers', required=True)
@@ -63,7 +64,7 @@ class UserNew(Resource):
                                          Email=email,
                                          Password=enc_pass,
                                          Role=data["role"],
-                                         Status="active",
+                                         Status="ACTIVE",
                                          TemporaryPassword=True,
                                          DisplayName=displayname,
                                          SessionDuration=session_duration,
@@ -73,17 +74,7 @@ class UserNew(Resource):
                         msg_text = MIMEText('<p>Dear %s</p>'
                                             '<p>Your account is created please use this password %s to log in</p>'
                                             % (displayname, password))
-                        smtpObj = smtplib.SMTP_SSL('smtp.gmail.com', port=465)
-                        # smtpObj.set_debuglevel(1)
-                        password = randomStringwithDigitsAndSymbols()
-                        pass_encypt = Encryption().encrypt(password)
-                        msg = MIMEMultipart()
-                        msg['subject'] = "Welcome to Pension Management portal"
-                        msg['from'] = "venkatesh"
-                        msg['to'] = "venkatesh"
-                        msg.attach(msg_text)
-                        smtpObj.login('venkateshvyyerram@gmail.com', "mynameisvenkatesh")
-                        smtpObj.sendmail("venkateshvyyerram@gmail.com", email, msg.as_string())
+                        send_email(to_address=email, body=msg_text, subject="Welcome to Pension Management portal")
                         return jsonify({"result": "Success"}), 200
                     else:
                         return jsonify({"error": "Username already exists"}), 409
@@ -94,5 +85,5 @@ class UserNew(Resource):
         except jwt.ExpiredSignatureError:
             return jsonify({"error": "Not Authorized"}), 401
         except Exception as e:
-            print(str(e))
+            LOG.error(e)
             return jsonify({"error": "Not Authorized"}), 401

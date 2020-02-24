@@ -14,7 +14,7 @@ from ...models.employer_view import EmployerView
 from ...models.users import Users
 from werkzeug.exceptions import Unauthorized, BadRequest, UnprocessableEntity, InternalServerError
 from . import ns
-from ... import APP
+from ... import APP, LOG
 
 parser = reqparse.RequestParser()
 parser.add_argument('Authorization', type=str, location='headers', required=True)
@@ -67,57 +67,65 @@ class Search(Resource):
                 employer_ = EmployerView.query.filter_by(ERNO=employer_username).first()
                 if employer_ is not None:
                     employer_sname = employer_.SNAME
-            members = MemberView.query.filter(MemberView.MKEY.like("%" + args_dict["ID"] + "%"),
-                                              or_(MemberView.FNAME.like("%" + args_dict["name"] + "%"),
-                                                  MemberView.LNAME.like("%" + args_dict["name"] + "%")),
-                                              MemberView.EMAIL.like("%" + args_dict["email"] + "%"),
-                                              MemberView.PSTATUS.like("%" + args_dict["status"] + "%"),
-                                              MemberView.EMPOYER.like("%" + employer_sname + "%")).all()
-            if members is not None:
-                member_list = []
-                for mem in members:
-                    member_list.append({
-                        'MKEY': mem.MKEY,
-                        'MEMNO': mem.MEMNO,
-                        'FNAME': mem.FNAME,
-                        'LNAME': mem.LNAME,
-                        'EMAIL': mem.EMAIL,
-                        'BIRTH': mem.BIRTH,
-                        'ENTRY_DATE': mem.ENTRY_DATE,
-                        'NR_DATE': mem.NR_DATE,
-                        'HIRE': mem.HIRE,
-                        'PSTATUS': mem.PSTATUS,
-                        'EMPOYER': mem.EMPOYER,
-                        'STREET1': mem.STREET1,
-                        'EM_STATUS': mem.EM_STATUS,
-                        'CITY': mem.CITY,
-                        'COUNTRY': mem.COUNTRY,
-                        'BEN_NAMES': mem.BEN_NAMES,
-                        'RELNAME': mem.RELNAME
-                    })
+            try:
+                members = MemberView.query.filter(MemberView.MKEY.like("%" + args_dict["ID"] + "%"),
+                                                  or_(MemberView.FNAME.like("%" + args_dict["name"] + "%"),
+                                                      MemberView.LNAME.like("%" + args_dict["name"] + "%")),
+                                                  MemberView.EMAIL.like("%" + args_dict["email"] + "%"),
+                                                  MemberView.PSTATUS.like("%" + args_dict["status"] + "%"),
+                                                  MemberView.EMPOYER.like("%" + employer_sname + "%")).all()
+                if members is not None:
+                    member_list = []
+                    for mem in members:
+                        member_list.append({
+                            'MKEY': mem.MKEY,
+                            'MEMNO': mem.MEMNO,
+                            'FNAME': mem.FNAME,
+                            'LNAME': mem.LNAME,
+                            'EMAIL': mem.EMAIL,
+                            'BIRTH': mem.BIRTH,
+                            'ENTRY_DATE': mem.ENTRY_DATE,
+                            'NR_DATE': mem.NR_DATE,
+                            'HIRE': mem.HIRE,
+                            'PSTATUS': mem.PSTATUS,
+                            'EMPOYER': mem.EMPOYER,
+                            'STREET1': mem.STREET1,
+                            'EM_STATUS': mem.EM_STATUS,
+                            'CITY': mem.CITY,
+                            'COUNTRY': mem.COUNTRY,
+                            'BEN_NAMES': mem.BEN_NAMES,
+                            'RELNAME': mem.RELNAME
+                        })
 
-                return {"members": member_list}, 200
-            else:
-                return {}, 200
+                    return {"members": member_list}, 200
+                else:
+                    return {}, 200
+            except Exception as e:
+                LOG.error(e)
+                raise InternalServerError("Can't retrieve members")
         elif search_role == roles.ROLES_EMPLOYER:
-            employers = EmployerView.query.filter(EmployerView.EMAIL.like("%" + args_dict["email"] + "%"),
-                                                  EmployerView.ERKEY.like("%" + args_dict["key"] + "%"),
-                                                  EmployerView.ERNO.like("%" + args_dict["employerusername"] + "%"),
-                                                  EmployerView.ENAME.like("%" + args_dict["name"] + "%")
-                                                  ).all()
-            employer_list = []
-            if employers is not None:
-                for emp in employers:
-                    employer_list.append({
-                        'ERKEY': emp.ERKEY,
-                        'ERNO': emp.ERNO,
-                        'ENAME': emp.ENAME,
-                        'SNAME': emp.SNAME,
-                        'EMAIL': emp.EMAIL
-                    })
-                return {"employers": employer_list}, 200
-            else:
-                return {}, 200
+            try:
+                employers = EmployerView.query.filter(EmployerView.EMAIL.like("%" + args_dict["email"] + "%"),
+                                                      EmployerView.ERKEY.like("%" + args_dict["key"] + "%"),
+                                                      EmployerView.ERNO.like("%" + args_dict["employerusername"] + "%"),
+                                                      EmployerView.ENAME.like("%" + args_dict["name"] + "%")
+                                                      ).all()
+                employer_list = []
+                if employers is not None:
+                    for emp in employers:
+                        employer_list.append({
+                            'ERKEY': emp.ERKEY,
+                            'ERNO': emp.ERNO,
+                            'ENAME': emp.ENAME,
+                            'SNAME': emp.SNAME,
+                            'EMAIL': emp.EMAIL
+                        })
+                    return {"employers": employer_list}, 200
+                else:
+                    return {"employers": []}, 200
+            except Exception as e:
+                LOG.error(e)
+                raise InternalServerError("Can't retrieve employers")
         else:
             raise UnprocessableEntity()
 
