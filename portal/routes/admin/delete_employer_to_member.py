@@ -46,7 +46,9 @@ class DeleteEmployerMemberRelation(Resource):
         decoded_token = token_verify_or_raise(token, username, ip)
         if decoded_token["role"] == roles.ROLES_ADMIN:
             emp_mem_rel = EmpMemRelation.query.filter_by(EmployerID=employer_id, MemberID=member_id).first()
-            emp_mem_rel.delete()
+            # emp_mem_rel.delete()
+            db.session.delete(emp_mem_rel)
             db.session.commit()
+            return {"result": "Success"}, 200
         else:
             raise Unauthorized()

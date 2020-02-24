@@ -44,7 +44,8 @@ class DeleteSubsidiary(Resource):
         subsidiaries = Subsidiaries.query.filter_by(EmployerID=args["EmployerID"],
                                                     SubsidiaryID=args["SubsidiaryID"]).first()
         if subsidiaries is not None:
-            subsidiaries.delete()
+            db.session.delete(subsidiaries)
             db.session.commit()
+            return {"result": "Success"}, 200
         else:
             raise UnprocessableEntity('Cant find the subsidiary')

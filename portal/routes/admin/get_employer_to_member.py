@@ -43,7 +43,7 @@ class GetEmployerMemberRelation(Resource):
             responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 500: 'Internal Server Error'})
     @ns.expect(parser, validate=True)
     @ns.marshal_with(response)
-    def post(self):
+    def get(self):
         args = parser.parse_args(strict=False)
         username = args['username']
         token = args["Authorization"]
