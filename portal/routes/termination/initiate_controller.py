@@ -6,7 +6,7 @@ from flask import Blueprint, jsonify, request
 from flask_restplus import Resource, reqparse, inputs
 from werkzeug.exceptions import NotFound, BadRequest, Unauthorized, UnprocessableEntity, InternalServerError
 from ...helpers import token_verify_or_raise, crossdomain, RESPONSE_OK
-from ...models import db, status
+from ...models import db, status, roles
 from ...models.terminationform import Terminationform, TerminationformResponseModel
 from ...models.token import Token, TOKEN_FORMTYPE_TERMINATION
 from ...models.comments import Comments
@@ -24,16 +24,6 @@ parser.add_argument('Ipaddress', type=str, location='headers', required=True)
 parser.add_argument('MemberName', type=str, location='json', required=True)
 parser.add_argument('MemberNumber', type=str, location='json', required=True)
 parser.add_argument('EmailAddress', type=str, location='json', required=True)
-# parser.add_argument('FinalDateOfEmployment', type=inputs.date_from_iso8601, location='json', required=True)
-# parser.add_argument('ReasonforTermination', type=str, location='json', required=True)
-# parser.add_argument('LastDeduction', type=str, location='json', required=True)
-# parser.add_argument('Address', type=str, location='json', required=True)
-# parser.add_argument('AddressLine2', type=str, location='json', required=True)
-# parser.add_argument('District', type=str, location='json', required=True)
-# parser.add_argument('PostalCode', type=str, location='json', required=True)
-# parser.add_argument('Country', type=str, location='json', required=True)
-# parser.add_argument('EstimatedAnnualIncomeRange', type=str, location='json', required=True)
-# parser.add_argument('Status', type=str, location='json', required=True)
 parser.add_argument('Comment', type=str, location='json', required=False)
 
 
@@ -59,11 +49,9 @@ class TerminationInitiationController(Resource):
         employer_username = auth['username']
         initiation_date = datetime.utcnow()
         data = json.loads(str(request.data, encoding='utf-8'))
-        employer_id = data["employernumber"]
+        print(data)
+        employer_id = data["employerusername"]
         employer_name = data["employername"]
-        # member_name = data["memberfirstName"]
-        # form_type = data["formType"]
-        # employer_comments = data["comments"]
         employernumber = employer_id
         member_name = args['MemberNumber']
 
@@ -73,22 +61,14 @@ class TerminationInitiationController(Resource):
 
         form = Terminationform(
             EmployerName=employer_name,
-            EmployerID=employer_username,
+            EmployerID=employernumber,
             InitiatedDate=initiation_date,
             MemberName=args['MemberName'],
             MemberNumber=args['MemberNumber'],
             EmailAddress=args['EmailAddress'],
-            # FinalDateOfEmployment=args['FinalDateOfEmployment'],
-            # ReasonforTermination=args['ReasonforTermination'],
-            # LastDeduction=args['LastDeduction'],
-            # Address=args['Address'],
-            # AddressLine2=args['AddressLine2'],
-            # District=args['District'],
-            # PostalCode=args['PostalCode'],
-            # Country=args['Country'],
-            # EstimatedAnnualIncomeRange=args['EstimatedAnnualIncomeRange'],
-            # Status=args['Status'],
-            # PendingFrom=args['PendingFrom'],
+            Status=status.STATUS_PENDING,
+            PendingFrom=roles.ROLES_MEMBER
+
         )
 
         db.session.add(form)
@@ -96,12 +76,12 @@ class TerminationInitiationController(Resource):
 
         token = Token(
             FormID=form.FormID,
-            EmployerID=employer_username,
-            InitiatedBy=employer_username,
+            EmployerID=employernumber,
+            InitiatedBy=employer_id,
             InitiatedDate=initiation_date,
             FormStatus=status.STATUS_PENDING,
             FormType=TOKEN_FORMTYPE_TERMINATION,
-            PendingFrom='Member',
+            PendingFrom=roles.ROLES_MEMBER,
             TokenStatus=status.STATUS_ACTIVE,
             LastModifiedDate=datetime.utcnow(),
         )
@@ -121,8 +101,7 @@ class TerminationInitiationController(Resource):
 
         try:
             subject = 'Please complete your Silver Thatch Pensions Employment Termination Form'
-            # send_email(to_address=form.EmailAddress, subject=subject, template='termination_initiation_to_member.html')
-            msgtext = MIMEText(
+            msg_text = MIMEText(
                 '<p>**This is an auto-generated e-mail message. Please do not reply to this message. **</p>'
                 '<p>Dear %s</p>'
                 '<p>In an effort to keep you connected with your Silver Thatch Pension after you leave your '
@@ -130,10 +109,10 @@ class TerminationInitiationController(Resource):
                 'termination of employment form. This form notifies us that you are no longer employed with '
                 'your current employer and allows Silver Thatch Pensions to stay in touch with you in regards '
                 'to your pension. </p><p>-----------------------------------------</p> '
-                '<p>https://183.82.0.186:812/terminationform/%s</p>'
+                '<p>%s/terminationform/%s</p>'
                 '<p>To learn more about the Silver Thatch Pension Plan,'
-                ' click here to review our members handbook. </p>' % (member_name, token_id), 'html')
-            send_email(to_address=form.EmailAddress, subject=subject, body=msgtext)
+                ' click here to review our members handbook. </p>' % (member_name, APP.config["FRONTEND_URL"], token_id), 'html')
+            send_email(to_address=form.EmailAddress, subject=subject, body=msg_text)
             return RESPONSE_OK
         except Exception as e:
             LOG.warning('Unexpected error happened during initiating termination: %s', e)

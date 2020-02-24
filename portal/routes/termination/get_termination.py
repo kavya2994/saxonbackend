@@ -79,7 +79,7 @@ class GetTermination(Resource):
                     "EstimatedAnnualIncomeRange": termination_form.EstimatedAnnualIncomeRange,
                     "Status": termination_form.Status,
                     "PendingFrom": termination_form.PendingFrom,
-                    # "PhoneNumber": termination_form.PhoneNumber,
+                    "PhoneNumber": termination_form.PhoneNumber,
                     "Comment": comments.Comment if comments is not None else ""
                 }, 200
         else:

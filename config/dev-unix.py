@@ -3,6 +3,7 @@ DEBUG = True
 DATA_DIR = "./data/"
 ZIP_DATA_DIR = "./ZIP/"
 LOG_DIR = "./data/"
+EXCEL_TEMPLATE_DIR = "./Excel/"
 
 DIRECTORIES = [
     'termination', 'Statements', 'rev_inbox', 'Resources', 'pensioninfo',

@@ -21,7 +21,7 @@ parser = reqparse.RequestParser()
 parser.add_argument('Authorization', type=str, location='headers', required=True)
 parser.add_argument('username', type=str, location='headers', required=True)
 parser.add_argument('Ipaddress', type=str, location='headers', required=True)
-parser.add_argument('offset', type=str, location='args', required=True)
+parser.add_argument('offset', type=int, location='args', required=True)
 
 response_model = {
     "Token": fields.String,
@@ -56,6 +56,7 @@ class MyForms(Resource):
         offset = args["offset"]
         if offset is None or str(offset) == "":
             offset = 0
+        offset = int(offset)
         if token["role"] == roles.ROLES_REVIEW_MANAGER:
             forms_data = []
             enrollment_form_data = db.session.query(Token, Enrollmentform).filter(

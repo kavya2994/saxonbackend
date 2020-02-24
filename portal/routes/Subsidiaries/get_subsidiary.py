@@ -13,7 +13,6 @@ from werkzeug.exceptions import UnprocessableEntity, Unauthorized
 from . import ns
 from ... import APP
 
-
 parser = reqparse.RequestParser()
 parser.add_argument('Authorization', type=str, location='headers', required=True)
 parser.add_argument('username', type=str, location='headers', required=True)
@@ -28,6 +27,10 @@ response_model = {
 
 }
 
+response = {
+    'subsidiaries': fields.List(fields.Nested(response_model))
+}
+
 
 @ns.route("/get")
 class GetSubsidiary(Resource):
@@ -40,6 +43,7 @@ class GetSubsidiary(Resource):
             description='Get subsidiaries',
             responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 500: 'Internal Server Error'})
     @ns.expect(parser, validate=True)
+    @ns.marshal_with(response)
     def post(self):
         args = parser.parse_args(strict=False)
         username = args['username']

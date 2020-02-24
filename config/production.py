@@ -5,6 +5,7 @@ DEBUG = False
 
 DATA_DIR = "/var/www/data/"
 ZIP_DATA_DIR = "/var/www/backend/backend-0/ZIP/"
+EXCEL_TEMPLATE_DIR = "/var/www/backend/backend-0/Excel/"
 LOG_DIR = "/var/log/"
 
 DIRECTORIES = [

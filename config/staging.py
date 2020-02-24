@@ -6,6 +6,7 @@ DEBUG = True
 DATA_DIR = "/var/www/data/"
 ZIP_DATA_DIR = "/var/www/backend/ZIP/"
 LOG_DIR = "/var/log/"
+EXCEL_TEMPLATE_DIR = "/var/www/backend/Excel/"
 
 DIRECTORIES = [
     'termination', 'Statements', 'rev_inbox', 'Resources', 'pensioninfo',
