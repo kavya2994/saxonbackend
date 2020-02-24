@@ -37,7 +37,7 @@ class AddSubsidiary(Resource):
         ip = args['Ipaddress']
         decoded_token = token_verify_or_raise(token, username, ip)
 
-        if decoded_token["Role"] not in [roles.ROLES_ADMIN]:
+        if decoded_token["role"] not in [roles.ROLES_ADMIN]:
             raise Unauthorized()
 
         new_subsidiary = Subsidiaries(

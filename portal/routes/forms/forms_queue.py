@@ -84,8 +84,8 @@ class FormQueue(Resource):
                 })
 
             return {"forms_queue": forms_data}, 200
-        elif token["role"] == roles.ROLES_EMPLOYER:
-            employer_id = args["username"]
+        elif token["role"] in [roles.ROLES_EMPLOYER, roles.ROLES_HR]:
+            employer_id = str(args["username"]).replace("HR", "")
             forms_data = []
             enrollment_form_data = db.session.query(Token, Enrollmentform).filter(
                 Token.FormID == Enrollmentform.FormID,

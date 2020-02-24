@@ -93,8 +93,8 @@ class FormWithEmployees(Resource):
                 })
 
             return {"forms_employees": forms_data}, 200
-        elif decode_token["role"] == roles.ROLES_EMPLOYER:
-            employer_id = args["username"]
+        elif decode_token["role"] in [roles.ROLES_EMPLOYER, roles.ROLES_HR]:
+            employer_id = str(args["username"]).replace("HR", "")
             offset_ = args["offset"]
             if offset_ is None or str(offset_) == "":
                 offset_ = 0

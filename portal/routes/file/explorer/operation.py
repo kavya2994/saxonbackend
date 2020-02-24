@@ -11,7 +11,8 @@ from flask_restplus import Resource, reqparse
 from werkzeug.utils import secure_filename
 from xlutils.copy import copy
 from ....helpers import token_verify, delete_excel
-from ....models import db
+from ....models import db, roles, status
+from ....models.contributionform import Contributionform
 from ....models.token import Token
 from .. import ns
 from .... import APP
@@ -72,22 +73,21 @@ class FileExplorerOperation(Resource):
                         #                                          "formCreatedDate": datetime.utcnow(), "status": "pending",
                         #                                          "pendingFrom": "reviewer"})
                         # print(myforms[1].id)
-                        token = Token(
-                            # FormID=,
-                            FormCreatedDate=datetime.utcnow(),
-                            FormStatus="pending",
+                        contribution = Contributionform(
+                            FormStatus=status.STATUS_PENDING,
                             FormType=formtype,
                             InitiatedBy=userid,
                             # InitiatedDate=,
-                            PendingFrom="reviewer",
-                            TokenStatus="active",
+                            Status=status.STATUS_PENDING,
+                            PendingFrom=roles.ROLES_REVIEW_MANAGER,
+                            TokenStatus=status.STATUS_ACTIVE,
                             EmployerID=userid,
-                            # OlderTokenID=,
+                            LastModifiedDate=datetime.utcnow()
                         )
-                        db.session.add(token)
+                        db.session.add(contribution)
                         db.session.commit()
 
-                        path = os.path.join(path, str(token.TokenID))
+                        path = os.path.join(path, str(contribution.FormID))
                         if not os.path.exists(path):
                             os.mkdir(path)
                         file.save(os.path.join(path, filename))

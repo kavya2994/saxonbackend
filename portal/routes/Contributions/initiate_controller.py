@@ -27,7 +27,7 @@ parser.add_argument('endDate', type=str, location='form', required=True)
 parser.add_argument('file', type=str, location='form', required=True)
 
 
-@ns.route("/")
+@ns.route("/initiate")
 class InitiateContribution(Resource):
     @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
     def options(self):
@@ -44,3 +44,4 @@ class InitiateContribution(Resource):
                                              user=args['username'])
         if not decode_token['role'] in [roles.ROLES_EMPLOYER, roles.ROLES_REVIEW_MANAGER]:
             return Unauthorized()
+

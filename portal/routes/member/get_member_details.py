@@ -35,7 +35,8 @@ response_model = {
     'CITY': fields.String,
     'COUNTRY': fields.String,
     'BEN_NAMES': fields.String,
-    'RELNAME': fields.String
+    'RELNAME': fields.String,
+    'ER_DATE': fields.String
 }
 
 
@@ -79,5 +80,6 @@ class GetMemberDetails(Resource):
                    'CITY': member.CITY,
                    'COUNTRY': member.COUNTRY,
                    'BEN_NAMES': member.BEN_NAMES,
-                   'RELNAME': member.RELNAME
+                   'RELNAME': member.RELNAME,
+                   'ER_DATE': member.NR_DATE.replace(year=member.NR_DATE.year - 10)
                }, 200
