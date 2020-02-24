@@ -1,4 +1,4 @@
-from flask import render_template, Response
+from flask import request, render_template, Response
 from flask_restplus import Resource
 from ..api import api
 
@@ -15,3 +15,10 @@ class Index(Resource):
         except:
             return "Not Found", 404
 
+
+# PLEASE DO NOT REMOVE THIS
+@api.route('/ip')
+@api.doc(description='Get user\'s IP address')
+class MyIP(Resource):
+    def get(self):
+        return { 'ip': request.environ['REMOTE_ADDR'] }
