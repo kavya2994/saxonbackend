@@ -57,8 +57,8 @@ class GetEmployerMemberRelation(Resource):
                 MemberView.EMPOYER == EmployerView.SNAME,
                 MemberView.MEMNO == member_id).all()
             if employers_from_view is not None:
-                for employers in employers_from_view:
-                    print(employers.__dict__)
+                for members, employers in employers_from_view:
+                    print(employers)
                     employers_data_list.append({
                         "EmployerNo": employers.ERNO,
                         "EmployerName": employers.ENAME
