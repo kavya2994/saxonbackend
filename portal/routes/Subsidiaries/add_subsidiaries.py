@@ -41,7 +41,7 @@ class AddSubsidiary(Resource):
             raise Unauthorized()
 
         new_subsidiary = Subsidiaries(
-                            EmployerId=args["EmployerId"],
+                            EmployerID=args["EmployerID"],
                             EmployerName=args["EmployerName"],
                             SubsidiaryID=args["SubsidiaryID"],
                             SubsidiaryName=args["SubsidiaryName"])

@@ -106,7 +106,7 @@ class UpdateUser(Resource):
             if msgtext is not None and subject is not None:
                 send_email(user.Email, subject=subject, body=msgtext)
             return RESPONSE_OK
-        elif role == roles.ROLES_EMPLOYER or role == roles.ROLES_MEMBER:
+        elif role == roles.ROLES_EMPLOYER or role == roles.ROLES_MEMBER or role == roles.ROLES_HR:
             display_name = data["displayname"]
             email = data["email"]
 
@@ -139,7 +139,6 @@ class UpdateUser(Resource):
             if msgtext is not None and subject is not None:
                 send_email(user.Email, subject=subject, body=msgtext)
             return RESPONSE_OK
-
         else:
             raise BadRequest('Invalid Role')
 
