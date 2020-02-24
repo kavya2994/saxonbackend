@@ -8,9 +8,9 @@ from ...helpers import token_verify_or_raise, crossdomain
 
 from ...models import db, status, roles
 from ...models.subsidiaries import Subsidiaries
-from werkzeug.exceptions import UnprocessableEntity, Unauthorized
+from werkzeug.exceptions import UnprocessableEntity, Unauthorized, InternalServerError
 from . import ns
-from ... import APP
+from ... import APP, LOG
 
 parser = reqparse.RequestParser()
 parser.add_argument('Authorization', type=str, location='headers', required=True)
@@ -40,12 +40,15 @@ class DeleteSubsidiary(Resource):
 
         if decoded_token["role"] not in [roles.ROLES_ADMIN]:
             raise Unauthorized()
+        try:
+            Subsidiaries.query.filter_by(EmployerID=args["EmployerID"],
+                                         SubsidiaryID=args["SubsidiaryID"]).delete()
 
-        subsidiaries = Subsidiaries.query.filter_by(EmployerID=args["EmployerID"],
-                                                    SubsidiaryID=args["SubsidiaryID"]).first()
-        if subsidiaries is not None:
-            db.session.delete(subsidiaries)
             db.session.commit()
             return {"result": "Success"}, 200
-        else:
-            raise UnprocessableEntity('Cant find the subsidiary')
+        except Exception as e:
+            LOG.error('Exception while deleting susbsidiaryid %s employerid %s %s' % (
+                args["SubsidiaryID"], args["EmployerID"], e))
+            raise InternalServerError()
+        # else:
+        #     raise UnprocessableEntity('Cant find the subsidiary')

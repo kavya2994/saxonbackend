@@ -11,9 +11,9 @@ from ...models.emp_mem_relation import EmpMemRelation
 from ...models.employer_member_relation import EmpMemRel
 from ...services.mail import send_email
 from ...models.security_question import SecurityQuestion
-from werkzeug.exceptions import UnprocessableEntity, Unauthorized
+from werkzeug.exceptions import UnprocessableEntity, Unauthorized, InternalServerError
 from . import ns
-from ... import APP
+from ... import APP, LOG
 
 parser = reqparse.RequestParser()
 parser.add_argument('Authorization', type=str, location='headers', required=True)
@@ -45,10 +45,14 @@ class DeleteEmployerMemberRelation(Resource):
         member_id = args["member_id"]
         decoded_token = token_verify_or_raise(token, username, ip)
         if decoded_token["role"] == roles.ROLES_ADMIN:
-            emp_mem_rel = EmpMemRelation.query.filter_by(EmployerID=employer_id, MemberID=member_id).first()
-            # emp_mem_rel.delete()
-            db.session.delete(emp_mem_rel)
-            db.session.commit()
-            return {"result": "Success"}, 200
+            try:
+                EmpMemRelation.query.filter(EmpMemRelation.EmployerID == employer_id,
+                                            EmpMemRelation.MemberID == member_id).delete()
+                db.session.commit()
+                return {"result": "Success"}, 200
+            except Exception as e:
+                LOG.error('Exception while deleting memberid %s employerid %s %s' % (
+                    args["member_id"], args["employer_id"], e))
+                raise InternalServerError()
         else:
             raise Unauthorized()
