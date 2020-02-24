@@ -22,8 +22,8 @@ parser.add_argument('employer_id', type=str, location='json', required=True)
 response_model = {
     'EmployerID': fields.String,
     'EmployerName': fields.String,
-    'MemberID': fields.String,
-    'MemberName': fields.String
+    'SubsidiaryID': fields.String,
+    'SubsidiaryName': fields.String
 
 }
 
