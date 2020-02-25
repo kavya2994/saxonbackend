@@ -61,9 +61,7 @@ class MyForms(Resource):
             forms_data = []
             enrollment_form_data = db.session.query(Token, Enrollmentform).filter(
                 Token.FormID == Enrollmentform.FormID,
-                Token.FormStatus == status.STATUS_PENDING,
-                Token.PendingFrom != roles.ROLES_REVIEW_MANAGER,
-                Token.TokenStatus == status.STATUS_ACTIVE) \
+                Token.TokenStatus == status.STATUS_ACTIVE).order_by(Token.LastModifiedDate.desc()) \
                 .offset(offset) \
                 .limit(25).all()
 
@@ -79,9 +77,7 @@ class MyForms(Resource):
 
             termination_form_data = db.session.query(Token, Terminationform).filter(
                 Token.FormID == Terminationform.FormID,
-                Token.FormStatus == status.STATUS_PENDING,
-                Token.PendingFrom != roles.ROLES_REVIEW_MANAGER,
-                Token.TokenStatus == status.STATUS_ACTIVE) \
+                Token.TokenStatus == status.STATUS_ACTIVE).order_by(Token.LastModifiedDate.desc()) \
                 .offset(offset) \
                 .limit(25).all()
 
@@ -116,9 +112,8 @@ class MyForms(Resource):
             enrollment_form_data = db.session.query(Token, Enrollmentform).filter(
                 Token.FormID == Enrollmentform.FormID,
                 Token.FormStatus == status.STATUS_PENDING,
-                Token.PendingFrom != token["role"],
                 Token.TokenStatus == status.STATUS_ACTIVE,
-                Token.EmployerID == employer_id) \
+                Token.EmployerID == employer_id).order_by(Token.LastModifiedDate.desc()) \
                 .offset(offset) \
                 .limit(25).all()
 
@@ -135,9 +130,8 @@ class MyForms(Resource):
             termination_form_data = db.session.query(Token, Terminationform).filter(
                 Token.FormID == Terminationform.FormID,
                 Token.FormStatus == status.STATUS_PENDING,
-                Token.PendingFrom != token["role"],
                 Token.TokenStatus == status.STATUS_ACTIVE,
-                Token.EmployerID == employer_id) \
+                Token.EmployerID == employer_id).order_by(Token.LastModifiedDate.desc()) \
                 .offset(offset) \
                 .limit(25).all()
 

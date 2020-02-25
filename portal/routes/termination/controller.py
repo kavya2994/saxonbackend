@@ -45,6 +45,7 @@ parser.add_argument('EstimatedAnnualIncomeRange', type=str, location='json', req
 parser.add_argument('Status', type=str, location='json', required=False)
 parser.add_argument('PhoneNumber', type=str, location='json', required=False)
 parser.add_argument('Comment', type=str, location='json', required=False)
+parser.add_argument('CommentName', type=str, location='json', required=False)
 parser.add_argument('PendingFrom', type=str, location='json', required=False)
 
 
@@ -62,11 +63,12 @@ class TerminationInitiationController(Resource):
     def post(self, TokenID):
         args = parser.parse_args()
         decode_token = None
-        if not (args["request_type"] == RequestType_MemberSubmission or args[
-            "request_type"] == RequestType_SaveFormData):
+        if not (args["request_type"] == RequestType_MemberSubmission or
+                args["request_type"] == RequestType_SaveFormData):
+            print(args["request_type"])
             decode_token = token_verify_or_raise(token=args['Authorization'], ip=args['Ipaddress'],
                                                  user=args['username'])
-
+        print("decode_token------", decode_token)
         # if decode_token['role'] != ROLES_EMPLOYER:
         #     raise Unauthorized()
         initiation_date = datetime.utcnow()
@@ -109,6 +111,7 @@ class TerminationInitiationController(Resource):
                     if 'Comment' in args and args['Comment'] != '':
                         comment = Comments(
                             FormID=form_id,
+                            Name=args['CommentName'],
                             Role=args['role'],
                             Comment=args['Comment'],
                             Date=initiation_date,
@@ -117,6 +120,9 @@ class TerminationInitiationController(Resource):
                         db.session.commit()
                     return {"result": "Success"}, 200
                 elif request_type == RequestType_MemberSubmission:
+                    if args["EmailAddress"] is None or args["EmailAddress"] == '':
+                        LOG.error("No email address for tokenid", TokenID)
+                        raise UnprocessableEntity("Please provide a valid Email address")
                     form.EmailAddress = args['EmailAddress']
                     form.FinalDateOfEmployment = args['FinalDateOfEmployment']
                     form.ReasonforTermination = args['ReasonforTermination']
@@ -127,13 +133,13 @@ class TerminationInitiationController(Resource):
                     form.PostalCode = args['PostalCode']
                     form.Country = args['Country']
                     form.EstimatedAnnualIncomeRange = args['EstimatedAnnualIncomeRange']
-                    form.Status = args['Status']
-                    form.PendingFrom = args['PendingFrom']
+                    form.Status = status.STATUS_PENDING
+                    form.PendingFrom = roles.ROLES_EMPLOYER
                     form.PhoneNumber = args["PhoneNumber"]
 
                     token.FormStatus = status.STATUS_PENDING
                     token.LastModifiedDate = datetime.utcnow()
-                    token.PendingFrom = args['PendingFrom']
+                    token.PendingFrom = roles.ROLES_EMPLOYER
                     token.TokenStatus = status.STATUS_INACTIVE
 
                     new_token = Token(FormID=form.FormID,
@@ -152,6 +158,7 @@ class TerminationInitiationController(Resource):
                     if 'Comment' in args and args['Comment'] != '':
                         comment = Comments(
                             FormID=form_id,
+                            Name=args['CommentName'],
                             Role=args['role'],
                             Comment=args['Comment'],
                             Date=initiation_date,
@@ -185,16 +192,18 @@ class TerminationInitiationController(Resource):
                         form.PostalCode = args['PostalCode']
                         form.Country = args['Country']
                         form.EstimatedAnnualIncomeRange = args['EstimatedAnnualIncomeRange']
-                        form.Status = args['Status']
-                        form.PendingFrom = args['PendingFrom']
+                        form.Status = status.STATUS_PENDING
+                        form.PendingFrom = roles.ROLES_REVIEW_MANAGER
 
                         token.EmployerID = employernumber
                         token.LastModifiedDate = datetime.utcnow()
-                        token.PendingFrom = args['PendingFrom']
+                        token.PendingFrom = roles.ROLES_REVIEW_MANAGER
                         token.TokenStatus = status.STATUS_ACTIVE
+                        token.FormStatus = status.STATUS_PENDING
                         if 'Comment' in args and args['Comment'] != '':
                             comment = Comments(
                                 FormID=form_id,
+                                Name=args['CommentName'],
                                 Role=args['role'],
                                 Comment=args['Comment'],
                                 Date=initiation_date,
@@ -206,12 +215,16 @@ class TerminationInitiationController(Resource):
                         raise Unauthorized()
                 elif request_type == RequestType_ApprovalConfirmation:
                     if decode_token is not None and decode_token['role'] == roles.ROLES_REVIEW_MANAGER:
+                        if args["EmailAddress"] is None or args["EmailAddress"] == '':
+                            LOG.error("No email address for tokenid", TokenID)
+                            raise UnprocessableEntity("Please provide a valid Email address")
                         token.FormStatus = status.STATUS_APPROVE
-                        form.FormStatus = status.STATUS_APPROVE
+                        form.Status = status.STATUS_APPROVE
                         token.LastModifiedDate = datetime.utcnow()
                         if 'Comment' in args and args['Comment'] != '':
                             comment = Comments(
                                 FormID=form_id,
+                                Name=args['CommentName'],
                                 Role=args['role'],
                                 Comment=args['Comment'],
                                 Date=initiation_date,
@@ -233,12 +246,17 @@ class TerminationInitiationController(Resource):
                             raise InternalServerError("Cannot send email at the moment")
                 elif request_type == RequestType_Reject:
                     if decode_token is not None and decode_token['role'] == roles.ROLES_REVIEW_MANAGER:
+                        if args["EmailAddress"] is None or args["EmailAddress"] == '':
+                            LOG.error("No email address for tokenid", TokenID)
+                            raise UnprocessableEntity("Please provide a valid Email address")
+
                         token.FormStatus = status.STATUS_REJECT
-                        form.FormStatus = status.STATUS_REJECT
+                        form.Status = status.STATUS_REJECT
                         token.LastModifiedDate = datetime.utcnow()
                         if 'Comment' in args and args['Comment'] != '':
                             comment = Comments(
                                 FormID=form_id,
+                                Name=args['CommentName'],
                                 Role=args['role'],
                                 Comment=args['Comment'],
                                 Date=initiation_date,

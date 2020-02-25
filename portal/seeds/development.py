@@ -4,6 +4,7 @@ from portal.models.employer import Employer
 from portal.models.status import *
 from portal.models.member import Member
 
+
 class DevelopmentSeeder(object):
     def __init__(self, db):
         self.db = db
@@ -16,28 +17,28 @@ class DevelopmentSeeder(object):
 
     def _add_users(self):
         admin_user = Users(UserID=1,
-            Username="saxon",
-            Password="6Q9usKHCRmlaNgufji0mJg==",
-            Status=STATUS_ACTIVE,
-            TemporaryPassword=False,
-            Role=ROLES_ADMIN,
-            SecurityQuestionID=1)
+                           Username="saxon",
+                           Password="6Q9usKHCRmlaNgufji0mJg==",
+                           Status=STATUS_ACTIVE,
+                           TemporaryPassword=False,
+                           Role=ROLES_ADMIN,
+                           SecurityQuestionID=1)
 
         employer_user = Users(UserID=2,
-            Username="saxonemployer",
-            Password="6Q9usKHCRmlaNgufji0mJg==",
-            Status=STATUS_ACTIVE,
-            TemporaryPassword=True,
-            Role=ROLES_EMPLOYER,
-            SecurityQuestionID=1)
+                              Username="saxonemployer",
+                              Password="6Q9usKHCRmlaNgufji0mJg==",
+                              Status=STATUS_ACTIVE,
+                              TemporaryPassword=False,
+                              Role=ROLES_EMPLOYER,
+                              SecurityQuestionID=1)
 
         reviewmanager_user = Users(UserID=3,
-            Username="saxonreviewmanager",
-            Password="6Q9usKHCRmlaNgufji0mJg==",
-            Status="Active",
-            TemporaryPassword=True,
-            Role=ROLES_REVIEW_MANAGER,
-            SecurityQuestionID=1)
+                                   Username="saxonreviewmanager",
+                                   Password="6Q9usKHCRmlaNgufji0mJg==",
+                                   Status=STATUS_ACTIVE,
+                                   TemporaryPassword=False,
+                                   Role=ROLES_REVIEW_MANAGER,
+                                   SecurityQuestionID=1)
 
         self.db.session.merge(admin_user)
         self.db.session.merge(employer_user)

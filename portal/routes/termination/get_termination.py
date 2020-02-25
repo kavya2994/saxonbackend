@@ -18,6 +18,12 @@ parser = reqparse.RequestParser()
 # parser.add_argument('username', type=str, location='headers', required=True)
 # parser.add_argument('Ipaddress', type=str, location='headers', required=True)
 
+comments_response = {
+    "Name": fields.String,
+    "Date": fields.String,
+    "Comment": fields.String,
+
+}
 response_model = {
     "EmployerName": fields.String,
     "EmployerID": fields.String,
@@ -36,7 +42,8 @@ response_model = {
     "EstimatedAnnualIncomeRange": fields.String,
     "Status": fields.String,
     "PendingFrom": fields.String,
-    "Comment": fields.String
+    "PhoneNumber": fields.String,
+    "Comment": fields.List(fields.Nested(comments_response))
 }
 
 
@@ -59,8 +66,17 @@ class GetTermination(Resource):
         token_data = Token.query.filter_by(TokenID=TokenID).first()
         if token_data is not None and token_data.TokenStatus == status.STATUS_ACTIVE:
             termination_form = Terminationform.query.filter_by(FormID=token_data.FormID).first()
-            comments = Comments.query.filter(Comments.FormID == token_data.FormID).order_by(Comments.CommentsID.desc()).first()
+            comments = Comments.query.filter(Comments.FormID == token_data.FormID).order_by(Comments.CommentsID.desc()).all()
+            comments_list =[]
             if termination_form is not None:
+                if comments is not None:
+                    for comment in comments:
+                        comments_list.append({
+                            "Name": comment.Name,
+                            "Date": comment.Date,
+                            "Comment": comment.Comment
+                        })
+
                 return {
                     "EmployerName": termination_form.EmployerName,
                     "EmployerID": termination_form.EmployerID,
@@ -80,7 +96,7 @@ class GetTermination(Resource):
                     "Status": termination_form.Status,
                     "PendingFrom": termination_form.PendingFrom,
                     "PhoneNumber": termination_form.PhoneNumber,
-                    "Comment": comments.Comment if comments is not None else ""
+                    "Comment": comments_list
                 }, 200
         else:
             raise UnprocessableEntity('Invalid token')

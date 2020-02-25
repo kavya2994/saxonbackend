@@ -9,5 +9,6 @@ class Comments(db.Model):
     FormID = db.Column(db.Integer)
 
     Role = db.Column(db.String(255))
+    Name = db.Column(db.String(255))
     Comment = db.Column(db.String(255))
     Date = db.Column(db.String(255))

@@ -25,6 +25,7 @@ parser.add_argument('MemberName', type=str, location='json', required=True)
 parser.add_argument('MemberNumber', type=str, location='json', required=True)
 parser.add_argument('EmailAddress', type=str, location='json', required=True)
 parser.add_argument('Comment', type=str, location='json', required=False)
+parser.add_argument('CommentName', type=str, location='json', required=False)
 
 
 @ns.route("/initiate")
@@ -92,6 +93,7 @@ class TerminationInitiationController(Resource):
         if 'Comment' in args and args['Comment'] != '':
             comment = Comments(
                 FormID=form.FormID,
+                Name=employer_name,
                 Role=auth['role'],
                 Comment=args['Comment'],
                 Date=initiation_date,

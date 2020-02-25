@@ -14,12 +14,11 @@ from ...models.enrollmentform import Enrollmentform
 from ...models.token import Token, TOKEN_FORMTYPE_ENROLLMENT
 from ...models.comments import Comments
 from ...models.roles import *
-from ...models import db
+from ...models import db, status, roles
 from ...api import api
 from ...services.mail import send_email
 from . import ns
 from ... import APP, LOG
-
 
 parser = reqparse.RequestParser()
 parser.add_argument('Authorization', type=str, location='headers', required=True)
@@ -29,6 +28,7 @@ parser.add_argument('Ipaddress', type=str, location='headers', required=True)
 parser.add_argument('MemberEmail', type=str, location='json', required=True)
 parser.add_argument('MemberFirstName', type=str, location='json', required=True)
 parser.add_argument('Comment', type=str, location='json', required=False)
+parser.add_argument('user', type=str, location='json', required=True)
 
 
 @ns.route("/initiate")
@@ -41,21 +41,21 @@ class EnrollmentInitiationController(Resource):
     @ns.doc(parser=parser,
             description='Enrollment Initiation',
             responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 500: 'Internal Server Error'})
-
     @ns.expect(parser, validate=True)
     def post(self):
         args = parser.parse_args()
         auth = token_verify_or_raise(token=args["Authorization"], ip=args["Ipaddress"], user=args["username"])
 
-        if auth["role"] != ROLES_EMPLOYER:
+        if auth["role"] not in [ROLES_EMPLOYER, ROLES_HR, ROLES_REVIEW_MANAGER]:
             raise Unauthorized()
 
         try:
-            employer_username = auth['username']
+            employer_username = auth['user']
+            employer_id = employer_username
             initiation_date = datetime.utcnow()
 
-            # if str(employer_id)[-2:].__contains__("HR"):
-            #     employer_username = str(employer_username)[:-2]
+            if str(employer_id)[-2:].__contains__("HR"):
+                employer_username = str(employer_username)[:-2]
 
             new_enrollment = Enrollmentform(
                 EmployerID=employer_username,
@@ -78,14 +78,14 @@ class EnrollmentInitiationController(Resource):
                 # TokenStatus='Active',
                 # EmployerID='',
 
-                FormID = new_enrollment.FormID,
-                InitiatedBy = employer_username,
-                InitiatedDate = initiation_date,
-                FormStatus = "Pending",
-                FormType = TOKEN_FORMTYPE_ENROLLMENT,
-                PendingFrom = 'Member',
-                TokenStatus = 'Active',
-                EmployerID = employer_username,
+                FormID=new_enrollment.FormID,
+                InitiatedBy=employer_id,
+                InitiatedDate=initiation_date,
+                FormStatus=status.STATUS_PENDING,
+                FormType=TOKEN_FORMTYPE_ENROLLMENT,
+                PendingFrom=roles.ROLES_MEMBER,
+                TokenStatus=status.STATUS_ACTIVE,
+                EmployerID=employer_username,
                 LastModifiedDate=datetime.utcnow(),
 
             )
@@ -95,10 +95,10 @@ class EnrollmentInitiationController(Resource):
 
             if 'Comment' in args and args['Comment'] != '':
                 comment = Comments(
-                    FormID = new_enrollment.FormID,
-                    Role = auth['role'],
-                    Comment = args['Comment'],
-                    Date = initiation_date,
+                    FormID=new_enrollment.FormID,
+                    Role=auth['role'],
+                    Comment=args['Comment'],
+                    Date=initiation_date,
 
                 )
                 db.session.add(comment)

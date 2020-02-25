@@ -94,7 +94,9 @@ class FormWithEmployees(Resource):
 
             return {"forms_employees": forms_data}, 200
         elif decode_token["role"] in [roles.ROLES_EMPLOYER, roles.ROLES_HR]:
-            employer_id = str(args["username"]).replace("HR", "")
+            employer_id = args["username"]
+            if str(args["username"])[-2:].__contains__("HR"):
+                employer_id = str(args["username"])[:-2]
             offset_ = args["offset"]
             if offset_ is None or str(offset_) == "":
                 offset_ = 0
@@ -102,7 +104,7 @@ class FormWithEmployees(Resource):
             enrollment_form_data = db.session.query(Token, Enrollmentform).filter(
                 Token.FormID == Enrollmentform.FormID,
                 Token.FormStatus == status.STATUS_PENDING,
-                Token.PendingFrom != decode_token["role"],
+                Token.PendingFrom == roles.ROLES_MEMBER,
                 Token.TokenStatus == status.STATUS_ACTIVE,
                 Token.EmployerID == employer_id)\
                 .offset(offset_) \
@@ -121,7 +123,7 @@ class FormWithEmployees(Resource):
             termination_form_data = db.session.query(Token, Terminationform).filter(
                 Token.FormID == Terminationform.FormID,
                 Token.FormStatus == status.STATUS_PENDING,
-                Token.PendingFrom != decode_token["role"],
+                Token.PendingFrom == roles.ROLES_MEMBER,
                 Token.TokenStatus == status.STATUS_ACTIVE,
                 Token.EmployerID == employer_id)\
                 .offset(offset_) \
