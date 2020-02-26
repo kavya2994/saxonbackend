@@ -1,6 +1,6 @@
 from . import db
 from sqlalchemy import Sequence
-from flask_restplus import fields
+from flask_restx import fields
 
 
 class Beneficiary(db.Model):

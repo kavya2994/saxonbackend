@@ -1,4 +1,4 @@
-from flask_restplus import Api
+from flask_restx import Api
 
 
 def init_app(app):

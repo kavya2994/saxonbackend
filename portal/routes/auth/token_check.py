@@ -1,7 +1,7 @@
 import jwt
 import json
 from flask import request
-from flask_restplus import Resource, reqparse, cors, fields
+from flask_restx import Resource, reqparse, cors, fields
 from werkzeug.exceptions import Unauthorized
 from . import ns
 from ... import APP

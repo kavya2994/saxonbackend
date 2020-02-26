@@ -3,7 +3,7 @@ import logging
 from logging import Formatter
 from logging.handlers import RotatingFileHandler
 from flask import Flask
-from flask_restplus import Api, Resource
+from flask_restx import Api, Resource
 
 
 APP = None

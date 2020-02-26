@@ -1,4 +1,4 @@
-from flask_restplus import Resource
+from flask_restx import Resource
 from . import ns
 from ...helpers import RESPONSE_OK
 

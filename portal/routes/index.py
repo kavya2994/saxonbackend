@@ -1,5 +1,5 @@
 from flask import request, render_template, Response
-from flask_restplus import Resource
+from flask_restx import Resource
 from ..api import api
 from .. import APP
 from ..helpers import crossdomain

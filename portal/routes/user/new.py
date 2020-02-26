@@ -6,7 +6,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from flask import Blueprint, jsonify, request, abort, current_app as app
 from flask_cors import cross_origin
-from flask_restplus import Resource, reqparse, cors, fields
+from flask_restx import Resource, reqparse, cors, fields
 
 from ...helpers import randomStringwithDigitsAndSymbols, token_verify, crossdomain
 from ...encryption import Encryption

@@ -1,5 +1,5 @@
 from . import db
-from flask_restplus import fields
+from flask_restx import fields
 from sqlalchemy import Sequence
 
 

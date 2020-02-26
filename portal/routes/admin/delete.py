@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request, abort, current_app as app, Response
-from flask_restplus import Resource, reqparse, fields
+from flask_restx import Resource, reqparse, fields
 from werkzeug.exceptions import UnprocessableEntity, Unauthorized, InternalServerError
 
 from ...helpers import randomStringwithDigitsAndSymbols, token_verify, token_verify_or_raise, crossdomain

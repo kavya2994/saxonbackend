@@ -9,7 +9,7 @@ import threading
 import zipfile
 from datetime import datetime
 from flask import Blueprint, jsonify, request, send_file, current_app as app
-from flask_restplus import Resource, reqparse
+from flask_restx import Resource, reqparse
 from werkzeug.utils import secure_filename
 from xlutils.copy import copy
 from ....helpers import token_verify, delete_excel, token_verify_or_raise, crossdomain

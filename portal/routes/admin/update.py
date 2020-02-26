@@ -2,7 +2,7 @@ from email.mime.text import MIMEText
 import json
 
 from flask import Blueprint, jsonify, request, abort, current_app as app, Response
-from flask_restplus import Resource, reqparse, fields
+from flask_restx import Resource, reqparse, fields
 from werkzeug.exceptions import NotFound, BadRequest, Unauthorized, UnprocessableEntity, InternalServerError
 from ...helpers import randomStringwithDigitsAndSymbols, token_verify_or_raise, crossdomain, RESPONSE_OK
 from ...encryption import Encryption

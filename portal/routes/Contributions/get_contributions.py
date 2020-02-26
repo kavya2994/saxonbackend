@@ -6,7 +6,7 @@ import time
 
 import xlrd
 from flask import Blueprint, jsonify, request, send_file
-from flask_restplus import Resource, reqparse, inputs, fields
+from flask_restx import Resource, reqparse, inputs, fields
 from werkzeug.exceptions import NotFound, BadRequest, Unauthorized, UnprocessableEntity, InternalServerError
 from ...helpers import token_verify_or_raise, crossdomain, RESPONSE_OK, delete_excel
 from ...models import db, status, roles

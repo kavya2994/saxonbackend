@@ -1,7 +1,7 @@
 import json
 from datetime import datetime
 from flask import Blueprint, jsonify, request
-from flask_restplus import Resource, reqparse, inputs, fields
+from flask_restx import Resource, reqparse, inputs, fields
 from werkzeug.exceptions import NotFound, BadRequest, Unauthorized, UnprocessableEntity, InternalServerError
 from ...helpers import token_verify_or_raise, crossdomain, RESPONSE_OK
 from ...models import db, status, roles

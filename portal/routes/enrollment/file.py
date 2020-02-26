@@ -6,7 +6,7 @@ from datetime import datetime
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from flask import Blueprint, jsonify, request
-from flask_restplus import Resource, reqparse, cors
+from flask_restx import Resource, reqparse, cors
 from werkzeug.utils import secure_filename
 from ...helpers import token_verify, crossdomain
 from ...models.enrollmentform import Enrollmentform

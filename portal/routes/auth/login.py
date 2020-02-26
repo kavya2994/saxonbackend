@@ -3,7 +3,7 @@ import json
 from datetime import datetime, timedelta
 from flask import request
 from flask_cors import cross_origin
-from flask_restplus import Resource, reqparse, fields
+from flask_restx import Resource, reqparse, fields
 from werkzeug.exceptions import NotFound, BadRequest, UnprocessableEntity, InternalServerError
 from ...encryption import Encryption
 from ...helpers import crossdomain
