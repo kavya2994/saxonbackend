@@ -5,7 +5,7 @@ from datetime import datetime
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from flask import Blueprint, jsonify, request, abort
-from flask_restplus import Resource, reqparse, cors
+from flask_restplus import Resource, reqparse, cors, fields
 from werkzeug.exceptions import NotFound, BadRequest, Unauthorized
 from ...helpers import randomStringwithDigitsAndSymbols, token_verify, crossdomain, RESPONSE_OK
 
@@ -31,6 +31,14 @@ postParser.add_argument('SecurityAnswer', type=str, location='json', required=Tr
 postParser.add_argument('Email', type=str, location='json', required=True)
 postParser.add_argument('PhoneNumber', type=str, location='json', required=False)
 
+get_response_model = ns.model('GetSecurityQuestion', {
+    'Question': fields.String,
+    'Email': fields.String,
+})
+
+post_response_model = ns.model('PostSecurityQuestion', {
+    'result': fields.String,
+})
 
 @ns.route("/security-question")
 class SecurityQuestion(Resource):
@@ -48,6 +56,7 @@ class SecurityQuestion(Resource):
                 404: 'Not Found',
                 500: 'Internal Server Error'})
     @ns.expect(getParser)
+    @ns.marshal_with(get_response_model)
     def get(self):
         args = getParser.parse_args(strict=True)
 
@@ -66,6 +75,7 @@ class SecurityQuestion(Resource):
             description='Set Security Question',
             responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 500: 'Internal Server Error'})
     @ns.expect(postParser, validate=True)
+    @ns.marshal_with(post_response_model)
     def post(self):
         args = postParser.parse_args(strict=False)
         token = args["Authorization"]

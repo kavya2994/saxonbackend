@@ -6,7 +6,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from flask import Blueprint, jsonify, request, abort, current_app as app
 from flask_cors import cross_origin
-from flask_restplus import Resource, reqparse, cors
+from flask_restplus import Resource, reqparse, cors, fields
 
 from ...helpers import randomStringwithDigitsAndSymbols, token_verify, crossdomain
 from ...encryption import Encryption
@@ -22,6 +22,11 @@ parser.add_argument('Authorization', type=str, location='headers', required=True
 parser.add_argument('username', type=str, location='headers', required=True)
 parser.add_argument('Ipaddress', type=str, location='headers', required=True)
 
+
+response_model = ns.model('PostUserNew', {
+    'result': fields.String,
+    'error': fields.String,
+})
 
 # @user_blueprint.route('/createuser', methods=['POST', 'OPTIONS'])
 # @cross_origin(origins=['*'], allow_headers=['Content-Type', 'Authorization', 'Ipaddress', 'User'])
@@ -41,6 +46,7 @@ class UserNew(Resource):
             description='Create New User',
             responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 500: 'Internal Server Error'})
     @ns.expect(parser, validate=True)
+    @ns.marshal_with(response_model)
     def post(self):
         try:
             if "Authorization" in request.headers.keys() and token_verify(token=request.headers["Authorization"],

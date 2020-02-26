@@ -24,11 +24,11 @@ parser.add_argument('username', type=str, location='headers', required=True)
 parser.add_argument('Ipaddress', type=str, location='headers', required=True)
 parser.add_argument('user', type=str, location='args', required=True)
 
-response_model = {
+response_model = ns.model('GetGetUserData', {
     "Username": fields.String,
     "DisplayName": fields.String,
     "Email": fields.String
-}
+})
 
 
 @ns.route("/userdata/get")

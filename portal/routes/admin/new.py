@@ -3,7 +3,7 @@ import json
 from datetime import datetime
 from email.mime.text import MIMEText
 from flask import Blueprint, jsonify, request, abort, current_app as app
-from flask_restplus import Resource, reqparse
+from flask_restplus import Resource, reqparse, fields
 from ...helpers import randomStringwithDigitsAndSymbols, token_verify, crossdomain, token_verify_or_raise
 from ...encryption import Encryption
 from ...models import db, status, roles
@@ -19,6 +19,9 @@ parser.add_argument('Authorization', type=str, location='headers', required=True
 parser.add_argument('username', type=str, location='headers', required=True)
 parser.add_argument('Ipaddress', type=str, location='headers', required=True)
 
+response_model = ns.model('PostAddUser', {
+    'result': fields.String,
+})
 
 # @user_blueprint.route('/createuser', methods=['POST', 'OPTIONS'])
 # @cross_origin(origins=['*'], allow_headers=['Content-Type', 'Authorization', 'Ipaddress', 'User'])
@@ -33,6 +36,7 @@ class AddUser(Resource):
             description='Create New User',
             responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 500: 'Internal Server Error'})
     @ns.expect(parser, validate=True)
+    @ns.marshal_with(response_model)
     def post(self):
         args = parser.parse_args(strict=False)
         token = token_verify_or_raise(token=args["Authorization"], ip=args["Ipaddress"], user=args["username"])

@@ -2,7 +2,6 @@ from sqlalchemy.orm import relationship
 
 from . import db
 from sqlalchemy import Sequence
-from flask_restplus import fields
 
 
 class Terminationform(db.Model):
@@ -34,25 +33,3 @@ class Terminationform(db.Model):
 
     # termination_form = relationship('Token', foreign_keys='Token.FormID')
 
-
-TerminationformResponseModel = {
-    'FormID': fields.String,
-    'EmployerName': fields.String,
-    'InitiatedDate': fields.DateTime,
-    'MemberName': fields.String,
-    'MemberNumber': fields.String,
-    'EmailAddress': fields.String,
-    'FinalDateOfEmployment': fields.Date,
-    'ReasonforTermination': fields.Date,
-    'LastDeduction': fields.String,
-    'Address': fields.String,
-    'AddressLine2': fields.String,
-    'District': fields.String,
-    'PostalCode': fields.String,
-    'Country': fields.String,
-    'EstimatedAnnualIncomeRange': fields.String,
-    'Status': fields.String,
-    'EmployerID': fields.String,
-    'PendingFrom': fields.String,
-    # 'FilePath': fields.String,
-}

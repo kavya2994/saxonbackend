@@ -10,7 +10,6 @@ from flask_restplus import Resource, reqparse, inputs, fields
 from werkzeug.exceptions import NotFound, BadRequest, Unauthorized, UnprocessableEntity, InternalServerError
 from ...helpers import token_verify_or_raise, crossdomain, RESPONSE_OK, delete_excel
 from ...models import db, status, roles
-from ...models.terminationform import Terminationform, TerminationformResponseModel
 from ...models.member_view import MemberView
 from ...models.employer_view import EmployerView
 from xlutils.copy import copy

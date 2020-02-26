@@ -20,6 +20,9 @@ parser.add_argument('Subject', type=str, location='json', required=True)
 parser.add_argument('Message', type=str, location='json', required=True)
 parser.add_argument('AddedBy', type=str, location='json', required=True)
 
+response_model = ns.model('PostCreateMessages', {
+    'result': fields.String,
+})
 
 @ns.route("/create")
 class CreateMessages(Resource):
@@ -32,6 +35,7 @@ class CreateMessages(Resource):
             description='Get profile details',
             responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 500: 'Internal Server Error'})
     @ns.expect(parser, validate=True)
+    @ns.marshal_with(response_model)
     def post(self):
         args = parser.parse_args(strict=False)
         username = args['username']

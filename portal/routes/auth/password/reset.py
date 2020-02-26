@@ -4,7 +4,7 @@ import jwt
 import json
 from datetime import datetime
 from flask import Blueprint, jsonify, request, abort
-from flask_restplus import Resource, reqparse, cors
+from flask_restplus import Resource, reqparse, cors, fields
 from werkzeug.exceptions import NotFound, BadRequest, Unauthorized, UnprocessableEntity, InternalServerError
 from ....helpers import randomStringwithDigitsAndSymbols, token_verify_or_raise, crossdomain, RESPONSE_OK
 from ....encryption import Encryption
@@ -23,6 +23,9 @@ parser.add_argument('username', type=str, location='json', required=True)
 parser.add_argument('Answer', type=str, location='json', required=False)
 parser.add_argument('Email', type=str, location='json', required=False)
 
+response_model = ns.model('PostPasswordReset', {
+    'result': fields.String,
+})
 
 def _change_password(username, email, display_name):
     try:

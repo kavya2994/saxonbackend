@@ -3,7 +3,7 @@ import json
 from datetime import datetime
 from email.mime.text import MIMEText
 from flask import Blueprint, jsonify, request, abort, current_app as app
-from flask_restplus import Resource, reqparse
+from flask_restplus import Resource, reqparse, fields
 from ...helpers import token_verify_or_raise, crossdomain
 
 from ...models import db, status, roles
@@ -20,6 +20,10 @@ parser.add_argument('SubsidiaryID', type=str, location='json', required=True)
 parser.add_argument('EmployerID', type=str, location='json', required=True)
 
 
+response_model = ns.model('PostDeleteSubsidiary', {
+    'result': fields.String,
+})
+
 @ns.route("/delete")
 class DeleteSubsidiary(Resource):
     @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
@@ -31,6 +35,7 @@ class DeleteSubsidiary(Resource):
             description=' Delete subsidiary',
             responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 500: 'Internal Server Error'})
     @ns.expect(parser, validate=True)
+    @ns.marshal_with(response_model)
     def post(self):
         args = parser.parse_args(strict=False)
         username = args['username']

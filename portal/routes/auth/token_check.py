@@ -1,7 +1,7 @@
 import jwt
 import json
 from flask import request
-from flask_restplus import Resource, reqparse, cors
+from flask_restplus import Resource, reqparse, cors, fields
 from werkzeug.exceptions import Unauthorized
 from . import ns
 from ... import APP
@@ -12,6 +12,10 @@ parser.add_argument('Authorization', type=str, location='headers', required=True
 parser.add_argument('username', type=str, location='headers', required=True)
 parser.add_argument('Ipaddress', type=str, location='headers', required=True)
 
+
+response_model = ns.model('PostTokenCheck', {
+    "result": fields.Boolean,
+})
 
 @ns.route('/token/check')
 class TokenCheck(Resource):
@@ -24,6 +28,7 @@ class TokenCheck(Resource):
             description='Validates the user token',
             responses={400: 'Bad Request', 401: 'Unauthorized', 200: 'OK'})
     @ns.expect(parser, validate=True)
+    @ns.marshal_with(response_model)
     def post(self):
         args = parser.parse_args()
 

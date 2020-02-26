@@ -6,7 +6,7 @@ from datetime import datetime
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from flask import Blueprint, jsonify, request
-from flask_restplus import Resource, reqparse, cors
+from flask_restplus import Resource, reqparse, cors, fields
 from werkzeug.utils import secure_filename
 from werkzeug.exceptions import NotFound, BadRequest, Unauthorized, UnprocessableEntity, InternalServerError
 from ...helpers import token_verify_or_raise, crossdomain
@@ -31,6 +31,11 @@ parser.add_argument('Comment', type=str, location='json', required=False)
 parser.add_argument('user', type=str, location='json', required=True)
 
 
+response_model = ns.model('PostEnrollmentInitiationController', {
+    'result': fields.String,
+    'TokenID': fields.String,
+})
+
 @ns.route("/initiate")
 class EnrollmentInitiationController(Resource):
     @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
@@ -42,6 +47,7 @@ class EnrollmentInitiationController(Resource):
             description='Enrollment Initiation',
             responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 500: 'Internal Server Error'})
     @ns.expect(parser, validate=True)
+    @ns.marshal_with(response_model)
     def post(self):
         args = parser.parse_args()
         auth = token_verify_or_raise(token=args["Authorization"], ip=args["Ipaddress"], user=args["username"])

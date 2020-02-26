@@ -18,13 +18,13 @@ parser.add_argument('username', type=str, location='headers', required=True)
 parser.add_argument('Ipaddress', type=str, location='headers', required=True)
 
 
-response_model = {
+response_model = ns.model('GetGetProfileDetails', {
     "Username": fields.String,
     "DisplayName": fields.String,
     "Email": fields.String,
     "Language": fields.String,
     "Timezone": fields.String
-}
+})
 
 
 # @user_blueprint.route('/createuser', methods=['POST', 'OPTIONS'])

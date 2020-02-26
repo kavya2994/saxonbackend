@@ -30,6 +30,39 @@ parser.add_argument('key', type=str, location='json', required=False)
 parser.add_argument('role', type=str, location='json', required=False)
 
 
+response_model_members = ns.model('GetSearchMembers', {
+    'MKEY': fields.String,
+    'MEMNO': fields.String,
+    'FNAME': fields.String,
+    'LNAME': fields.String,
+    'EMAIL': fields.String,
+    'BIRTH': fields.String,
+    'ENTRY_DATE': fields.String,
+    'NR_DATE': fields.String,
+    'HIRE': fields.String,
+    'PSTATUS': fields.String,
+    'EMPOYER': fields.String,
+    'STREET1': fields.String,
+    'EM_STATUS': fields.String,
+    'CITY': fields.String,
+    'COUNTRY': fields.String,
+    'BEN_NAMES': fields.String,
+    'RELNAME': fields.String,
+})
+
+response_model_employers = ns.model('GetSearchEmployers', {
+    'ERKEY': fields.String,
+    'ERNO': fields.String,
+    'ENAME': fields.String,
+    'SNAME': fields.String,
+    'EMAIL': fields.String,
+})
+
+response_model = ns.model('GetSearch', {
+    'members': fields.List(fields.Nested(response_model_members)),
+    'employers': fields.List(fields.Nested(response_model_employers)),
+})
+
 @ns.route("/search")
 class Search(Resource):
     @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])

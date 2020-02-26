@@ -8,7 +8,7 @@ from werkzeug.exceptions import NotFound, BadRequest, Unauthorized, Unprocessabl
 from ...helpers import token_verify_or_raise, crossdomain, RESPONSE_OK
 from ...models import db, status, roles
 from ...models.enrollmentform import Enrollmentform
-from ...models.terminationform import Terminationform, TerminationformResponseModel
+from ...models.terminationform import Terminationform
 from ...models.token import Token, TOKEN_FORMTYPE_TERMINATION, TOKEN_FORMTYPE_ENROLLMENT
 from ...models.contributionform import Contributionform
 from ...models.comments import Comments
@@ -28,7 +28,7 @@ parser.add_argument('SubmittedFrom', type=str, location='json', required=True)
 parser.add_argument('SubmittedTo', type=str, location='json', required=True)
 # parser.add_argument('offset', type=int, location='args', required=True)
 
-response_model = {
+response_model_child = ns.model('PostSearchFormsChild', {
     "Token": fields.String,
     "FormID": fields.String,
     "EmployerID": fields.String,
@@ -37,11 +37,11 @@ response_model = {
     "FormStatus": fields.String,
     "LastModifiedDate": fields.DateTime,
     "FilePath": fields.String
-}
+})
 
-response = {
-    "forms": fields.List(fields.Nested(response_model))
-}
+response_model = ns.model('PostSearchForms', {
+    "forms": fields.List(fields.Nested(response_model_child))
+})
 
 
 @ns.route("/search")
@@ -55,6 +55,7 @@ class SearchForms(Resource):
             description='Get my forms',
             responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 500: 'Internal Server Error'})
     @ns.expect(parser, validate=True)
+    @ns.marshal_with(response_model)
     def post(self):
         args = parser.parse_args(strict=False)
         token = token_verify_or_raise(token=args["Authorization"], user=args["username"], ip=args["Ipaddress"])

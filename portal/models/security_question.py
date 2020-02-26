@@ -10,8 +10,3 @@ class SecurityQuestion(db.Model):
     SecurityQuestionID = db.Column(db.Integer, Sequence('securityquestion_id_seq'), primary_key=True, nullable=False)
     Question = db.Column(db.String(255))
 
-
-SecurityQuestionModel = {
-    'SecurityQuestionID': fields.Integer,
-    'Question': fields.String,
-}

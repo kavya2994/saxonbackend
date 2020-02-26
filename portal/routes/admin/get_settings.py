@@ -22,14 +22,14 @@ parser.add_argument('Authorization', type=str, location='headers', required=True
 parser.add_argument('username', type=str, location='headers', required=True)
 parser.add_argument('Ipaddress', type=str, location='headers', required=True)
 
-response_model = {
+response_model = ns.model('GetGetSettings', {
     "NotificationEmail": fields.String,
     "ArchiveDays": fields.String,
     "ReviewIP": fields.String,
     "RMIP": fields.String,
     "LastRun": fields.String,
-    "Sync": fields.String
-}
+    "Sync": fields.String,
+})
 
 
 @ns.route("/settings/get")

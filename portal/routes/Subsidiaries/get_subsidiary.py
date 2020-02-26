@@ -19,17 +19,16 @@ parser.add_argument('username', type=str, location='headers', required=True)
 parser.add_argument('Ipaddress', type=str, location='headers', required=True)
 parser.add_argument('employer_id', type=str, location='json', required=True)
 
-response_model = {
+response_model_child = ns.model('GetSubsidiaryChild', {
     'EmployerID': fields.String,
     'EmployerName': fields.String,
     'SubsidiaryID': fields.String,
     'SubsidiaryName': fields.String
+})
 
-}
-
-response = {
-    'subsidiaries': fields.List(fields.Nested(response_model))
-}
+response_model = ns.model('GetSubsidiary', {
+    'subsidiaries': fields.List(fields.Nested(response_model_child))
+})
 
 
 @ns.route("/get")
@@ -43,7 +42,7 @@ class GetSubsidiary(Resource):
             description='Get subsidiaries',
             responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 500: 'Internal Server Error'})
     @ns.expect(parser, validate=True)
-    @ns.marshal_with(response)
+    @ns.marshal_with(response_model)
     def post(self):
         args = parser.parse_args(strict=False)
         try:

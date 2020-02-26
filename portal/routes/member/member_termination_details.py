@@ -23,17 +23,17 @@ parser.add_argument('Authorization', type=str, location='headers', required=True
 parser.add_argument('Ipaddress', type=str, location='headers', required=True)
 parser.add_argument('username', type=str, location='headers', required=True)
 
-TerminationformResponseModel = {
+response_model_child = ns.model('GetMemberTerminationDetailsChild', {
     "EmployerName": fields.String,
     "FormType": fields.String,
     "FormStatus": fields.String,
     "LastModifiedDate": fields.String,
     "TokenID": fields.String
-}
+})
 
-response_model = {
-    "TerminationForms": fields.List(fields.Nested(TerminationformResponseModel))
-}
+response_model = ns.model('GetMemberTerminationDetails', {
+    "TerminationForms": fields.List(fields.Nested(response_model_child))
+})
 
 
 @ns.route("/terminationdetails")

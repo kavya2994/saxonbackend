@@ -11,15 +11,21 @@ from ...helpers import randomStringwithDigitsAndSymbols, token_verify, crossdoma
 from ...encryption import Encryption
 from ...models import db
 from ...models.users import Users
-from ...models.security_question import SecurityQuestion, SecurityQuestionModel
+from ...models.security_question import SecurityQuestion
 from . import ns
 from ... import APP
 
 parser = reqparse.RequestParser()
 
-response_model = {
+
+SecurityQuestionModel = ns.model('GetSecurityQuestiondQuestion', {
+    'SecurityQuestionID': fields.Integer,
+    'Question': fields.String,
+})
+
+response_model = ns.model('GetSecurityQuestions', {
     "questions": fields.List(fields.Nested(SecurityQuestionModel))
-}
+})
 
 
 @ns.route("/security-questions")

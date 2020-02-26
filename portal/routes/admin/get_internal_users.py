@@ -17,18 +17,18 @@ parser.add_argument('Authorization', type=str, location='headers', required=True
 parser.add_argument('username', type=str, location='headers', required=True)
 parser.add_argument('Ipaddress', type=str, location='headers', required=True)
 
-response_model = {
+response_model_child = ns.model('GetGetInternalUsersChild', {
     "Username": fields.String,
     "DisplayName": fields.String,
     "Email": fields.String,
     "Status": fields.String,
     "PhoneNumber": fields.String,
-    "Role": fields.String
-}
+    "Role": fields.String,
+})
 
-response = {
-    "users": fields.List(fields.Nested(response_model))
-}
+response_model = ns.model('GetGetInternalUsers', {
+    "users": fields.List(fields.Nested(response_model_child))
+})
 
 
 @ns.route("/users/internal/get")
@@ -42,7 +42,7 @@ class GetInternalUsers(Resource):
             description='Get all internal users',
             responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 500: 'Internal Server Error'})
     @ns.expect(parser, validate=True)
-    # @ns.marshal_with(response_model)
+    @ns.marshal_with(response_model)
     def get(self):
         args = parser.parse_args(strict=False)
         username = args['username']

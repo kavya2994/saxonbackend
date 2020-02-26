@@ -18,7 +18,7 @@ parser.add_argument('username', type=str, location='headers', required=True)
 parser.add_argument('Ipaddress', type=str, location='headers', required=True)
 parser.add_argument('membernumber', type=str, location='args', required=True)
 
-response_model = {
+response_model = ns.model('GetGetMemberDetails', {
     'MKEY': fields.String,
     'MEMNO': fields.String,
     'FNAME': fields.String,
@@ -37,7 +37,7 @@ response_model = {
     'BEN_NAMES': fields.String,
     'RELNAME': fields.String,
     'ER_DATE': fields.String
-}
+})
 
 
 # @user_blueprint.route('/createuser', methods=['POST', 'OPTIONS'])

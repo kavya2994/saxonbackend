@@ -19,6 +19,9 @@ parser.add_argument('Ipaddress', type=str, location='headers', required=True)
 parser.add_argument('language', type=str, location='json', required=True)
 parser.add_argument('timezone', type=str, location='json', required=True)
 
+post_response_model = ns.model('PostProfileDetails', {
+    'result': fields.String,
+})
 
 # @user_blueprint.route('/createuser', methods=['POST', 'OPTIONS'])
 # @cross_origin(origins=['*'], allow_headers=['Content-Type', 'Authorization', 'Ipaddress', 'User'])
@@ -33,6 +36,7 @@ class UpdateProfileDetails(Resource):
             description='Get profile details',
             responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 500: 'Internal Server Error'})
     @ns.expect(parser, validate=True)
+    @ns.marshal_with(post_response_model)
     def post(self):
         args = parser.parse_args(strict=False)
         username = args['username']

@@ -9,7 +9,7 @@ from flask import Blueprint, jsonify, request
 from flask_restplus import Resource, reqparse, fields, inputs, cors
 from werkzeug.exceptions import NotFound, BadRequest, Unauthorized, UnprocessableEntity, InternalServerError
 from ...helpers import token_verify_or_raise, crossdomain
-from ...models.enrollmentform import Enrollmentform, EnrollmentformResponseModel
+from ...models.enrollmentform import Enrollmentform
 from ...models.token import Token
 from ...models.comments import Comments
 from ...models.roles import *
@@ -63,6 +63,39 @@ parser.add_argument('Signature', type=str, location='json', required=False)
 parser.add_argument('RejectionReason', type=str, location='json', required=False)
 
 
+
+response_model = ns.model('GetEnrollmentController', {
+    'EmployerName': fields.String,
+    'EmployerID': fields.String,
+    'InitiatedDate': fields.DateTime,
+    'AlreadyEnrolled': fields.String,
+    'Status': fields.String,
+    'FirstName': fields.String,
+    'MiddleName': fields.String,
+    'LastName': fields.String,
+    'DOB': fields.String,
+    'Title': fields.String,
+    'MaritalStatus': fields.String,
+    'MailingAddress': fields.String,
+    'AddressLine2': fields.String,
+    'District': fields.String,
+    'PostalCode': fields.String,
+    'Country': fields.String,
+    'EmailAddress': fields.String,
+    'Telephone': fields.String,
+    'StartDateofContribution': fields.DateTime,
+    'StartDateofEmployment': fields.DateTime,
+    'ConfirmationStatus': fields.String,
+    'SignersName': fields.String,
+    'Signature': fields.String,
+    'EstimatedAnnualIncomeRange': fields.String,
+    'ImmigrationStatus': fields.String,
+    'PendingFrom': fields.String,
+    'SpouseName': fields.String,
+    'SpouseDOB': fields.String,
+    'FilePath': fields.String,
+})
+
 @ns.route("/token/<TokenID>")
 class EnrollmentController(Resource):
     @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
@@ -78,7 +111,7 @@ class EnrollmentController(Resource):
                 500: 'Internal Server Error'
             })
     @ns.expect(getParser, validate=True)
-    @ns.marshal_with(EnrollmentformResponseModel)
+    @ns.marshal_with(response_model)
     def get(self, TokenID):
         args = getParser.parse_args()
         token = Token.query.get(TokenID)
@@ -103,7 +136,7 @@ class EnrollmentController(Resource):
                 500: 'Internal Server Error'
             })
     @ns.expect(parser, validate=True)
-    @ns.marshal_with(EnrollmentformResponseModel)
+    @ns.marshal_with(response_model)
     def post(self, TokenID):
         args = parser.parse_args(strict=True)
 

@@ -1,5 +1,5 @@
 from flask import Blueprint, request, abort, current_app as app
-from flask_restplus import Resource, reqparse
+from flask_restplus import Resource, reqparse, fields
 from ...helpers import randomStringwithDigitsAndSymbols, token_verify, token_verify_or_raise, crossdomain
 from ...models import db, status, roles
 from ...models.subsidiaries import Subsidiaries
@@ -16,6 +16,9 @@ parser.add_argument('SubsidiaryName', type=str, location='json', required=True)
 parser.add_argument('EmployerID', type=str, location='json', required=True)
 parser.add_argument('EmployerName', type=str, location='json', required=True)
 
+response_model = ns.model('PostAddSubsidiary', {
+    'result': fields.String,
+})
 
 # @user_blueprint.route('/createuser', methods=['POST', 'OPTIONS'])
 # @cross_origin(origins=['*'], allow_headers=['Content-Type', 'Authorization', 'Ipaddress', 'User'])
@@ -30,6 +33,7 @@ class AddSubsidiary(Resource):
             description='Add new subsidiary',
             responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 500: 'Internal Server Error'})
     @ns.expect(parser, validate=True)
+    @ns.marshal_with(response_model)
     def post(self):
         args = parser.parse_args(strict=False)
         username = args['username']

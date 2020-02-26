@@ -5,7 +5,7 @@ from flask_restplus import Resource, reqparse, inputs, fields
 from werkzeug.exceptions import NotFound, BadRequest, Unauthorized, UnprocessableEntity, InternalServerError
 from ...helpers import token_verify_or_raise, crossdomain, RESPONSE_OK
 from ...models import db, status, roles
-from ...models.terminationform import Terminationform, TerminationformResponseModel
+from ...models.terminationform import Terminationform
 from ...models.token import Token, TOKEN_FORMTYPE_TERMINATION
 from ...models.comments import Comments
 from ...models.roles import *
@@ -18,13 +18,13 @@ parser = reqparse.RequestParser()
 # parser.add_argument('username', type=str, location='headers', required=True)
 # parser.add_argument('Ipaddress', type=str, location='headers', required=True)
 
-comments_response = {
+comments_response = ns.model('GetGetTerminationComments', {
     "Name": fields.String,
     "Date": fields.String,
     "Comment": fields.String,
+})
 
-}
-response_model = {
+response_model = ns.model('GetGetTermination', {
     "EmployerName": fields.String,
     "EmployerID": fields.String,
     "InitiatedDate": fields.DateTime,
@@ -44,7 +44,7 @@ response_model = {
     "PendingFrom": fields.String,
     "PhoneNumber": fields.String,
     "Comment": fields.List(fields.Nested(comments_response))
-}
+})
 
 
 @ns.route("/get/<TokenID>")

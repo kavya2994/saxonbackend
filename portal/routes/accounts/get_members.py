@@ -19,7 +19,7 @@ parser.add_argument('Ipaddress', type=str, location='headers', required=True)
 parser.add_argument('offset', type=str, location='args', required=False)
 
 
-response_model = {
+response_model_child = ns.model('GetGetMembersChild', {
     'MKEY': fields.String,
     'MEMNO': fields.String,
     'FNAME': fields.String,
@@ -37,11 +37,11 @@ response_model = {
     'COUNTRY': fields.String,
     'BEN_NAMES': fields.String,
     'RELNAME': fields.String
-}
+})
 
-response = {
-    "members": fields.List(fields.Nested(response_model))
-}
+response_model = ns.model('GetGetMembers', {
+    "members": fields.List(fields.Nested(response_model_child))
+})
 
 
 @ns.route("/members/get")
@@ -55,7 +55,7 @@ class GetMembers(Resource):
             description='Get all members in b/w min and max',
             responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 500: 'Internal Server Error'})
     @ns.expect(parser, validate=True)
-    @ns.marshal_with(response)
+    @ns.marshal_with(response_model)
     def get(self):
         args = parser.parse_args(strict=False)
         username = args['username']

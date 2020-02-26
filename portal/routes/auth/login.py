@@ -18,7 +18,7 @@ parser.add_argument('Ipaddress', type=str, location='json', required=True)
 parser.add_argument('username', type=str, location='json', required=True)
 parser.add_argument('password', type=str, location='json', required=True)
 
-response_model = {
+response_model = ns.model('GetLogin', {
     'email': fields.String,
     'username': fields.String,
     'firstName': fields.String,
@@ -30,7 +30,7 @@ response_model = {
     'securityanswer': fields.Boolean,
     "timezone": fields.String,
     "language": fields.String
-}
+})
 
 
 @ns.route('/login')

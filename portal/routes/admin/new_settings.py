@@ -7,7 +7,7 @@ import threading
 import zipfile
 from datetime import datetime
 from flask import Blueprint, jsonify, request, send_file, current_app as app
-from flask_restplus import Resource, reqparse
+from flask_restplus import Resource, reqparse, fields
 from werkzeug.utils import secure_filename
 from xlutils.copy import copy
 from werkzeug.exceptions import Unauthorized, BadRequest, UnprocessableEntity, InternalServerError
@@ -28,6 +28,9 @@ parser.add_argument('rm_ip', type=str, location='json', required=True)
 parser.add_argument('last_run', type=str, location='json', required=True)
 parser.add_argument('sync', type=str, location='json', required=True)
 
+response_model = ns.model('PostAddSettings', {
+    'result': fields.String,
+})
 
 @ns.route("/settings/add")
 class AddSettings(Resource):
@@ -40,6 +43,7 @@ class AddSettings(Resource):
             description='Add settings',
             responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 500: 'Internal Server Error'})
     @ns.expect(parser, validate=True)
+    @ns.marshal_with(response_model)
     def post(self):
         args = parser.parse_args(strict=False)
         username = args['username']

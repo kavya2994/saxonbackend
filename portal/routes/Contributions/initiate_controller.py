@@ -13,7 +13,6 @@ from werkzeug.utils import secure_filename
 from ...helpers import token_verify_or_raise, crossdomain, RESPONSE_OK, delete_excel
 from ...models import db, status, roles
 from ...models.contributionform import Contributionform
-from ...models.terminationform import Terminationform, TerminationformResponseModel
 from ...models.member_view import MemberView
 from ...models.employer_view import EmployerView
 from xlutils.copy import copy
@@ -29,6 +28,10 @@ parser.add_argument('startDate', type=str, location='form', required=True)
 parser.add_argument('endDate', type=str, location='form', required=True)
 parser.add_argument('file', type=str, location='form', required=True)
 
+response_model = ns.model('PostInitiateContribution', {
+    'error': fields.String,
+    'result': fields.String,
+})
 
 @ns.route("/initiate")
 class InitiateContribution(Resource):
@@ -41,6 +44,7 @@ class InitiateContribution(Resource):
             description='Generates and Excel sheet of members under employer',
             responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 500: 'Internal Server Error'})
     @ns.expect(parser, validate=True)
+    @ns.marshal_with(response_model)
     def post(self):
         args = parser.parse_args()
         decode_token = token_verify_or_raise(token=args['Authorization'], ip=args['Ipaddress'],

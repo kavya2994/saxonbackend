@@ -3,11 +3,11 @@ from datetime import datetime
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from flask import Blueprint, jsonify, request
-from flask_restplus import Resource, reqparse, inputs
+from flask_restplus import Resource, reqparse, inputs, fields
 from werkzeug.exceptions import NotFound, BadRequest, Unauthorized, UnprocessableEntity, InternalServerError
 from ...helpers import token_verify_or_raise, crossdomain, RESPONSE_OK
 from ...models import db, status, roles
-from ...models.terminationform import Terminationform, TerminationformResponseModel
+from ...models.terminationform import Terminationform
 from ...models.token import Token, TOKEN_FORMTYPE_TERMINATION
 from ...models.comments import Comments
 from ...models.roles import *
@@ -27,6 +27,27 @@ parser.add_argument('EmailAddress', type=str, location='json', required=True)
 parser.add_argument('Comment', type=str, location='json', required=False)
 parser.add_argument('CommentName', type=str, location='json', required=False)
 
+response_model = ns.model('PostTerminationInitiationController', {
+    'FormID': fields.String,
+    'EmployerName': fields.String,
+    'InitiatedDate': fields.DateTime,
+    'MemberName': fields.String,
+    'MemberNumber': fields.String,
+    'EmailAddress': fields.String,
+    'FinalDateOfEmployment': fields.Date,
+    'ReasonforTermination': fields.Date,
+    'LastDeduction': fields.String,
+    'Address': fields.String,
+    'AddressLine2': fields.String,
+    'District': fields.String,
+    'PostalCode': fields.String,
+    'Country': fields.String,
+    'EstimatedAnnualIncomeRange': fields.String,
+    'Status': fields.String,
+    'EmployerID': fields.String,
+    'PendingFrom': fields.String,
+})
+
 
 @ns.route("/initiate")
 class TerminationInitiationController(Resource):
@@ -39,7 +60,7 @@ class TerminationInitiationController(Resource):
             description='Initiate Termination',
             responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 500: 'Internal Server Error'})
     @ns.expect(parser, validate=True)
-    @ns.marshal_with(TerminationformResponseModel)
+    @ns.marshal_with(response_model)
     def post(self):
         args = parser.parse_args()
         auth = token_verify_or_raise(token=args['Authorization'], ip=args['Ipaddress'], user=args['username'])

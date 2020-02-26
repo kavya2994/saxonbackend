@@ -12,16 +12,16 @@ from ...encryption import Encryption
 from werkzeug.exceptions import NotFound, BadRequest, UnprocessableEntity, InternalServerError
 from ...models import db
 from ...models.users import Users
-from ...models.security_question import SecurityQuestion, SecurityQuestionModel
+from ...models.security_question import SecurityQuestion
 from . import ns
 from ... import APP
 
 parser = reqparse.RequestParser()
 parser.add_argument('username', type=str, location='args', required=True)
 
-response_model = {
+response_model = ns.model('GetSecurityQuestionsForUser', {
     "question": fields.String
-}
+})
 
 
 @ns.route("/user/securityquestion")

@@ -8,7 +8,7 @@ from werkzeug.exceptions import NotFound, BadRequest, Unauthorized, Unprocessabl
 from ...helpers import token_verify_or_raise, crossdomain, RESPONSE_OK
 from ...models import db, status, roles
 from ...models.enrollmentform import Enrollmentform
-from ...models.terminationform import Terminationform, TerminationformResponseModel
+from ...models.terminationform import Terminationform
 from ...models.token import Token, TOKEN_FORMTYPE_TERMINATION
 from ...models.comments import Comments
 from ...models.roles import *
@@ -16,18 +16,19 @@ from ...services.mail import send_email
 from . import ns
 from ... import APP
 
-response_model = {
+response_model_child = ns.model('GetFormQueueChild', {
     "Token": fields.String,
     "EmployerID": fields.String,
     "MemberName": fields.String,
     "FormType": fields.String,
     "FormStatus": fields.String,
     "LastModifiedDate": fields.DateTime
-}
+})
 
-response = {
-    "forms_queue": fields.List(fields.Nested(response_model))
-}
+response_model = ns.model('GetFormQueue', {
+    "forms_queue": fields.List(fields.Nested(response_model_child))
+})
+
 parser = reqparse.RequestParser()
 parser.add_argument('Authorization', type=str, location='headers', required=True)
 parser.add_argument('username', type=str, location='headers', required=True)
@@ -45,7 +46,7 @@ class FormQueue(Resource):
             description='Initiate Termination',
             responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 500: 'Internal Server Error'})
     @ns.expect(parser, validate=True)
-    @ns.marshal_with(response)
+    @ns.marshal_with(response_model)
     def get(self):
         args = parser.parse_args(strict=False)
         token = token_verify_or_raise(token=args["Authorization"], user=args["username"], ip=args["Ipaddress"])

@@ -18,16 +18,16 @@ parser.add_argument('username', type=str, location='headers', required=True)
 parser.add_argument('Ipaddress', type=str, location='headers', required=True)
 
 
-messages_model = {
+messages_model = ns.model('GetGetMessagesMessage', {
     'Subject': fields.String,
     'Message': fields.String,
     'CreatedDate': fields.DateTime,
     'MessageID': fields.Integer
-    }
+})
 
-response_model = {
+response_model = ns.model('GetGetMessages', {
     "messages": fields.List(fields.Nested(messages_model))
-}
+})
 
 
 @ns.route("/get")

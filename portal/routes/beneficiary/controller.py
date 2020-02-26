@@ -10,7 +10,7 @@ from flask import Blueprint, jsonify, request
 from flask_restplus import Resource, reqparse, fields, inputs, cors
 from werkzeug.exceptions import NotFound, BadRequest, Unauthorized, UnprocessableEntity, InternalServerError
 from ...helpers import token_verify_or_raise, crossdomain, RESPONSE_OK
-from ...models.beneficiary import Beneficiary, BeneficiaryResponseModel
+from ...models.beneficiary import Beneficiary
 from ...models.enrollmentform import Enrollmentform
 from ...models.roles import *
 from ...models import db
@@ -44,6 +44,26 @@ deleteParser.add_argument('Ipaddress', type=str, location='headers', required=Tr
 deleteParser.add_argument('BeneficiaryID', type=str, location='json', required=True)
 
 
+beneficiary_response_model = ns.model('BeneficiaryResponseModel', {
+    'BeneficiaryID': fields.String,
+    'EnrollmentformID': fields.String,
+    'FirstName': fields.String,
+    'LastName': fields.String,
+    'DOB': fields.Date,
+    'Relationship': fields.String,
+    'Role': fields.String,
+    'PhoneNumber': fields.String,
+    'Percentage': fields.Float,
+})
+
+beneficiary_list_response_model = ns.model('BeneficiaryListResponseModel', {
+    'beneficiaries': fields.List(fields.Nested(beneficiary_response_model)),
+})
+
+response_model_ok = ns.model('DeleteBeneficiaryFormController', {
+    "result": fields.String,
+})
+
 @ns.route("/form/<FormID>")
 class BeneficiaryFormController(Resource):
     @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
@@ -60,7 +80,7 @@ class BeneficiaryFormController(Resource):
                 500: 'Internal Server Error'
             })
     @ns.expect(parser, validate=True)
-    @ns.marshal_with(BeneficiaryResponseModel)
+    @ns.marshal_with(beneficiary_list_response_model)
     def get(self, FormID):
         args = parser.parse_args()
         auth = token_verify_or_raise(token=args['Authorization'], ip=args['Ipaddress'], user=args['username'])
@@ -81,7 +101,7 @@ class BeneficiaryFormController(Resource):
                 404: 'NotFound',
                 500: 'Internal Server Error'
             })
-    @ns.marshal_with(BeneficiaryResponseModel)
+    @ns.marshal_with(beneficiary_list_response_model)
     @ns.expect(postParser, validate=True)
     def post(self, FormID):
         args = postParser.parse_args(strict=True)
@@ -129,7 +149,7 @@ class BeneficiaryFormController(Resource):
                 404: 'NotFound',
                 500: 'Internal Server Error'
             })
-    @ns.marshal_with(BeneficiaryResponseModel)
+    @ns.marshal_with(response_model_ok)
     @ns.expect(deleteParser, validate=True)
     def delete(self, FormID):
         args = deleteParser.parse_args(strict=True)

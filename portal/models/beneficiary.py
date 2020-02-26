@@ -16,16 +16,3 @@ class Beneficiary(db.Model):
     Role = db.Column(db.String(255))
     PhoneNumber = db.Column(db.String(255))
     Percentage = db.Column(db.Float)
-
-
-BeneficiaryResponseModel = {
-    'BeneficiaryID': fields.String,
-    'EnrollmentformID': fields.String,
-    'FirstName': fields.String,
-    'LastName': fields.String,
-    'DOB': fields.Date,
-    'Relationship': fields.String,
-    'Role': fields.String,
-    'PhoneNumber': fields.String,
-    'Percentage': fields.Float,
-}

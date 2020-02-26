@@ -22,18 +22,18 @@ parser.add_argument('Ipaddress', type=str, location='headers', required=True)
 parser.add_argument('user', type=str, location='args', required=True)
 parser.add_argument('offset', type=int, location='args', required=True)
 
-response_model = {
+response_model_child = ns.model('GetGetContributionsChild', {
     "FormID": fields.String,
     "EmployerID": fields.String,
     "FormType": fields.String,
     "FormStatus": fields.String,
     "LastModifiedDate": fields.DateTime,
     "FilePath": fields.String
-}
+})
 
-response = {
-    "contributions": fields.List(fields.Nested(response_model))
-}
+response_model = ns.model('GetGetContributions', {
+    "contributions": fields.List(fields.Nested(response_model_child))
+})
 
 
 @ns.route("/get")
@@ -47,7 +47,7 @@ class GetContributions(Resource):
             description='Get all the contributions under an employer',
             responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 500: 'Internal Server Error'})
     @ns.expect(parser, validate=True)
-    @ns.marshal_with(response)
+    @ns.marshal_with(response_model)
     def get(self):
         args = parser.parse_args()
         decode_token = token_verify_or_raise(token=args['Authorization'], ip=args['Ipaddress'],

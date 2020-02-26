@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request, abort, current_app as app, Response
-from flask_restplus import Resource, reqparse
+from flask_restplus import Resource, reqparse, fields
 from werkzeug.exceptions import UnprocessableEntity, Unauthorized, InternalServerError
 
 from ...helpers import randomStringwithDigitsAndSymbols, token_verify, token_verify_or_raise, crossdomain
@@ -14,6 +14,10 @@ parser.add_argument('username', type=str, location='headers', required=True)
 parser.add_argument('Ipaddress', type=str, location='headers', required=True)
 parser.add_argument('user', type=str, location='json', required=True)
 
+response_model = ns.model('PostDeleteUser', {
+    "result": fields.String,
+    "error": fields.String,
+})
 
 # @user_blueprint.route('/createuser', methods=['POST', 'OPTIONS'])
 # @cross_origin(origins=['*'], allow_headers=['Content-Type', 'Authorization', 'Ipaddress', 'User'])
@@ -28,6 +32,7 @@ class DeleteUser(Resource):
             description='updating user status to deleted',
             responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 500: 'Internal Server Error'})
     @ns.expect(parser, validate=True)
+    @ns.marshal_with(response_model)
     def post(self):
         args = parser.parse_args(strict=False)
         username = args['username']
