@@ -30,6 +30,8 @@ CORS_HEADERS = [
 ]
 
 CORS_ORIGIN_WHITELIST = [
+    "http://editor.swagger.io",
+    "https://editor.swagger.io",
     "http://generator.swagger.io",
     "https://generator.swagger.io",
 
