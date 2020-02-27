@@ -1,9 +1,9 @@
 DEBUG = True
 
 DATA_DIR = "E:/Saxons_folders/"
-ZIP_DATA_DIR = "C:/Users/Manomay/Desktop/backend-0/ZIP/"
 LOG_DIR = "C:/Users/Manomay/Desktop/backend-0/"
-EXCEL_TEMPLATE_DIR = "C:/Users/Manomay/Desktop/backend-0/Excel/"
+ZIP_DATA_DIR = "C:/Users/Manomay/Desktop/backend-0/data/zip/"
+EXCEL_TEMPLATE_DIR = "C:/Users/Manomay/Desktop/backend-0/data/excel/"
 
 DIRECTORIES = [
     'termination', 'Statements', 'rev_inbox', 'Resources', 'pensioninfo',

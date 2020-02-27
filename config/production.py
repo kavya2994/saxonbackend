@@ -3,10 +3,10 @@ import os
 
 DEBUG = False
 
-DATA_DIR = "/var/www/data/"
-ZIP_DATA_DIR = "/var/www/backend/backend-0/ZIP/"
-EXCEL_TEMPLATE_DIR = "/var/www/backend/backend-0/Excel/"
-LOG_DIR = "/var/log/"
+DATA_DIR = "/var/www/backend/backend-0/data/"
+LOG_DIR = "/var/log/backend/"
+ZIP_DATA_DIR = f"{DATA_DIR}/zip/"
+EXCEL_TEMPLATE_DIR = f"{DATA_DIR}/excel/"
 
 DIRECTORIES = [
     'termination', 'Statements', 'rev_inbox', 'Resources', 'pensioninfo',

@@ -4,9 +4,9 @@ import os
 DEBUG = True
 
 DATA_DIR = "/var/www/data/"
-ZIP_DATA_DIR = "/var/www/backend/ZIP/"
-LOG_DIR = "/var/log/"
-EXCEL_TEMPLATE_DIR = "/var/www/backend/Excel/"
+LOG_DIR = "/var/log/backend"
+ZIP_DATA_DIR = f"{DATA_DIR}/zip/"
+EXCEL_TEMPLATE_DIR = f"{DATA_DIR}/excel/"
 
 DIRECTORIES = [
     'termination', 'Statements', 'rev_inbox', 'Resources', 'pensioninfo',

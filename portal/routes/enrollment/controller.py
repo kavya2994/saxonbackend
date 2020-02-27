@@ -66,37 +66,6 @@ comments_model = ns.model('Comments', {
     "Date": fields.String,
     "Comment": fields.String
 })
-# response_model = ns.model('GetEnrollmentController', {
-#     'EmployerName': fields.String,
-#     'EmployerID': fields.String,
-#     'InitiatedDate': fields.DateTime,
-#     'AlreadyEnrolled': fields.String,
-#     'Status': fields.String,
-#     'FirstName': fields.String,
-#     'MiddleName': fields.String,
-#     'LastName': fields.String,
-#     'DOB': fields.String,
-#     'Title': fields.String,
-#     'MaritalStatus': fields.String,
-#     'MailingAddress': fields.String,
-#     'AddressLine2': fields.String,
-#     'District': fields.String,
-#     'PostalCode': fields.String,
-#     'Country': fields.String,
-#     'EmailAddress': fields.String,
-#     'Telephone': fields.String,
-#     'StartDateofContribution': fields.DateTime,
-#     'StartDateofEmployment': fields.DateTime,
-#     'ConfirmationStatus': fields.String,
-#     'SignersName': fields.String,
-#     'Signature': fields.String,
-#     'EstimatedAnnualIncomeRange': fields.String,
-#     'ImmigrationStatus': fields.String,
-#     'PendingFrom': fields.String,
-#     'SpouseName': fields.String,
-#     'SpouseDOB': fields.String,
-#     'FilePath': fields.String,
-# })
 
 response_model = ns.model('GetEnrollmentController', {
     "tokenID": fields.String,
@@ -126,7 +95,6 @@ response_model = ns.model('GetEnrollmentController', {
     "pendingFrom": fields.String,
     "startemployment": fields.Date,
     "startdate": fields.Date,
-    # file: File;
     "spouse_name": fields.String,
     "spouse_dob": fields.String,
     "member_id": fields.String,
@@ -146,6 +114,9 @@ class EnrollmentController(Resource):
     def get(self, TokenID):
         args = getParser.parse_args()
         token = Token.query.get(TokenID)
+        enrollmentform = None
+        comments = None
+        comments_list = []
 
         if token is None:
             raise BadRequest()
@@ -154,52 +125,54 @@ class EnrollmentController(Resource):
             enrollmentform = Enrollmentform.query.get(token.FormID)
             comments = Comments.query.filter(Comments.FormID == token.FormID).order_by(
                 Comments.CommentsID.desc()).all()
-            comments_list = []
-            if enrollmentform is not None:
-                if comments is not None:
-                    for comment in comments:
-                        comments_list.append({
-                            "Name": comment.Name,
-                            "Date": comment.Date,
-                            "Comment": comment.Comment
-                        })
-                return {
-                           "tokenID": TokenID,
-                           "employername": enrollmentform.EmployerName,
-                           "employernumber": enrollmentform.EmployerID,
-                           "formType": 'Enrollment',
-                           "formCreatedDate": enrollmentform.InitiatedDate,
-                           "isExistingMember": enrollmentform.AlreadyEnrolled,
-                           "memberfirstName": enrollmentform.FirstName,
-                           "memberLastName": enrollmentform.LastName,
-                           "title": enrollmentform.Title,
-                           "maidenName": enrollmentform.MaidenName,
-                           "dob": enrollmentform.DOB,
-                           "address": enrollmentform.MailingAddress,
-                           "addressLine2": enrollmentform.AddressLine2,
-                           "district": enrollmentform.District,
-                           "postalcode": enrollmentform.PostalCode,
-                           "country": enrollmentform.Country,
-                           "email": enrollmentform.EmailAddress,
-                           "phoneNumber": enrollmentform.Telephone,
-                           "incomerange": enrollmentform.EstimatedAnnualIncomeRange,
-                           "immigrationstatus": enrollmentform.ImmigrationStatus,
-                           "comments": comments_list,
-                           "maritalstatus": enrollmentform.MaritalStatus,
-                           "middlename": enrollmentform.MiddleName,
-                           "status": enrollmentform.Status,
-                           "pendingFrom": enrollmentform.PendingFrom,
-                           "startemployment": enrollmentform.StartDateofEmployment,
-                           "startdate": enrollmentform.StartDateofContribution,
-                           "spouse_name": enrollmentform.SpouseName,
-                           "spouse_dob": enrollmentform.SpouseDOB,
-                           "member_id": enrollmentform.MemberID
-                       }, 200
-            else:
-                raise UnprocessableEntity("Can't find enrollment form")
         except Exception as e:
             LOG.warning('Unexpected error happened during handling enrollment: %s', e)
             raise InternalServerError()
+
+        if enrollmentform is None:
+            raise UnprocessableEntity("Can't find enrollment form")
+
+        if comments is not None:
+            for comment in comments:
+                comments_list.append({
+                    "Name": comment.Name,
+                    "Date": comment.Date,
+                    "Comment": comment.Comment
+                })
+
+        return {
+                    "tokenID": TokenID,
+                    "employername": enrollmentform.EmployerName,
+                    "employernumber": enrollmentform.EmployerID,
+                    "formType": 'Enrollment',
+                    "formCreatedDate": enrollmentform.InitiatedDate,
+                    "isExistingMember": enrollmentform.AlreadyEnrolled,
+                    "memberfirstName": enrollmentform.FirstName,
+                    "memberLastName": enrollmentform.LastName,
+                    "title": enrollmentform.Title,
+                    "maidenName": enrollmentform.MaidenName,
+                    "dob": enrollmentform.DOB,
+                    "address": enrollmentform.MailingAddress,
+                    "addressLine2": enrollmentform.AddressLine2,
+                    "district": enrollmentform.District,
+                    "postalcode": enrollmentform.PostalCode,
+                    "country": enrollmentform.Country,
+                    "email": enrollmentform.EmailAddress,
+                    "phoneNumber": enrollmentform.Telephone,
+                    "incomerange": enrollmentform.EstimatedAnnualIncomeRange,
+                    "immigrationstatus": enrollmentform.ImmigrationStatus,
+                    "comments": comments_list,
+                    "maritalstatus": enrollmentform.MaritalStatus,
+                    "middlename": enrollmentform.MiddleName,
+                    "status": enrollmentform.Status,
+                    "pendingFrom": enrollmentform.PendingFrom,
+                    "startemployment": enrollmentform.StartDateofEmployment,
+                    "startdate": enrollmentform.StartDateofContribution,
+                    "spouse_name": enrollmentform.SpouseName,
+                    "spouse_dob": enrollmentform.SpouseDOB,
+                    "member_id": enrollmentform.MemberID
+                }, 200
+
 
     @ns.doc(description='Update Enrollment Data by TokenID',
             responses={

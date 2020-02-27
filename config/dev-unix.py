@@ -1,9 +1,9 @@
 DEBUG = True
 
 DATA_DIR = "./data/"
-ZIP_DATA_DIR = "./ZIP/"
 LOG_DIR = "./data/"
-EXCEL_TEMPLATE_DIR = "./Excel/"
+ZIP_DATA_DIR = f"{DATA_DIR}/zip/"
+EXCEL_TEMPLATE_DIR = f"{DATA_DIR}/excel/"
 
 DIRECTORIES = [
     'termination', 'Statements', 'rev_inbox', 'Resources', 'pensioninfo',

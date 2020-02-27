@@ -133,6 +133,7 @@ dmypy.json
 .DS_Store
 *.log
 *.log.*
+*.xls
 .vscode/
 .idea/
 secret/
