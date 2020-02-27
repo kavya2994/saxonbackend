@@ -9,7 +9,7 @@ from email.mime.text import MIMEText
 from flask import Blueprint, jsonify, request
 from flask_restx import Resource, reqparse, fields, inputs, cors
 from werkzeug.exceptions import NotFound, BadRequest, Unauthorized, UnprocessableEntity, InternalServerError
-from ...helpers import token_verify_or_raise, crossdomain, RESPONSE_OK
+from ...helpers import token_verify_or_raise, RESPONSE_OK
 from ...models.beneficiary import Beneficiary
 from ...models.enrollmentform import Enrollmentform
 from ...models.roles import *
@@ -66,11 +66,6 @@ response_model_ok = ns.model('DeleteBeneficiaryFormController', {
 
 @ns.route("/form/<FormID>")
 class BeneficiaryFormController(Resource):
-    @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
-    def options(self):
-        pass
-
-    @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
     @ns.doc(parser=parser,
             description='Get Beneficiary',
             responses={
@@ -91,7 +86,6 @@ class BeneficiaryFormController(Resource):
         beneficiaries = Beneficiary.query.filter_by(EnrollmentformID=FormID).all()
         return beneficiaries
 
-    @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
     @ns.doc(parser=postParser,
             description='Add New Beneficiary',
             responses={
@@ -139,7 +133,6 @@ class BeneficiaryFormController(Resource):
 
         return Beneficiary.query.filter_by(EnrollmentformID=FormID).all()
 
-    @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
     @ns.doc(parser=deleteParser,
             description='Delete A Beneficiary',
             responses={

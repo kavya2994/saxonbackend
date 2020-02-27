@@ -2,11 +2,9 @@ import jwt
 import json
 from datetime import datetime, timedelta
 from flask import request
-from flask_cors import cross_origin
 from flask_restx import Resource, reqparse, fields
 from werkzeug.exceptions import NotFound, BadRequest, UnprocessableEntity, InternalServerError
 from ...encryption import Encryption
-from ...helpers import crossdomain
 from ...models.users import Users
 from ...models import status, roles
 from ...api import api
@@ -35,11 +33,6 @@ response_model = ns.model('GetLogin', {
 
 @ns.route('/login')
 class Login(Resource):
-    @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
-    def options(self):
-        pass
-
-    @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
     @ns.doc(parser=parser,
             description='Login',
             responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 500: 'Internal Server Error'})

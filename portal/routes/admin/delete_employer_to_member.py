@@ -4,7 +4,7 @@ from datetime import datetime
 from email.mime.text import MIMEText
 from flask import Blueprint, jsonify, request, abort, current_app as app
 from flask_restx import Resource, reqparse, fields
-from ...helpers import randomStringwithDigitsAndSymbols, token_verify, token_verify_or_raise, crossdomain
+from ...helpers import randomStringwithDigitsAndSymbols, token_verify, token_verify_or_raise
 from ...encryption import Encryption
 from ...models import db, status, roles
 from ...models.emp_mem_relation import EmpMemRelation
@@ -26,15 +26,8 @@ response_model = ns.model('PostDeleteEmployerMemberRelation', {
     "result": fields.String,
 })
 
-# @user_blueprint.route('/createuser', methods=['POST', 'OPTIONS'])
-# @cross_origin(origins=['*'], allow_headers=['Content-Type', 'Authorization', 'Ipaddress', 'User'])
 @ns.route("/delemployertomember")
 class DeleteEmployerMemberRelation(Resource):
-    @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
-    def options(self):
-        pass
-
-    @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
     @ns.doc(parser=parser,
             description='delete employer member relation',
             responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 500: 'Internal Server Error'})

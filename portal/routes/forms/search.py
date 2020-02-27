@@ -5,7 +5,7 @@ from email.mime.text import MIMEText
 from flask import Blueprint, jsonify, request
 from flask_restx import Resource, reqparse, inputs, fields
 from werkzeug.exceptions import NotFound, BadRequest, Unauthorized, UnprocessableEntity, InternalServerError
-from ...helpers import token_verify_or_raise, crossdomain, RESPONSE_OK
+from ...helpers import token_verify_or_raise, RESPONSE_OK
 from ...models import db, status, roles
 from ...models.enrollmentform import Enrollmentform
 from ...models.terminationform import Terminationform
@@ -46,11 +46,6 @@ response_model = ns.model('PostSearchForms', {
 
 @ns.route("/search")
 class SearchForms(Resource):
-    @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
-    def options(self):
-        pass
-
-    @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
     @ns.doc(parser=parser,
             description='Get my forms',
             responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 500: 'Internal Server Error'})

@@ -10,7 +10,7 @@ from flask_restx import Resource, reqparse, inputs, fields
 from werkzeug.exceptions import NotFound, BadRequest, Unauthorized, UnprocessableEntity, InternalServerError
 from werkzeug.utils import secure_filename
 
-from ...helpers import token_verify_or_raise, crossdomain, RESPONSE_OK, delete_excel
+from ...helpers import token_verify_or_raise, RESPONSE_OK, delete_excel
 from ...models import db, status, roles
 from ...models.contributionform import Contributionform
 from ...models.member_view import MemberView
@@ -35,11 +35,6 @@ response_model = ns.model('PostInitiateContribution', {
 
 @ns.route("/initiate")
 class InitiateContribution(Resource):
-    @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
-    def options(self):
-        pass
-
-    @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
     @ns.doc(parser=parser,
             description='Generates and Excel sheet of members under employer',
             responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 500: 'Internal Server Error'})

@@ -12,7 +12,7 @@ from werkzeug.utils import secure_filename
 from xlutils.copy import copy
 
 from ... import APP
-from ...helpers import delete_excel, token_verify_or_raise, crossdomain
+from ...helpers import delete_excel, token_verify_or_raise
 from ...models import db
 from ...models.token import Token
 from . import ns
@@ -25,11 +25,6 @@ parser.add_argument('Ipaddress', type=str, location='headers', required=True)
 
 @ns.route("/download")
 class FileDownload(Resource):
-    @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
-    def options(self):
-        pass
-
-    @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
     @ns.doc(parser=parser,
             description='Download File',
             responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 500: 'Internal Server Error'})

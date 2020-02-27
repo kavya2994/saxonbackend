@@ -2,7 +2,6 @@ from flask import request, render_template, Response
 from flask_restx import Resource
 from ..api import api
 from .. import APP
-from ..helpers import crossdomain
 
 
 @api.route('/index')
@@ -22,10 +21,5 @@ class Index(Resource):
 @api.route('/ip')
 @api.doc(description='Get user\'s IP address')
 class MyIP(Resource):
-    @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
-    def options(self):
-        pass
-
-    @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
     def get(self):
         return { 'ip': request.environ['REMOTE_ADDR'] }

@@ -4,7 +4,7 @@ from datetime import datetime
 from email.mime.text import MIMEText
 from flask import Blueprint, jsonify, request, abort, current_app as app
 from flask_restx import Resource, reqparse, fields
-from ...helpers import randomStringwithDigitsAndSymbols, token_verify, token_verify_or_raise, crossdomain
+from ...helpers import randomStringwithDigitsAndSymbols, token_verify, token_verify_or_raise
 from ...encryption import Encryption
 from ...models import db, status, roles
 from ...models.users import Users
@@ -33,11 +33,6 @@ response_model = ns.model('GetGetInternalUsers', {
 
 @ns.route("/users/internal/get")
 class GetInternalUsers(Resource):
-    @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
-    def options(self):
-        pass
-
-    @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
     @ns.doc(parser=parser,
             description='Get all internal users',
             responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 500: 'Internal Server Error'})

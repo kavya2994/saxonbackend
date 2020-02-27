@@ -4,7 +4,7 @@ from datetime import datetime
 from email.mime.text import MIMEText
 from flask import Blueprint, jsonify, request, abort, current_app as app
 from flask_restx import Resource, reqparse, fields
-from ...helpers import token_verify_or_raise, crossdomain
+from ...helpers import token_verify_or_raise
 
 from ...models import db, status, roles
 from ...models.subsidiaries import Subsidiaries
@@ -26,11 +26,6 @@ response_model = ns.model('PostDeleteSubsidiary', {
 
 @ns.route("/delete")
 class DeleteSubsidiary(Resource):
-    @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
-    def options(self):
-        pass
-
-    @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
     @ns.doc(parser=parser,
             description=' Delete subsidiary',
             responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 500: 'Internal Server Error'})

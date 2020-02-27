@@ -8,7 +8,7 @@ from email.mime.text import MIMEText
 from flask import Blueprint, jsonify, request
 from flask_restx import Resource, reqparse, cors
 from werkzeug.utils import secure_filename
-from ...helpers import token_verify, crossdomain
+from ...helpers import token_verify
 from ...models.enrollmentform import Enrollmentform
 from ...models.token import Token
 from ...models import db
@@ -25,10 +25,6 @@ parser.add_argument('Ipaddress', type=str, location='headers', required=True)
 
 @ns.route("/file")
 class EnrollmentFile(Resource):
-    @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
-    def options(self):
-        pass
-
     @ns.doc(parser=parser,
         description='Delete Enrollment File',
         responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 500: 'Internal Server Error'})
@@ -53,8 +49,6 @@ class EnrollmentFile(Resource):
     @ns.doc(parser=None,
         description='Save Enrollment File',
         responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 500: 'Internal Server Error'})
-    # @cross_origin(origins=['*'], allow_headers=['Content-Type', 'Authorization', 'User', 'Ipaddress'])
-    # @enrollment_blueprint.route("/save_enrollment", methods=['GET', 'POST', 'OPTIONS'])
     def post(self):
         member_name = request.form.get("membername")
         tokenID = request.form.get("tokenID")

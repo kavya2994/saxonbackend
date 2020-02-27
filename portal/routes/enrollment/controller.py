@@ -8,7 +8,7 @@ from email.mime.text import MIMEText
 from flask import Blueprint, jsonify, request
 from flask_restx import Resource, reqparse, fields, inputs, cors
 from werkzeug.exceptions import NotFound, BadRequest, Unauthorized, UnprocessableEntity, InternalServerError
-from ...helpers import token_verify_or_raise, crossdomain
+from ...helpers import token_verify_or_raise
 from ...models.enrollmentform import Enrollmentform
 from ...models.token import Token
 from ...models.comments import Comments
@@ -98,11 +98,6 @@ response_model = ns.model('GetEnrollmentController', {
 
 @ns.route("/token/<TokenID>")
 class EnrollmentController(Resource):
-    @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
-    def options(self):
-        pass
-
-    @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
     @ns.doc(parser=getParser,
             description='Get Enrollment Data by TokenID',
             responses={
@@ -126,7 +121,6 @@ class EnrollmentController(Resource):
             LOG.warning('Unexpected error happened during handling enrollment: %s', e)
             raise InternalServerError()
 
-    @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
     @ns.doc(parser=parser,
             description='Update Enrollment Data by TokenID',
             responses={

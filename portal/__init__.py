@@ -4,6 +4,7 @@ from logging import Formatter
 from logging.handlers import RotatingFileHandler
 from flask import Flask
 from flask_restx import Api, Resource
+from flask_cors import CORS
 
 
 APP = None
@@ -34,6 +35,9 @@ def init_logger(app):
     LOG = app.logger
     LOG.info('Initialized logger with level %s', log_level)
 
+def init_cors(app):
+    CORS(app=app, origins=app.config['CORS_ORIGIN_WHITELIST'], allow_headers=app.config['CORS_HEADERS'])
+    LOG.info('Initialized CORS')
 
 def create_app():
     global APP
@@ -55,6 +59,7 @@ def create_app():
         routes.init_app(APP)
         services.init_app(APP)
         seeds.init_app(APP)
+        init_cors(APP)
     except Exception as e:
         LOG.warning('An error happened during initilizing app components: %s', e)
         raise

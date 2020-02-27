@@ -12,7 +12,7 @@ from werkzeug.utils import secure_filename
 from xlutils.copy import copy
 from werkzeug.exceptions import Unauthorized, BadRequest, UnprocessableEntity, InternalServerError
 from ... import APP, LOG
-from ...helpers import token_verify, delete_excel, token_verify_or_raise, crossdomain
+from ...helpers import token_verify, delete_excel, token_verify_or_raise
 from ...models import db, roles
 from ...models.settings import Settings
 from . import ns
@@ -34,11 +34,6 @@ response_model = ns.model('GetGetSettings', {
 
 @ns.route("/settings/get")
 class GetSettings(Resource):
-    @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
-    def options(self):
-        pass
-
-    @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
     @ns.doc(parser=parser,
             description='Add settings',
             responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 500: 'Internal Server Error'})

@@ -9,7 +9,7 @@ from flask import Blueprint, jsonify, request
 from flask_restx import Resource, reqparse, cors, fields
 from werkzeug.utils import secure_filename
 from werkzeug.exceptions import NotFound, BadRequest, Unauthorized, UnprocessableEntity, InternalServerError
-from ...helpers import token_verify_or_raise, crossdomain
+from ...helpers import token_verify_or_raise
 from ...models.enrollmentform import Enrollmentform
 from ...models.token import Token, TOKEN_FORMTYPE_ENROLLMENT
 from ...models.comments import Comments
@@ -38,11 +38,6 @@ response_model = ns.model('PostEnrollmentInitiationController', {
 
 @ns.route("/initiate")
 class EnrollmentInitiationController(Resource):
-    @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
-    def options(self):
-        pass
-
-    @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
     @ns.doc(parser=parser,
             description='Enrollment Initiation',
             responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 500: 'Internal Server Error'})

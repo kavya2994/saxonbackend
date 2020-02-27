@@ -7,7 +7,7 @@ from email.mime.text import MIMEText
 from flask import Blueprint, jsonify, request, abort
 from flask_restx import Resource, reqparse, cors, fields
 from werkzeug.exceptions import NotFound, BadRequest, Unauthorized
-from ...helpers import randomStringwithDigitsAndSymbols, token_verify, crossdomain, RESPONSE_OK
+from ...helpers import randomStringwithDigitsAndSymbols, token_verify, RESPONSE_OK
 
 from ...encryption import Encryption
 from ...models import db
@@ -42,11 +42,6 @@ post_response_model = ns.model('PostSecurityQuestion', {
 
 @ns.route("/security-question")
 class SecurityQuestion(Resource):
-    @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
-    def options(self):
-        pass
-
-    @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
     @ns.doc(parser=getParser,
             description='Get security question of a user',
             responses={
@@ -70,7 +65,6 @@ class SecurityQuestion(Resource):
                    "Email": user.Email
                }, 200
 
-    @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
     @ns.doc(parser=postParser,
             description='Set Security Question',
             responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 500: 'Internal Server Error'})

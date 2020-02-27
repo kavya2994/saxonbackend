@@ -19,8 +19,6 @@ parser.add_argument('username', type=str, location='headers', required=True)
 parser.add_argument('Ipaddress', type=str, location='headers', required=True)
 
 
-# @user_blueprint.route('/checkuserexists', methods=['GET', 'POST', 'OPTIONS'])
-# @cross_origin(origins=['*'], allow_headers=['Content-Type', 'User', 'Ipaddress'])
 def check_user():
     if request.method == "POST":
         data = json.loads(str(request.data, encoding='utf-8'))
@@ -35,8 +33,6 @@ def check_user():
         return abort(404)
 
 
-# @user_blueprint.route('/login_cred', methods=['POST', 'OPTIONS'])
-# @cross_origin(origins=['*'], allow_headers=['Content-Type'])
 def login_cred_mail():
     if request.method == "POST":
         print(request.data)

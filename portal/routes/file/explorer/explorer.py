@@ -12,7 +12,7 @@ from flask import Blueprint, jsonify, request, send_file, current_app as app
 from flask_restx import Resource, reqparse
 from werkzeug.utils import secure_filename
 from xlutils.copy import copy
-from ....helpers import token_verify, delete_excel, token_verify_or_raise, crossdomain
+from ....helpers import token_verify, delete_excel, token_verify_or_raise
 from ....models import db
 from ....models.token import Token
 from .. import ns
@@ -33,11 +33,6 @@ get_parser.add_argument('requestfolder', type=str, location='args', required=Tru
 
 @ns.route("/explorer")
 class FileExplorer(Resource):
-    @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
-    def options(self):
-        pass
-
-    @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
     @ns.doc(parser=get_parser,
             description='File Explorer',
             responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 500: 'Internal Server Error'})
@@ -48,7 +43,6 @@ class FileExplorer(Resource):
         data = json.loads(str(request.data, encoding='utf-8'))
         return send_file(os.path.join(app.config['DATA_DIR'], data["requestfolder"])), 200
 
-    @crossdomain(whitelist=APP.config['CORS_ORIGIN_WHITELIST'], headers=APP.config['CORS_HEADERS'])
     @ns.doc(parser=parser,
             description='File Explorer',
             responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 500: 'Internal Server Error'})
