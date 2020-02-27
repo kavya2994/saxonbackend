@@ -51,7 +51,7 @@ class EnrollmentInitiationController(Resource):
             raise Unauthorized()
 
         try:
-            employer_username = auth['user']
+            employer_username = args['user']
             employer_id = employer_username
             initiation_date = datetime.utcnow()
 
