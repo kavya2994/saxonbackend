@@ -1,4 +1,3 @@
-import os
 from portal import create_app
 from gevent.pywsgi import WSGIServer
 

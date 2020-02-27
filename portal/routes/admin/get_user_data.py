@@ -33,8 +33,7 @@ response_model = ns.model('GetGetUserData', {
 
 @ns.route("/userdata/get")
 class GetUserData(Resource):
-    @ns.doc(parser=parser,
-            description='Get user data',
+    @ns.doc(description='Get user data',
             responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 500: 'Internal Server Error'})
     @ns.expect(parser, validate=True)
     @ns.marshal_with(response_model)

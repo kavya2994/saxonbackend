@@ -45,8 +45,7 @@ response_model = ns.model('GetGetMembers', {
 
 @ns.route("/members/get")
 class GetMembers(Resource):
-    @ns.doc(parser=parser,
-            description='Get all members in b/w min and max',
+    @ns.doc(description='Get all members in b/w min and max',
             responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 500: 'Internal Server Error'})
     @ns.expect(parser, validate=True)
     @ns.marshal_with(response_model)

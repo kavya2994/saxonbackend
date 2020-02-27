@@ -49,8 +49,7 @@ response_model = ns.model('GetGetTermination', {
 
 @ns.route("/get/<TokenID>")
 class GetTermination(Resource):
-    @ns.doc(parser=parser,
-            description='Get The termination form data',
+    @ns.doc(description='Get The termination form data',
             responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 500: 'Internal Server Error'})
     @ns.expect(parser, validate=True)
     @ns.marshal_with(response_model)

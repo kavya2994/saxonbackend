@@ -44,8 +44,7 @@ response_model = ns.model('PostSearchForms', {
 
 @ns.route("/search")
 class SearchForms(Resource):
-    @ns.doc(parser=parser,
-            description='Get my forms',
+    @ns.doc(description='Get my forms',
             responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 500: 'Internal Server Error'})
     @ns.expect(parser, validate=True)
     @ns.marshal_with(response_model)

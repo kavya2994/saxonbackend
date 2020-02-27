@@ -24,8 +24,7 @@ zipparser.add_argument('Ipaddress', type=str, location='headers', required=True)
 
 @ns.route("/explorer/open/zip")
 class FileExplorerOpenZip(Resource):
-    @ns.doc(parser=zipparser,
-            description='File Explorer Open',
+    @ns.doc(description='File Explorer Open',
             responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 500: 'Internal Server Error'})
     @ns.expect(zipparser, validate=True)
     def post(self):

@@ -21,8 +21,7 @@ response_model = ns.model('PostDeleteUser', {
 
 @ns.route("/user/internal/delete")
 class DeleteUser(Resource):
-    @ns.doc(parser=parser,
-            description='updating user status to deleted',
+    @ns.doc(description='updating user status to deleted',
             responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 500: 'Internal Server Error'})
     @ns.expect(parser, validate=True)
     @ns.marshal_with(response_model)

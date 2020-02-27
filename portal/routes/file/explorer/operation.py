@@ -25,8 +25,7 @@ parser.add_argument('Ipaddress', type=str, location='headers', required=True)
 
 @ns.route("/explorer/operation")
 class FileExplorerOperation(Resource):
-    @ns.doc(parser=parser,
-            description='File Explorer Operation',
+    @ns.doc(description='File Explorer Operation',
             responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 500: 'Internal Server Error'})
     @ns.expect(parser, validate=True)
     def post(self):

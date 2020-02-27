@@ -35,8 +35,7 @@ response_model = ns.model('GetMemberTerminationDetails', {
 
 @ns.route("/terminationdetails")
 class MemberTerminationDetails(Resource):
-    @ns.doc(parser=parser,
-            description='Get member termination details ',
+    @ns.doc(description='Get member termination details ',
             responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 422: 'UnprocessableEntity',
                        500: 'Internal Server Error'})
     @ns.expect(parser, validate=True)

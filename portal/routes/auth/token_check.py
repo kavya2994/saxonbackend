@@ -19,8 +19,7 @@ response_model = ns.model('PostTokenCheck', {
 
 @ns.route('/token/check')
 class TokenCheck(Resource):
-    @ns.doc(parser=parser,
-            description='Validates the user token',
+    @ns.doc(description='Validates the user token',
             responses={400: 'Bad Request', 401: 'Unauthorized', 200: 'OK'})
     @ns.expect(parser, validate=True)
     @ns.marshal_with(response_model)

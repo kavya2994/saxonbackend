@@ -24,8 +24,7 @@ post_response_model = ns.model('PostProfileDetails', {
 
 @ns.route("/profile/update")
 class UpdateProfileDetails(Resource):
-    @ns.doc(parser=parser,
-            description='Get profile details',
+    @ns.doc(description='Get profile details',
             responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 500: 'Internal Server Error'})
     @ns.expect(parser, validate=True)
     @ns.marshal_with(post_response_model)

@@ -52,8 +52,7 @@ response_model = ns.model('PostTerminationInitiationController', {
 
 @ns.route("/token/<TokenID>")
 class TerminationInitiationController(Resource):
-    @ns.doc(parser=parser,
-            description='',
+    @ns.doc(description='',
             responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 500: 'Internal Server Error'})
     @ns.expect(parser, validate=True)
     @ns.marshal_with(response_model)
@@ -164,11 +163,13 @@ class TerminationInitiationController(Resource):
                     db.session.commit()
                     try:
                         member_subject = 'Please complete your Silver Thatch Pensions Employment Termination Form'
-                        member_msg_text = '<p>**This is an auto-generated e-mail message.' + \
-                                        ' Please do not reply to this message. **</p>' + \
-                                        f'<p>Dear {member_name}</p>' + \
-                                        f'<p>Your termination was submitted on {datetime.utcnow().strftime("%Y-%m-%d")}. ' + \
-                                        'You will receive notification once your form has been processed</p>'
+                        member_msg_text = (
+                            '<p>**This is an auto-generated e-mail message.'
+                            ' Please do not reply to this message. **</p>'
+                            f'<p>Dear {member_name}</p>'
+                            f'<p>Your termination was submitted on {datetime.utcnow().strftime("%Y-%m-%d")}. '
+                            'You will receive notification once your form has been processed</p>'
+                        )
 
                         send_email(to_address=args['EmailAddress'], subject=member_subject, body=member_msg_text)
                         return {"result": "Success"}, 200

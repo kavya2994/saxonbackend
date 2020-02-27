@@ -32,8 +32,7 @@ response_model = ns.model('GetGetEmployerMemberRelation', {
 
 @ns.route("/getemployertomember")
 class GetEmployerMemberRelation(Resource):
-    @ns.doc(parser=parser,
-            description='get employer to a member',
+    @ns.doc(description='get employer to a member',
             responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 500: 'Internal Server Error'})
     @ns.expect(parser, validate=True)
     @ns.marshal_with(response_model)
