@@ -1,7 +1,6 @@
 import jwt
 import json
 from datetime import datetime
-from email.mime.text import MIMEText
 from flask import Blueprint, jsonify, request, abort, current_app as app
 from flask_restx import Resource, reqparse, fields
 from ...helpers import randomStringwithDigitsAndSymbols, token_verify, token_verify_or_raise
@@ -57,11 +56,10 @@ class AddUser(Resource):
                                      UserCreatedTime=datetime.utcnow())
                     db.session.add(new_user)
                     db.session.commit()
-                    msg_text = MIMEText('<p>Dear %s</p>'
-                                        '<p>Your account has been reactivated</p>'
-                                        '<p>Username is %s</p>'
-                                        '<p> please use this password %s to log in</p>'
-                                        % (displayname, username, password), 'html')
+                    msg_text = f'<p>Dear {displayname}</p>' + \
+                                f'<p>Your account has been reactivated</p>' + \
+                                f'<p>Username is {username}</p>' + \
+                                f'<p> please use this password {password} to log in</p>'
 
                     send_email(email, "Welcome to Pension Management portal", body=msg_text)
                     return {"result": "Success"}, 200
@@ -76,11 +74,10 @@ class AddUser(Resource):
                     userexist.SessionDuration = "30"
                     userexist.UserCreatedTime = datetime.utcnow()
                     db.session.commit()
-                    msg_text = MIMEText('<p>Dear %s</p>'
-                                        '<p>Your account is created</p>'
-                                        '<p>Username is %s</p>'
-                                        '<p> please use this password %s to log in</p>'
-                                        % (displayname, username, password), 'html')
+                    msg_text = f'<p>Dear {displayname}</p>' + \
+                                f'<p>Your account is created</p>' + \
+                                f'<p>Username is {username}</p>' + \
+                                f'<p> please use this password {password} to log in</p>'
 
                     send_email(email, "Welcome to Pension Management portal", body=msg_text)
 

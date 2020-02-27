@@ -1,5 +1,3 @@
-from email.mime.text import MIMEText
-
 import jwt
 import json
 from datetime import datetime
@@ -31,12 +29,9 @@ def _change_password(username, email, display_name):
     try:
         password = randomStringwithDigitsAndSymbols()
         pass_encrypt = Encryption().encrypt(password)
-        # message = f'<p>Dear <p>Your password has been reset. The temporary password is: {password}</p>' + \
-        #           '<p>Please log into your system as soon as possible to set your new password.</p>'
-        message = MIMEText('<p>Dear %s</p>'
-                           '<p>Your password has been reset.</p>'
-                           '<p>The temporary password is: %s</p>'
-                           % (display_name, password), 'html')
+        message = f'<p>Dear {display_name}</p>' + \
+                f'<p>Your password has been reset.</p>' + \
+                f'<p>The temporary password is: {password}</p>'
 
         user = Users.query.filter_by(Username=username).first()
         user.Password = pass_encrypt

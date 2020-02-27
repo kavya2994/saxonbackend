@@ -1,7 +1,6 @@
 import json
 from datetime import datetime
 from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
 from flask import Blueprint, jsonify, request
 from flask_restx import Resource, reqparse, inputs, fields
 from werkzeug.exceptions import NotFound, BadRequest, Unauthorized, UnprocessableEntity, InternalServerError
@@ -119,17 +118,18 @@ class TerminationInitiationController(Resource):
 
         try:
             subject = 'Please complete your Silver Thatch Pensions Employment Termination Form'
-            msg_text = MIMEText(
-                '<p>**This is an auto-generated e-mail message. Please do not reply to this message. **</p>'
-                '<p>Dear %s</p>'
-                '<p>In an effort to keep you connected with your Silver Thatch Pension after you leave your '
-                'current position, please click here or copy the link below into a browser to complete the '
-                'termination of employment form. This form notifies us that you are no longer employed with '
-                'your current employer and allows Silver Thatch Pensions to stay in touch with you in regards '
-                'to your pension. </p><p>-----------------------------------------</p> '
-                '<p>%s/terminationform/%s</p>'
-                '<p>To learn more about the Silver Thatch Pension Plan,'
-                ' click here to review our members handbook. </p>' % (member_name, APP.config["FRONTEND_URL"], token_id), 'html')
+            msg_text = \
+                f'<p>**This is an auto-generated e-mail message. Please do not reply to this message. **</p>' + \
+                f'<p>Dear {member_name}</p>' + \
+                f'<p>In an effort to keep you connected with your Silver Thatch Pension after you leave your ' + \
+                f'current position, please click here or copy the link below into a browser to complete the ' + \
+                f'termination of employment form. This form notifies us that you are no longer employed with ' + \
+                f'your current employer and allows Silver Thatch Pensions to stay in touch with you in regards ' + \
+                f'to your pension. </p><p>-----------------------------------------</p> ' + \
+                f'<p>{APP.config["FRONTEND_URL"]}/terminationform/{token_id}</p>' + \
+                f'<p>To learn more about the Silver Thatch Pension Plan,' + \
+                f' click here to review our members handbook. </p>'
+
             send_email(to_address=form.EmailAddress, subject=subject, body=msg_text)
             return RESPONSE_OK
         except Exception as e:

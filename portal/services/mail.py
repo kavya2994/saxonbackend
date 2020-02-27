@@ -43,6 +43,6 @@ def send_mail_with_domain(to_address, subject, body):
     msg['from'] = email
     msg['to'] = to_address
 
-    msg.attach(body)
+    msg.attach(MIMEText(body, 'html'))
     smtp_obj.login(email, password)
     smtp_obj.sendmail(email, to_address, msg.as_string())

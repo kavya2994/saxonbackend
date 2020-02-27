@@ -1,7 +1,6 @@
 import jwt
 import json
 from datetime import datetime
-from email.mime.text import MIMEText
 from flask import Blueprint, jsonify, request, abort, current_app as app
 from flask_restx import Resource, reqparse, fields
 from ...helpers import token_verify_or_raise

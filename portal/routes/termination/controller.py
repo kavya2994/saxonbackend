@@ -1,7 +1,5 @@
 import json
 from datetime import datetime
-from email.mime.text import MIMEText
-
 from flask import Blueprint, jsonify, request
 from flask_restx import Resource, reqparse, inputs, fields
 from werkzeug.exceptions import NotFound, BadRequest, Unauthorized, UnprocessableEntity, InternalServerError
@@ -166,13 +164,12 @@ class TerminationInitiationController(Resource):
                     db.session.commit()
                     try:
                         member_subject = 'Please complete your Silver Thatch Pensions Employment Termination Form'
-                        member_msg_text = MIMEText('<p>**This is an auto-generated e-mail message.'
-                                                   ' Please do not reply to this message. **</p>'
-                                                   '<p>Dear %s</p>'
-                                                   '<p>Your termination was submitted on %s. '
-                                                   'You will receive notification once your form has been processed</p>'
-                                                   % (member_name, datetime.utcnow().strftime("%Y-%m-%d")),
-                                                   'html')
+                        member_msg_text = '<p>**This is an auto-generated e-mail message.' + \
+                                        ' Please do not reply to this message. **</p>' + \
+                                        f'<p>Dear {member_name}</p>' + \
+                                        f'<p>Your termination was submitted on {datetime.utcnow().strftime("%Y-%m-%d")}. ' + \
+                                        'You will receive notification once your form has been processed</p>'
+
                         send_email(to_address=args['EmailAddress'], subject=member_subject, body=member_msg_text)
                         return {"result": "Success"}, 200
                     except smtplib.SMTPException as e:
@@ -232,12 +229,11 @@ class TerminationInitiationController(Resource):
                         db.session.commit()
                         try:
                             subject = 'Silver Thatch Pensions Employment Termination Form'
-                            msg_text = MIMEText('<p>**This is an auto-generated e-mail message.'
-                                                ' Please do not reply to this message. **</p>'
-                                                '<p>Dear %s</p>'
-                                                '<p>Your termination has been processed </p>' % (
-                                                    member_name),
-                                                'html')
+                            msg_text = '<p>**This is an auto-generated e-mail message.' + \
+                                    ' Please do not reply to this message. **</p>' + \
+                                    f'<p>Dear {member_name}</p>' + \
+                                    '<p>Your termination has been processed </p>'
+
                             send_email(to_address=args['EmailAddress'], subject=subject, body=msg_text)
                             return {"result": "Success"}, 200
                         except smtplib.SMTPException as e:
@@ -264,21 +260,20 @@ class TerminationInitiationController(Resource):
                         db.session.commit()
                         try:
                             subject = 'Silver Thatch Pensions Employment Termination Form'
-                            msg_text = MIMEText('<p>**This is an auto-generated e-mail message.'
-                                                ' Please do not reply to this message. **</p>'
-                                                '<p>Dear %s</p>'
-                                                '<p>Your Termination has been rejected </p>'
-                                                '<p>Please click here. Otherwise, cut and paste the link below into a '
-                                                'browser, '
-                                                'fill in the required information, and when you are done hit the '
-                                                'submit button to '
-                                                'start your termination into the plan.</p>'
-                                                '<p>-----------------------------------------------------</p>'
-                                                '<p>%s/terminationform/%s </p>'
-                                                '<p>To learn more about the Silver Thatch Pension '
-                                                'Plan, click here to review our members handbook. </p>' % (
-                                                    member_name, APP.config["FRONTEND_URL"], token),
-                                                'html')
+                            msg_text = '<p>**This is an auto-generated e-mail message.' + \
+                                    ' Please do not reply to this message. **</p>' + \
+                                    f'<p>Dear {member_name}</p>' + \
+                                    '<p>Your Termination has been rejected </p>' + \
+                                    '<p>Please click here. Otherwise, cut and paste the link below into a ' + \
+                                    'browser, ' + \
+                                    'fill in the required information, and when you are done hit the ' + \
+                                    'submit button to ' + \
+                                    'start your termination into the plan.</p>' + \
+                                    '<p>-----------------------------------------------------</p>' + \
+                                    f'<p>{APP.config["FRONTEND_URL"]}/terminationform/{token} </p>' + \
+                                    '<p>To learn more about the Silver Thatch Pension ' + \
+                                    'Plan, click here to review our members handbook. </p>'
+
                             send_email(to_address=args['EmailAddress'], subject=subject, body=msg_text)
                             return {"result": "Success"}, 200
                         except smtplib.SMTPException as e:

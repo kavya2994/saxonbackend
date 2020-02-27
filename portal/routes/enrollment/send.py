@@ -3,8 +3,6 @@ import jwt
 import json
 import smtplib
 from datetime import datetime
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
 from flask import Blueprint, jsonify, request
 from flask_restx import Resource, reqparse
 from werkzeug.exceptions import NotFound, BadRequest, UnprocessableEntity, InternalServerError
@@ -70,19 +68,18 @@ class EnrollmentFile(Resource):
                     # init_time = datetime.strptime(form_data["formCreatedDate"], "%d%m%Y %H:%M:%S.%f")
                     # time = (datetime.utcnow() - form_data["formCreatedDate"]).days
                     msg['subject'] = "Your Silver Thatch Pensions Enrollment Form needs to be completed"
-                    msgtext = MIMEText('<p>**This is an auto-generated e-mail message.'
-                                       ' Please do not reply to this message. **</p>'
-                                       '<p>Dear %s</p>'
-                                       '<p>Please click here. Otherwise, '
-                                       'cut and paste the link below into a browser, fill in the '
-                                       'required information, and when you are done'
-                                       ' hit the submit button to start your enrollment '
-                                       'into the plan.</p>'
-                                       '<p>-----------------------------------------</p>'
-                                       '<p>http://183.82.0.186:812/enrollment-form/%s</p>'
-                                       '<p>To learn more about the Silver Thatch Pension Plan,'
-                                       ' click here to review our members handbook. </p>' % (member_name, token_id),
-                                       'html')
+                    msgtext = '<p>**This is an auto-generated e-mail message.' + \
+                            ' Please do not reply to this message. **</p>' + \
+                            f'<p>Dear {member_name}</p>' + \
+                            '<p>Please click here. Otherwise, ' + \
+                            'cut and paste the link below into a browser, fill in the ' + \
+                            'required information, and when you are done' + \
+                            ' hit the submit button to start your enrollment ' + \
+                            'into the plan.</p>' + \
+                            '<p>-----------------------------------------</p>' + \
+                            f'<p>http://183.82.0.186:812/enrollment-form/{token_id}</p>' + \
+                            '<p>To learn more about the Silver Thatch Pension Plan,' + \
+                            ' click here to review our members handbook. </p>'
                     # if time == 3:
                     #     notify = True
                     # elif time > 3:
@@ -112,12 +109,10 @@ class EnrollmentFile(Resource):
 
         elif request_type == "approval_confirmation":
             msg['subject'] = "Your Enrollment has been submitted"
-            msgtext = MIMEText('<p>**This is an auto-generated e-mail message.'
-                               ' Please do not reply to this message. **</p>'
-                               '<p>Dear %s</p>'
-                               '<p>Your Enrollment has been processed </p>' % (
-                                   member_name),
-                               'html')
+            msgtext = '<p>**This is an auto-generated e-mail message.' + \
+                    ' Please do not reply to this message. **</p>' + \
+                    f'<p>Dear {member_name}</p>' + \
+                    '<p>Your Enrollment has been processed </p>'
 
             tkn = Token.query.get(token_id)
             tkn.status = "approved"
@@ -137,20 +132,18 @@ class EnrollmentFile(Resource):
 
         elif request_type == "rejected":
             msg['subject'] = "Your Enrollment has been rejected"
-            msgtext = MIMEText('<p>**This is an auto-generated e-mail message.'
-                               ' Please do not reply to this message. **</p>'
-                               '<p>Dear %s</p>'
-                               '<p>Your Enrollment has been rejected </p>'
-                               '<p>Please click here. Otherwise, cut and paste the link below into a browser, '
-                               'fill in the required information, and when you are done hit the submit button to '
-                               'start your enrollment into the plan.</p>'
-                               '<p>%s</p>'
-                               '<p>-----------------------------------</p>'
-                               '<p>http://183.82.0.186:812/enrollment-form/%s</p>'
-                               '<p>To learn more about the Silver Thatch Pension '
-                               'Plan, click here to review our members handbook. </p>' % (
-                                   member_name, data["comments"], token_id),
-                               'html')
+            msgtext = '<p>**This is an auto-generated e-mail message.' + \
+                    ' Please do not reply to this message. **</p>' + \
+                    f'<p>Dear {member_name}</p>' + \
+                    '<p>Your Enrollment has been rejected </p>' + \
+                    '<p>Please click here. Otherwise, cut and paste the link below into a browser, ' + \
+                    'fill in the required information, and when you are done hit the submit button to ' + \
+                    'start your enrollment into the plan.</p>' + \
+                    f'<p>{data["comments"]}</p>' + \
+                    '<p>-----------------------------------</p>' + \
+                    f'<p>http://183.82.0.186:812/enrollment-form/{token_id}</p>' + \
+                    '<p>To learn more about the Silver Thatch Pension ' + \
+                    'Plan, click here to review our members handbook. </p>'
             try:
                 msg.attach(msgtext)
                 smtpObj.login('venkateshvyyerram@gmail.com', "mynameisvenkatesh")

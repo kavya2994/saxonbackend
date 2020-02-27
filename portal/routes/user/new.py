@@ -2,8 +2,6 @@ import jwt
 import json
 import smtplib
 from datetime import datetime
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
 from flask import Blueprint, jsonify, request, abort, current_app as app
 from flask_restx import Resource, reqparse, cors, fields
 
@@ -68,9 +66,9 @@ class UserNew(Resource):
                                          UserCreatedTime=datetime.utcnow())
                         db.session.add(new_user)
                         db.session.commit()
-                        msg_text = MIMEText('<p>Dear %s</p>'
-                                            '<p>Your account is created please use this password %s to log in</p>'
-                                            % (displayname, password))
+                        msg_text = f'<p>Dear {displayname}</p>' + \
+                                    f'<p>Your account is created please use this password {password} to log in</p>'
+
                         send_email(to_address=email, body=msg_text, subject="Welcome to Pension Management portal")
                         return jsonify({"result": "Success"}), 200
                     else:

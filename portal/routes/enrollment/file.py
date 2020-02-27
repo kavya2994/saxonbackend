@@ -3,8 +3,6 @@ import jwt
 import json
 import smtplib
 from datetime import datetime
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
 from flask import Blueprint, jsonify, request
 from flask_restx import Resource, reqparse, cors
 from werkzeug.utils import secure_filename
@@ -65,13 +63,11 @@ class EnrollmentFile(Resource):
 
         if request_type == "member_submission":
             msg['subject'] = "Your Enrollment has been submitted"
-            msgtext = MIMEText('<p>**This is an auto-generated e-mail message.'
-                               ' Please do not reply to this message. **</p>'
-                               '<p>Dear %s</p>'
-                               '<p>Your Enrollment was submitted on %s. '
-                               'You will receive notification once your form has been processed</p>' % (
-                                   member_name, datetime.utcnow().strftime("%Y-%m-%d")),
-                               'html')
+            msgtext = '<p>**This is an auto-generated e-mail message.' + \
+                ' Please do not reply to this message. **</p>' + \
+                f'<p>Dear {member_name}/</p>' + \
+                f'<p>Your Enrollment was submitted on {datetime.utcnow().strftime("%Y-%m-%d")}. ' + \
+                f'You will receive notification once your form has been processed</p>'
 
             token_data.TokenStatus = "inactive"
             token_data.FormStatus = "submitted"

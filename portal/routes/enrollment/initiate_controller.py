@@ -3,8 +3,6 @@ import jwt
 import json
 import smtplib
 from datetime import datetime
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
 from flask import Blueprint, jsonify, request
 from flask_restx import Resource, reqparse, cors, fields
 from werkzeug.utils import secure_filename

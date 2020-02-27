@@ -1,4 +1,3 @@
-from email.mime.text import MIMEText
 import json
 
 from flask import Blueprint, jsonify, request, abort, current_app as app, Response
@@ -69,34 +68,19 @@ class UpdateUser(Resource):
                         user.PhoneNumber = phone_number
                         user.Password = password_enc
                         user.TemporaryPassword = True
-                        msgtext = MIMEText('<p>Your password has been reset. The temporary password is: %s</p>'
-                                           '<p>Please log into your system as soon as possible to set your new password.</p>'
-                                           % password, 'html')
+                        msgtext = f'<p>Your password has been reset. The temporary password is: {password}</p>' + \
+                                '<p>Please log into your system as soon as possible to set your new password.</p>'
+
                         subject = "Temporary Password for Saxon Portals"
 
-                        # cursor.execute('UPDATE Users set "DisplayName"=\'%s\','
-                        #                '"PhoneNumber"=\'%s\',"Email"=\'%s\','
-                        #                ' "Password"=\'%s\' WHERE "Username"=\'%s\'' % (
-                        #                    display_name, phone_number,
-                        #                    email, password, username))
                     else:
                         print("not password change")
                         user.DisplayName = display_name
                         user.Email = email
                         user.PhoneNumber = phone_number
-
-                        # cursor.execute(
-                        #     'UPDATE Users set "DisplayName"=\'%s\',"PhoneNumber"=\'%s\',"Email"=\'%s\','
-                        #     '"SessionDuration"=\'%s\' WHERE "Username"=\'%s\'' % (display_name, phone_number,
-                        #                                                           email, "30",
-                        #                                                           username))
                 else:
                     status = data["status"]
                     user.Status = str(status).upper()
-                #     cursor = conn.cursor()
-                #     cursor.execute(
-                #         'UPDATE Users set "Status"=\'%s\' WHERE "Username"=\'%s\'' % (status, username))
-                # conn.commit()
 
                 db.session.commit()
                 if msgtext is not None and subject is not None:
@@ -108,29 +92,19 @@ class UpdateUser(Resource):
 
                 is_password_change = data["passwordchange"]
 
-                # cursor = conn.cursor()
                 if is_password_change:
                     password = randomStringwithDigitsAndSymbols()
                     password_enc = Encryption().encrypt(password)
                     user.DisplayName = display_name
                     user.Email = email
                     user.Password = password_enc
-                    msgtext = MIMEText('<p>Your password has been reset. The temporary password is: %s</p>'
-                                       '<p>Please log into your system as soon as possible to set your new password.</p>'
-                                       % password, 'html')
+                    msgtext = f'<p>Your password has been reset. The temporary password is: {password}</p>' + \
+                            f'<p>Please log into your system as soon as possible to set your new password.</p>'
+
                     subject = "Temporary Password for Saxon Portals"
-                    # cursor.execute('UPDATE Users set "DisplayName"=\'%s\',"Email"=\'%s\','
-                    #                '"SessionDuration"=\'%s\', "Password"=\'%s\' WHERE "Username"=\'%s\'' % (
-                    #                    display_name,
-                    #                    email, session_expiry, password, username))
                 else:
                     user.DisplayName = display_name
                     user.Email = email
-                    # cursor.execute('UPDATE Users set "DisplayName"=\'%s\',"Email"=\'%s\','
-                    #                '"SessionDuration"=\'%s\' WHERE "Username"=\'%s\'' % (display_name,
-                    #                                                                      email, session_expiry,
-                    #                                                                      username))
-                    # conn.commit()
                 db.session.commit()
                 if msgtext is not None and subject is not None:
                     send_email(user.Email, subject=subject, body=msgtext)
