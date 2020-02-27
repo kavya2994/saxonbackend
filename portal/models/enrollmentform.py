@@ -14,6 +14,7 @@ class Enrollmentform(db.Model):
     Status = db.Column(db.String(255), nullable=True)
     FirstName = db.Column(db.String(255), nullable=True)
     MiddleName = db.Column(db.String(255), nullable=True)
+    MaidenName = db.Column(db.String(255), nullable=True)
     LastName = db.Column(db.String(255), nullable=True)
     DOB = db.Column(db.Date, nullable=True)
     Title = db.Column(db.String(255), nullable=True)
@@ -35,4 +36,5 @@ class Enrollmentform(db.Model):
     PendingFrom = db.Column(db.String(255), nullable=True)
     SpouseName = db.Column(db.String(255), nullable=True)
     SpouseDOB = db.Column(db.Date, nullable=True)
+    MemberID = db.Column(db.String(255), nullable=True)
     FilePath = db.Column(db.String(255), nullable=True)

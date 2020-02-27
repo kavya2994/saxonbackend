@@ -61,39 +61,77 @@ parser.add_argument('SignersName', type=str, location='json', required=False)
 parser.add_argument('Signature', type=str, location='json', required=False)
 parser.add_argument('RejectionReason', type=str, location='json', required=False)
 
-
+comments_model = ns.model('Comments', {
+    "Name": fields.String,
+    "Date": fields.String,
+    "Comment": fields.String
+})
+# response_model = ns.model('GetEnrollmentController', {
+#     'EmployerName': fields.String,
+#     'EmployerID': fields.String,
+#     'InitiatedDate': fields.DateTime,
+#     'AlreadyEnrolled': fields.String,
+#     'Status': fields.String,
+#     'FirstName': fields.String,
+#     'MiddleName': fields.String,
+#     'LastName': fields.String,
+#     'DOB': fields.String,
+#     'Title': fields.String,
+#     'MaritalStatus': fields.String,
+#     'MailingAddress': fields.String,
+#     'AddressLine2': fields.String,
+#     'District': fields.String,
+#     'PostalCode': fields.String,
+#     'Country': fields.String,
+#     'EmailAddress': fields.String,
+#     'Telephone': fields.String,
+#     'StartDateofContribution': fields.DateTime,
+#     'StartDateofEmployment': fields.DateTime,
+#     'ConfirmationStatus': fields.String,
+#     'SignersName': fields.String,
+#     'Signature': fields.String,
+#     'EstimatedAnnualIncomeRange': fields.String,
+#     'ImmigrationStatus': fields.String,
+#     'PendingFrom': fields.String,
+#     'SpouseName': fields.String,
+#     'SpouseDOB': fields.String,
+#     'FilePath': fields.String,
+# })
 
 response_model = ns.model('GetEnrollmentController', {
-    'EmployerName': fields.String,
-    'EmployerID': fields.String,
-    'InitiatedDate': fields.DateTime,
-    'AlreadyEnrolled': fields.String,
-    'Status': fields.String,
-    'FirstName': fields.String,
-    'MiddleName': fields.String,
-    'LastName': fields.String,
-    'DOB': fields.String,
-    'Title': fields.String,
-    'MaritalStatus': fields.String,
-    'MailingAddress': fields.String,
-    'AddressLine2': fields.String,
-    'District': fields.String,
-    'PostalCode': fields.String,
-    'Country': fields.String,
-    'EmailAddress': fields.String,
-    'Telephone': fields.String,
-    'StartDateofContribution': fields.DateTime,
-    'StartDateofEmployment': fields.DateTime,
-    'ConfirmationStatus': fields.String,
-    'SignersName': fields.String,
-    'Signature': fields.String,
-    'EstimatedAnnualIncomeRange': fields.String,
-    'ImmigrationStatus': fields.String,
-    'PendingFrom': fields.String,
-    'SpouseName': fields.String,
-    'SpouseDOB': fields.String,
-    'FilePath': fields.String,
+    "tokenID": fields.String,
+    "employername": fields.String,
+    "employernumber": fields.String,
+    "formType": fields.String,
+    "formCreatedDate": fields.String,
+    "isExistingMember": fields.Boolean,
+    "memberfirstName": fields.String,
+    "memberLastName": fields.String,
+    "title": fields.String,
+    "maidenName": fields.String,
+    "dob": fields.Date,
+    "address": fields.String,
+    "addressLine2": fields.String,
+    "district": fields.String,
+    "postalcode": fields.String,
+    "country": fields.String,
+    "email": fields.String,
+    "phoneNumber": fields.String,
+    "incomerange": fields.String,
+    "immigrationstatus": fields.String,
+    "comments": fields.List(fields.Nested(comments_model)),
+    "maritalstatus": fields.String,
+    "middlename": fields.String,
+    "status": fields.String,
+    "pendingFrom": fields.String,
+    "startemployment": fields.Date,
+    "startdate": fields.Date,
+    # file: File;
+    "spouse_name": fields.String,
+    "spouse_dob": fields.String,
+    "member_id": fields.String,
 })
+
 
 @ns.route("/token/<TokenID>")
 class EnrollmentController(Resource):
@@ -114,7 +152,49 @@ class EnrollmentController(Resource):
 
         try:
             enrollmentform = Enrollmentform.query.get(token.FormID)
-            return enrollmentform
+            comments = Comments.query.filter(Comments.FormID == token.FormID).order_by(
+                Comments.CommentsID.desc()).all()
+            comments_list = []
+            if enrollmentform is not None:
+                if comments is not None:
+                    for comment in comments:
+                        comments_list.append({
+                            "Name": comment.Name,
+                            "Date": comment.Date,
+                            "Comment": comment.Comment
+                        })
+            return {
+                       "tokenID": TokenID,
+                       "employername": enrollmentform.EmployerName,
+                       "employernumber": enrollmentform.EmployerID,
+                       "formType": 'Enrollment',
+                       "formCreatedDate": enrollmentform.InitiatedDate,
+                       "isExistingMember": enrollmentform.AlreadyEnrolled,
+                       "memberfirstName": enrollmentform.FirstName,
+                       "memberLastName": enrollmentform.LastName,
+                       "title": enrollmentform.Title,
+                       "maidenName": enrollmentform.MaidenName,
+                       "dob": enrollmentform.DOB,
+                       "address": enrollmentform.MailingAddress,
+                       "addressLine2": enrollmentform.AddressLine2,
+                       "district": enrollmentform.District,
+                       "postalcode": enrollmentform.PostalCode,
+                       "country": enrollmentform.Country,
+                       "email": enrollmentform.EmailAddress,
+                       "phoneNumber": enrollmentform.Telephone,
+                       "incomerange": enrollmentform.EstimatedAnnualIncomeRange,
+                       "immigrationstatus": enrollmentform.ImmigrationStatus,
+                       "comments": comments_list,
+                       "maritalstatus": enrollmentform.MaritalStatus,
+                       "middlename": enrollmentform.MiddleName,
+                       "status": enrollmentform.Status,
+                       "pendingFrom": enrollmentform.PendingFrom,
+                       "startemployment": enrollmentform.StartDateofEmployment,
+                       "startdate": enrollmentform.StartDateofContribution,
+                       "spouse_name": enrollmentform.SpouseName,
+                       "spouse_dob": enrollmentform.SpouseDOB,
+                       "member_id": enrollmentform.MemberID
+                   }, 200
         except Exception as e:
             LOG.warning('Unexpected error happened during handling enrollment: %s', e)
             raise InternalServerError()

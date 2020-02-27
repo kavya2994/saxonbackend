@@ -28,11 +28,11 @@ parser.add_argument('MemberFirstName', type=str, location='json', required=True)
 parser.add_argument('Comment', type=str, location='json', required=False)
 parser.add_argument('user', type=str, location='json', required=True)
 
-
 response_model = ns.model('PostEnrollmentInitiationController', {
     'result': fields.String,
     'TokenID': fields.String,
 })
+
 
 @ns.route("/initiate")
 class EnrollmentInitiationController(Resource):

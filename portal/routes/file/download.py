@@ -21,6 +21,8 @@ parser = reqparse.RequestParser()
 parser.add_argument('Authorization', type=str, location='headers', required=True)
 parser.add_argument('username', type=str, location='headers', required=True)
 parser.add_argument('Ipaddress', type=str, location='headers', required=True)
+parser.add_argument('requestfolder', type=str, location='json', required=True)
+parser.add_argument('path', type=str, location='json', required=True)
 
 
 @ns.route("/download")
