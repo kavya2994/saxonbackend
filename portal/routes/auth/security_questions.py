@@ -29,8 +29,7 @@ response_model = ns.model('GetSecurityQuestions', {
 
 @ns.route("/security-questions")
 class SecurityQuestions(Resource):
-    @ns.doc(parser=parser,
-            description='Get list of security questions',
+    @ns.doc(description='Get list of security questions',
             responses={
                 200: 'OK',
                 400: 'Bad Request',

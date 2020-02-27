@@ -22,8 +22,7 @@ response_model = ns.model('PostUpdateUser', {
 
 @ns.route("/user/update")
 class UpdateUser(Resource):
-    @ns.doc(parser=parser,
-            description='Update user data',
+    @ns.doc(description='Update user data',
             responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 500: 'Internal Server Error'})
     @ns.expect(parser, validate=True)
     @ns.marshal_with(response_model)

@@ -31,8 +31,7 @@ response_model = ns.model('GetGetMessages', {
 
 @ns.route("/get")
 class GetMessages(Resource):
-    @ns.doc(parser=parser,
-            description='Get profile details',
+    @ns.doc(description='Get profile details',
             responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 500: 'Internal Server Error'})
     @ns.expect(parser, validate=True)
     @ns.marshal_with(response_model)

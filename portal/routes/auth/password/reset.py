@@ -48,8 +48,7 @@ def _change_password(username, email, display_name):
 
 @ns.route("/password/reset")
 class PasswordReset(Resource):
-    @ns.doc(parser=parser,
-            description='Reset Password',
+    @ns.doc(description='Reset Password',
             responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 422: 'UnprocessableEntity',
                        500: 'Internal Server Error'})
     @ns.expect(parser, validate=True)

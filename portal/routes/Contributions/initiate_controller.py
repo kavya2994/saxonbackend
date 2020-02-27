@@ -35,8 +35,7 @@ response_model = ns.model('PostInitiateContribution', {
 
 @ns.route("/initiate")
 class InitiateContribution(Resource):
-    @ns.doc(parser=parser,
-            description='Generates and Excel sheet of members under employer',
+    @ns.doc(description='Generates and Excel sheet of members under employer',
             responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 500: 'Internal Server Error'})
     @ns.expect(parser, validate=True)
     @ns.marshal_with(response_model)

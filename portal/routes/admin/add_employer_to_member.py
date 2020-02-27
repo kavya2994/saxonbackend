@@ -31,8 +31,7 @@ response_model = ns.model('PostAddEmployerMemberRelation', {
 
 @ns.route("/addemployertomember")
 class AddEmployerMemberRelation(Resource):
-    @ns.doc(parser=parser,
-            description='Add employer to a member',
+    @ns.doc(description='Add employer to a member',
             responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 500: 'Internal Server Error'})
     @ns.expect(parser, validate=True)
     @ns.marshal_with(response_model)

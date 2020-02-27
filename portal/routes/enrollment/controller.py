@@ -97,8 +97,7 @@ response_model = ns.model('GetEnrollmentController', {
 
 @ns.route("/token/<TokenID>")
 class EnrollmentController(Resource):
-    @ns.doc(parser=getParser,
-            description='Get Enrollment Data by TokenID',
+    @ns.doc(description='Get Enrollment Data by TokenID',
             responses={
                 200: 'OK',
                 400: 'BadRequest',
@@ -120,8 +119,7 @@ class EnrollmentController(Resource):
             LOG.warning('Unexpected error happened during handling enrollment: %s', e)
             raise InternalServerError()
 
-    @ns.doc(parser=parser,
-            description='Update Enrollment Data by TokenID',
+    @ns.doc(description='Update Enrollment Data by TokenID',
             responses={
                 200: 'OK',
                 400: 'BadRequest',

@@ -20,8 +20,7 @@ parser.add_argument('Ipaddress', type=str, location='headers', required=True)
 
 @ns.route("/logout")
 class Logout(Resource):
-    @ns.doc(parser=parser,
-            description='Create New User',
+    @ns.doc(description='Create New User',
             responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 500: 'Internal Server Error'})
     @ns.expect(parser, validate=True)
     def post(self):

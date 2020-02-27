@@ -38,8 +38,7 @@ response_model = ns.model('GetGetContributions', {
 
 @ns.route("/get")
 class GetContributions(Resource):
-    @ns.doc(parser=parser,
-            description='Get all the contributions under an employer',
+    @ns.doc(description='Get all the contributions under an employer',
             responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 500: 'Internal Server Error'})
     @ns.expect(parser, validate=True)
     @ns.marshal_with(response_model)

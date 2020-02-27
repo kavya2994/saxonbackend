@@ -27,8 +27,7 @@ response_model = ns.model('PostDeleteEmployerMemberRelation', {
 
 @ns.route("/delemployertomember")
 class DeleteEmployerMemberRelation(Resource):
-    @ns.doc(parser=parser,
-            description='delete employer member relation',
+    @ns.doc(description='delete employer member relation',
             responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 500: 'Internal Server Error'})
     @ns.expect(parser, validate=True)
     @ns.marshal_with(response_model)

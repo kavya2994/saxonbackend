@@ -50,8 +50,7 @@ response_model = ns.model('PostTerminationInitiationController', {
 
 @ns.route("/initiate")
 class TerminationInitiationController(Resource):
-    @ns.doc(parser=parser,
-            description='Initiate Termination',
+    @ns.doc(description='Initiate Termination',
             responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 500: 'Internal Server Error'})
     @ns.expect(parser, validate=True)
     @ns.marshal_with(response_model)

@@ -26,8 +26,7 @@ parser.add_argument('employername', type=str, location='json', required=True)
 
 @ns.route("/build/excel")
 class BuildExcel(Resource):
-    @ns.doc(parser=parser,
-            description='Generates and Excel sheet of members under employer',
+    @ns.doc(description='Generates and Excel sheet of members under employer',
             responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 500: 'Internal Server Error'})
     @ns.expect(parser, validate=True)
     def post(self):

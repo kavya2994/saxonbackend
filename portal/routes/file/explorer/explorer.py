@@ -33,8 +33,7 @@ get_parser.add_argument('requestfolder', type=str, location='args', required=Tru
 
 @ns.route("/explorer")
 class FileExplorer(Resource):
-    @ns.doc(parser=get_parser,
-            description='File Explorer',
+    @ns.doc(description='File Explorer',
             responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 500: 'Internal Server Error'})
     @ns.expect(get_parser, validate=True)
     def get(self):
@@ -43,8 +42,7 @@ class FileExplorer(Resource):
         data = json.loads(str(request.data, encoding='utf-8'))
         return send_file(os.path.join(app.config['DATA_DIR'], data["requestfolder"])), 200
 
-    @ns.doc(parser=parser,
-            description='File Explorer',
+    @ns.doc(description='File Explorer',
             responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 500: 'Internal Server Error'})
     @ns.expect(parser, validate=True)
     def post(self):

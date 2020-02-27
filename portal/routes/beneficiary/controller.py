@@ -65,8 +65,7 @@ response_model_ok = ns.model('DeleteBeneficiaryFormController', {
 
 @ns.route("/form/<FormID>")
 class BeneficiaryFormController(Resource):
-    @ns.doc(parser=parser,
-            description='Get Beneficiary',
+    @ns.doc(description='Get Beneficiary',
             responses={
                 200: 'OK',
                 401: 'Unauthorized',
@@ -85,8 +84,7 @@ class BeneficiaryFormController(Resource):
         beneficiaries = Beneficiary.query.filter_by(EnrollmentformID=FormID).all()
         return beneficiaries
 
-    @ns.doc(parser=postParser,
-            description='Add New Beneficiary',
+    @ns.doc(description='Add New Beneficiary',
             responses={
                 200: 'OK',
                 404: 'BadRequest',
@@ -132,8 +130,7 @@ class BeneficiaryFormController(Resource):
 
         return Beneficiary.query.filter_by(EnrollmentformID=FormID).all()
 
-    @ns.doc(parser=deleteParser,
-            description='Delete A Beneficiary',
+    @ns.doc(description='Delete A Beneficiary',
             responses={
                 200: 'OK',
                 400: 'BadRequest',

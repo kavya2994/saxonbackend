@@ -40,8 +40,7 @@ post_response_model = ns.model('PostSecurityQuestion', {
 
 @ns.route("/security-question")
 class SecurityQuestion(Resource):
-    @ns.doc(parser=getParser,
-            description='Get security question of a user',
+    @ns.doc(description='Get security question of a user',
             responses={
                 200: 'OK',
                 400: 'Bad Request',
@@ -63,8 +62,7 @@ class SecurityQuestion(Resource):
                    "Email": user.Email
                }, 200
 
-    @ns.doc(parser=postParser,
-            description='Set Security Question',
+    @ns.doc(description='Set Security Question',
             responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 500: 'Internal Server Error'})
     @ns.expect(postParser, validate=True)
     @ns.marshal_with(post_response_model)

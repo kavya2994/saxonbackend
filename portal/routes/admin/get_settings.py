@@ -34,8 +34,7 @@ response_model = ns.model('GetGetSettings', {
 
 @ns.route("/settings/get")
 class GetSettings(Resource):
-    @ns.doc(parser=parser,
-            description='Add settings',
+    @ns.doc(description='Add settings',
             responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 500: 'Internal Server Error'})
     @ns.expect(parser, validate=True)
     @ns.marshal_with(response_model)

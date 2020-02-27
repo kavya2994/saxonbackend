@@ -55,8 +55,7 @@ response_model = ns.model('GetSimpleEnrollmentController', {
 
 @ns.route("/<FormID>")
 class SimpleEnrollmentController(Resource):
-    @ns.doc(parser=parser,
-        description='Get Enrollment Data by FormID',
+    @ns.doc(description='Get Enrollment Data by FormID',
         responses={
             200: 'OK',
             401: 'Unauthorized',

@@ -64,8 +64,7 @@ response_model = ns.model('GetSearch', {
 
 @ns.route("/search")
 class Search(Resource):
-    @ns.doc(parser=parser,
-            description='search functionality',
+    @ns.doc(description='search functionality',
             responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 500: 'Internal Server Error'})
     @ns.expect(parser, validate=True)
     def post(self):

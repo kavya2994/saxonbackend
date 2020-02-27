@@ -33,8 +33,7 @@ response_model = ns.model('GetLogin', {
 
 @ns.route('/login')
 class Login(Resource):
-    @ns.doc(parser=parser,
-            description='Login',
+    @ns.doc(description='Login',
             responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 500: 'Internal Server Error'})
     @ns.expect(parser, validate=True)
     @ns.marshal_with(response_model)
