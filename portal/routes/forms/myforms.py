@@ -63,7 +63,7 @@ class MyForms(Resource):
                 forms_data.append({
                     "Token": tokens_data.TokenID,
                     "EmployerID": tokens_data.EmployerID,
-                    "MemberName": enrollments.MemberName,
+                    "MemberName": enrollments.FirstName if enrollments.FirstName is not None else "" + " " + enrollments.MiddleName if enrollments.MiddleName is not None else "" + " " + enrollments.LastName if enrollments.LastName is not None else "",
                     "FormType": tokens_data.FormType,
                     "FormStatus": tokens_data.FormStatus,
                     "LastModifiedDate": tokens_data.LastModifiedDate
@@ -115,7 +115,7 @@ class MyForms(Resource):
                 forms_data.append({
                     "Token": tokens_data.TokenID,
                     "EmployerID": tokens_data.EmployerID,
-                    "MemberName": enrollments.MemberName,
+                    "MemberName": enrollments.FirstName if enrollments.FirstName is not None else "" + " " + enrollments.MiddleName if enrollments.MiddleName is not None else "" + " " + enrollments.LastName if enrollments.LastName is not None else "",
                     "FormType": tokens_data.FormType,
                     "FormStatus": tokens_data.FormStatus,
                     "LastModifiedDate": tokens_data.LastModifiedDate

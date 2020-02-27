@@ -89,7 +89,7 @@ class BeneficiaryFormController(Resource):
             description='Add New Beneficiary',
             responses={
                 200: 'OK',
-                404: 'BadRequest',
+                400: 'BadRequest',
                 401: 'Unauthorized',
                 404: 'NotFound',
                 500: 'Internal Server Error'

@@ -26,9 +26,11 @@ response_model_child = ns.model('GetGetContributionsChild', {
     "FormID": fields.String,
     "EmployerID": fields.String,
     "FormType": fields.String,
+    "StartDate": fields.String,
+    "EndDate": fields.String,
     "FormStatus": fields.String,
     "LastModifiedDate": fields.DateTime,
-    "FilePath": fields.String
+    "FileName": fields.String
 })
 
 response_model = ns.model('GetGetContributions', {
@@ -62,9 +64,11 @@ class GetContributions(Resource):
                 "FormID": contributions.FormID,
                 "EmployerID": contributions.EmployerID,
                 "FormType": "Contribution",
+                "StartDate": contributions.StartDate,
+                "EndDate": contributions.EndDate,
                 "FormStatus": contributions.Status,
                 "LastModifiedDate": contributions.LastModifiedDate,
-                "FilePath": contributions.FilePath
+                "FileName": str(contributions.FilePath).split("\\")[len(str(contributions.FilePath).split("\\")) - 1] if contributions.FilePath is not None else ""
             })
 
         return {"contributions": forms_data}, 200
