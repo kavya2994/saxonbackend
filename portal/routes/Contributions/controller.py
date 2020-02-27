@@ -49,7 +49,11 @@ response_model = ns.model('PostInitiateContribution', {
     'error': fields.String,
     'result': fields.String,
 })
-
+comments_model = ns.model('Comments', {
+    "Name": fields.String,
+    "Date": fields.String,
+    "Comment": fields.String
+})
 get_response_model = ns.model('GetGetContributionsChild', {
     "FormID": fields.String,
     "EmployerID": fields.String,
@@ -60,7 +64,8 @@ get_response_model = ns.model('GetGetContributionsChild', {
     "EndDate": fields.String,
     "FormStatus": fields.String,
     "LastModifiedDate": fields.DateTime,
-    "FileName": fields.String
+    "FileName": fields.String,
+    "comments": fields.List(fields.Nested(comments_model))
 })
 
 
@@ -84,7 +89,16 @@ class ContributionController(Resource):
             return Unauthorized()
 
         contributions = Contributionform.query.filter_by(FormID=FormID).first()
+        comments = Comments.query.filter_by(FormID=FormID).all()
+        comments_list = []
         if contributions is not None:
+            if comments is not None:
+                for comment in comments:
+                    comments_list.append({
+                        "Name": comment.Name,
+                        "Date": comment.Date,
+                        "Comment": comment.Comment
+                    })
             return {
                        "FormID": contributions.FormID,
                        "EmployerID": contributions.EmployerID,
@@ -97,7 +111,8 @@ class ContributionController(Resource):
                        "LastModifiedDate": contributions.LastModifiedDate,
                        "FileName": str(contributions.FilePath).split("\\")[
                            len(str(contributions.FilePath).split(
-                               "\\")) - 1] if contributions.FilePath is not None else ""
+                               "\\")) - 1] if contributions.FilePath is not None else "",
+                       "comments": comments_list
                    }, 200
         else:
             raise UnprocessableEntity("No contribution found with the requested Form data")
@@ -221,9 +236,3 @@ class ContributionController(Resource):
                             raise UnprocessableEntity("Can't find file")
                     else:
                         raise UnprocessableEntity("Can't find filename")
-
-
-
-
-
-

@@ -41,4 +41,4 @@ class FileDownload(Resource):
         path_ = os.path.join(app.config['DATA_DIR'], data["requestfolder"])
         paths = list(data["path"])
         print(paths)
-        return send_file(os.path.join(path_, paths[0])), 200
+        return send_file(os.path.join(path_, paths[0]))

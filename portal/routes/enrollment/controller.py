@@ -163,38 +163,40 @@ class EnrollmentController(Resource):
                             "Date": comment.Date,
                             "Comment": comment.Comment
                         })
-            return {
-                       "tokenID": TokenID,
-                       "employername": enrollmentform.EmployerName,
-                       "employernumber": enrollmentform.EmployerID,
-                       "formType": 'Enrollment',
-                       "formCreatedDate": enrollmentform.InitiatedDate,
-                       "isExistingMember": enrollmentform.AlreadyEnrolled,
-                       "memberfirstName": enrollmentform.FirstName,
-                       "memberLastName": enrollmentform.LastName,
-                       "title": enrollmentform.Title,
-                       "maidenName": enrollmentform.MaidenName,
-                       "dob": enrollmentform.DOB,
-                       "address": enrollmentform.MailingAddress,
-                       "addressLine2": enrollmentform.AddressLine2,
-                       "district": enrollmentform.District,
-                       "postalcode": enrollmentform.PostalCode,
-                       "country": enrollmentform.Country,
-                       "email": enrollmentform.EmailAddress,
-                       "phoneNumber": enrollmentform.Telephone,
-                       "incomerange": enrollmentform.EstimatedAnnualIncomeRange,
-                       "immigrationstatus": enrollmentform.ImmigrationStatus,
-                       "comments": comments_list,
-                       "maritalstatus": enrollmentform.MaritalStatus,
-                       "middlename": enrollmentform.MiddleName,
-                       "status": enrollmentform.Status,
-                       "pendingFrom": enrollmentform.PendingFrom,
-                       "startemployment": enrollmentform.StartDateofEmployment,
-                       "startdate": enrollmentform.StartDateofContribution,
-                       "spouse_name": enrollmentform.SpouseName,
-                       "spouse_dob": enrollmentform.SpouseDOB,
-                       "member_id": enrollmentform.MemberID
-                   }, 200
+                return {
+                           "tokenID": TokenID,
+                           "employername": enrollmentform.EmployerName,
+                           "employernumber": enrollmentform.EmployerID,
+                           "formType": 'Enrollment',
+                           "formCreatedDate": enrollmentform.InitiatedDate,
+                           "isExistingMember": enrollmentform.AlreadyEnrolled,
+                           "memberfirstName": enrollmentform.FirstName,
+                           "memberLastName": enrollmentform.LastName,
+                           "title": enrollmentform.Title,
+                           "maidenName": enrollmentform.MaidenName,
+                           "dob": enrollmentform.DOB,
+                           "address": enrollmentform.MailingAddress,
+                           "addressLine2": enrollmentform.AddressLine2,
+                           "district": enrollmentform.District,
+                           "postalcode": enrollmentform.PostalCode,
+                           "country": enrollmentform.Country,
+                           "email": enrollmentform.EmailAddress,
+                           "phoneNumber": enrollmentform.Telephone,
+                           "incomerange": enrollmentform.EstimatedAnnualIncomeRange,
+                           "immigrationstatus": enrollmentform.ImmigrationStatus,
+                           "comments": comments_list,
+                           "maritalstatus": enrollmentform.MaritalStatus,
+                           "middlename": enrollmentform.MiddleName,
+                           "status": enrollmentform.Status,
+                           "pendingFrom": enrollmentform.PendingFrom,
+                           "startemployment": enrollmentform.StartDateofEmployment,
+                           "startdate": enrollmentform.StartDateofContribution,
+                           "spouse_name": enrollmentform.SpouseName,
+                           "spouse_dob": enrollmentform.SpouseDOB,
+                           "member_id": enrollmentform.MemberID
+                       }, 200
+            else:
+                raise UnprocessableEntity("Can't find enrollment form")
         except Exception as e:
             LOG.warning('Unexpected error happened during handling enrollment: %s', e)
             raise InternalServerError()
