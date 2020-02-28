@@ -52,6 +52,8 @@ class BuildExcel(Resource):
         # empuser = db1.collection("members").where("employers", "array_contains",
         #                                           db1.collection("employers").document(employer_username)).stream()
         employer_data = EmployerView.query.filter_by(ERNO=employer_username).first()
+        if employer_data is None:
+            raise UnprocessableEntity("Can't find employer", employer_username)
         member_data = MemberView.query.filter_by(EMPOYER=employer_data.SNAME).all()
         i = 16
         for doc in member_data:

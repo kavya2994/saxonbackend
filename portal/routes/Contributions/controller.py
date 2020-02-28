@@ -32,7 +32,7 @@ post_parser.add_argument('username', type=str, location='headers', required=True
 post_parser.add_argument('Ipaddress', type=str, location='headers', required=True)
 post_parser.add_argument('Comment', type=str, location='form', required=False)
 post_parser.add_argument('CommentName', type=str, location='form', required=False)
-post_parser.add_argument("request_type", type=str, location='form', required=False)
+post_parser.add_argument("request_type", type=str, location='form', required=True)
 post_parser.add_argument("filename", type=str, location='form', required=False)
 post_parser.add_argument('employerusername', type=str, location='form', required=False)
 post_parser.add_argument('employername', type=str, location='form', required=False)
@@ -131,6 +131,7 @@ class ContributionController(Resource):
 
         contribution = Contributionform.query.filter_by(FormID=FormID).first()
         initiation_date = datetime.utcnow()
+        print(args["request_type"], "request_type")
         if contribution is not None:
             if args["request_type"] == RequestType_SaveFormData:
                 if decode_token["role"] == roles.ROLES_EMPLOYER:
@@ -147,14 +148,16 @@ class ContributionController(Resource):
                     return {"result": "Success"}, 200
                 elif decode_token["role"] == roles.ROLES_REVIEW_MANAGER:
                     path = APP.config['DATA_DIR']
-                    file = request.files['file']
                     startdate = args["startDate"]
                     enddate = args["endDate"]
+                    print(startdate)
+                    print(enddate)
                     start_date = datetime.strptime(startdate, "%a %b %d %Y")
                     end_date = datetime.strptime(enddate, "%a %b %d %Y")
-                    userid = request.form["employerusername"]
-                    employer_name = request.form["employername"]
+                    userid = args["employerusername"]
+                    employer_name = args["employername"]
                     if 'file' in request.files:
+                        file = request.files['file']
                         filename = secure_filename(file.filename)
                         print(filename)
                         path = os.path.join(path, "Employers")
@@ -175,19 +178,33 @@ class ContributionController(Resource):
                     contribution.EndDate = end_date
                     contribution.LastModifiedDate = initiation_date
                     db.session.commit()
+                    if 'Comment' in args and args['Comment'] != '':
+                        comment = Comments(
+                            FormID=FormID,
+                            Name=args['CommentName'],
+                            Role=roles.ROLES_EMPLOYER,
+                            Comment=args['Comment'],
+                            Date=initiation_date,
+                        )
+                        db.session.add(comment)
+                        db.session.commit()
                 else:
                     raise Unauthorized()
             elif args["request_type"] == RequestType_ApprovalConfirmation:
                 if decode_token["role"] == roles.ROLES_REVIEW_MANAGER:
+                    print("in approval")
                     path = APP.config['DATA_DIR']
-                    file = request.files['file']
                     startdate = args["startDate"]
                     enddate = args["endDate"]
+                    print(startdate)
+                    print(enddate)
                     start_date = datetime.strptime(startdate, "%a %b %d %Y")
                     end_date = datetime.strptime(enddate, "%a %b %d %Y")
                     userid = request.form["employerusername"]
-                    if contribution.FilePath is not None:
+                    print(contribution.FilePath)
+                    if contribution.FilePath is None:
                         if 'file' in request.files:
+                            file = request.files['file']
                             filename = secure_filename(file.filename)
                             print(filename)
                             path = os.path.join(path, "Employers")
@@ -227,12 +244,18 @@ class ContributionController(Resource):
                 else:
                     raise Unauthorized()
             elif args["request_type"] == RequestType_Delete:
-                if decode_token["role"] == roles.ROLES_REVIEW_MANAGER:
-                    file_path = contribution.FilePath
-                    if file_path is not None:
-                        if os.path.exists(file_path):
-                            os.remove(file_path)
-                        else:
-                            raise UnprocessableEntity("Can't find file")
+                if not decode_token["role"] == roles.ROLES_REVIEW_MANAGER:
+                    raise Unauthorized()
+                file_path = contribution.FilePath
+                if file_path is not None:
+                    if os.path.exists(file_path):
+                        os.remove(file_path)
+                        contribution.FilePath = None
+                        db.session.commit()
                     else:
-                        raise UnprocessableEntity("Can't find filename")
+                        raise UnprocessableEntity("Can't find file")
+                else:
+                    raise UnprocessableEntity("Can't find filename")
+            else:
+                raise BadRequest()
+            return RESPONSE_OK
