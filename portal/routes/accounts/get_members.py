@@ -90,6 +90,6 @@ class GetMembers(Resource):
             return {"members": member_list}, 200
         except Exception as e:
             LOG.error(e)
-            raise InternalServerError("Can't ")
+            raise InternalServerError("Can't get members")
 
 

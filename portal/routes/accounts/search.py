@@ -27,7 +27,7 @@ parser.add_argument('status', type=str, location='json', required=False)
 parser.add_argument('email', type=str, location='json', required=False)
 parser.add_argument('key', type=str, location='json', required=False)
 parser.add_argument('role', type=str, location='json', required=False)
-
+parser.add_argument('offset', type=int, location='json', required=True)
 
 response_model_members = ns.model('GetSearchMembers', {
     'MKEY': fields.String,
@@ -35,10 +35,10 @@ response_model_members = ns.model('GetSearchMembers', {
     'FNAME': fields.String,
     'LNAME': fields.String,
     'EMAIL': fields.String,
-    'BIRTH': fields.String,
-    'ENTRY_DATE': fields.String,
-    'NR_DATE': fields.String,
-    'HIRE': fields.String,
+    'BIRTH': fields.Date,
+    'ENTRY_DATE': fields.Date,
+    'NR_DATE': fields.Date,
+    'HIRE': fields.Date,
     'PSTATUS': fields.String,
     'EMPOYER': fields.String,
     'STREET1': fields.String,
@@ -62,6 +62,7 @@ response_model = ns.model('GetSearch', {
     'employers': fields.List(fields.Nested(response_model_employers)),
 })
 
+
 @ns.route("/search")
 class Search(Resource):
     @ns.doc(description='search functionality',
@@ -73,7 +74,7 @@ class Search(Resource):
         token = args["Authorization"]
         ip = args['Ipaddress']
         decoded_token = token_verify_or_raise(token, username, ip)
-
+        offset_ = args["offset"]
         if decoded_token["role"] not in [roles.ROLES_ADMIN, roles.ROLES_REVIEW_MANAGER, roles.ROLES_EMPLOYER]:
             raise Unauthorized()
         args_list = ["ID", "name", "user", "status", "email", "key", "employerusername"]
@@ -94,12 +95,13 @@ class Search(Resource):
                 if employer_ is not None:
                     employer_sname = employer_.SNAME
             try:
-                members = MemberView.query.filter(MemberView.MKEY.like("%" + args_dict["ID"] + "%"),
+                members = MemberView.query.filter(MemberView.MEMNO.like("%" + args_dict["ID"] + "%"),
                                                   or_(MemberView.FNAME.like("%" + args_dict["name"] + "%"),
                                                       MemberView.LNAME.like("%" + args_dict["name"] + "%")),
                                                   MemberView.EMAIL.like("%" + args_dict["email"] + "%"),
                                                   MemberView.PSTATUS.like("%" + args_dict["status"] + "%"),
-                                                  MemberView.EMPOYER.like("%" + employer_sname + "%")).all()
+                                                  MemberView.EMPOYER.like("%" + employer_sname + "%"))\
+                                                    .offset(offset_).limit(25).all()
                 if members is not None:
                     member_list = []
                     for mem in members:
@@ -125,7 +127,7 @@ class Search(Resource):
 
                     return {"members": member_list}, 200
                 else:
-                    return {}, 200
+                    return {"members": []}, 200
             except Exception as e:
                 LOG.error(e)
                 raise InternalServerError("Can't retrieve members")
@@ -135,7 +137,7 @@ class Search(Resource):
                                                       EmployerView.ERKEY.like("%" + args_dict["key"] + "%"),
                                                       EmployerView.ERNO.like("%" + args_dict["employerusername"] + "%"),
                                                       EmployerView.ENAME.like("%" + args_dict["name"] + "%")
-                                                      ).all()
+                                                      ).offset(offset_).limit(25).all()
                 employer_list = []
                 if employers is not None:
                     for emp in employers:
@@ -154,6 +156,3 @@ class Search(Resource):
                 raise InternalServerError("Can't retrieve employers")
         else:
             raise UnprocessableEntity()
-
-
-
