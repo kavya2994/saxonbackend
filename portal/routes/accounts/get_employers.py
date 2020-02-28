@@ -50,21 +50,26 @@ class GetEmployers(Resource):
 
         if decoded_token["role"] not in [roles.ROLES_ADMIN, roles.ROLES_REVIEW_MANAGER]:
             raise Unauthorized()
+
+        employer_list = []
+        employers = None
+
         try:
+            LOG.info('GetEmployers: fetching EmployerView, offset: %s, limit: 50', offset)
             employers = EmployerView.query.offset(offset).limit(50).all()
-            employer_list = []
-            if employers is not None:
-                for emp in employers:
-                    employer_list.append({
-                        'ERKEY': emp.ERKEY,
-                        'ERNO': emp.ERNO,
-                        'ENAME': emp.ENAME,
-                        'SNAME': emp.SNAME,
-                        'EMAIL': emp.EMAIL
-                    })
-                return {"employers": employer_list}, 200
-            else:
-                return {"employers": []}, 200
+            LOG.info('GetEmployers: finished fetching EmployerView. Got %s result', len(employers))
         except Exception as e:
             LOG.error(e)
             raise InternalServerError('Error while fetching employers')
+
+        if employers is not None:
+            for emp in employers:
+                employer_list.append({
+                    'ERKEY': emp.ERKEY,
+                    'ERNO': emp.ERNO,
+                    'ENAME': emp.ENAME,
+                    'SNAME': emp.SNAME,
+                    'EMAIL': emp.EMAIL
+                })
+
+        return {"employers": employer_list}, 200
