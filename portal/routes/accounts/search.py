@@ -29,7 +29,7 @@ parser.add_argument('key', type=str, location='json', required=False)
 parser.add_argument('role', type=str, location='json', required=False)
 parser.add_argument('offset', type=int, location='json', required=True)
 
-response_model_members = ns.model('GetSearchMembers', {
+response_model_members = {
     'MKEY': fields.String,
     'MEMNO': fields.String,
     'FNAME': fields.String,
@@ -47,7 +47,7 @@ response_model_members = ns.model('GetSearchMembers', {
     'COUNTRY': fields.String,
     'BEN_NAMES': fields.String,
     'RELNAME': fields.String,
-})
+}
 
 response_model_employers = ns.model('GetSearchEmployers', {
     'ERKEY': fields.String,
@@ -124,7 +124,7 @@ class Search(Resource):
                             'BEN_NAMES': mem.BEN_NAMES,
                             'RELNAME': mem.RELNAME
                         })
-
+                    print(member_list)
                     return {"members": member_list}
                 else:
                     return {"members": []}
