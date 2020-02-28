@@ -3,7 +3,7 @@ from datetime import datetime
 from flask import Blueprint, jsonify, request
 from flask_restx import Resource, reqparse, inputs, fields
 from werkzeug.exceptions import NotFound, BadRequest, Unauthorized, UnprocessableEntity, InternalServerError
-from ...helpers import token_verify_or_raise, RESPONSE_OK
+from ...helpers import token_verify_or_raise, RESPONSE_OK, converter
 from ...models import db, status, roles
 from ...models.terminationform import Terminationform
 from ...models.token import Token, TOKEN_FORMTYPE_TERMINATION
@@ -27,11 +27,11 @@ comments_response = ns.model('GetGetTerminationComments', {
 response_model = ns.model('GetGetTermination', {
     "EmployerName": fields.String,
     "EmployerID": fields.String,
-    "InitiatedDate": fields.DateTime,
+    "InitiatedDate": fields.String,
     "MemberName": fields.String,
     "MemberNumber": fields.String,
     "EmailAddress": fields.String,
-    "FinalDateOfEmployment": fields.DateTime,
+    "FinalDateOfEmployment": fields.String,
     "ReasonforTermination": fields.String,
     "LastDeduction": fields.String,
     "Address": fields.String,
@@ -56,7 +56,9 @@ class GetTermination(Resource):
     def get(self, TokenID):
         args = parser.parse_args()
         print(TokenID)
-        # decode_token = token_verify_or_raise(token=args['Authorization'], ip=args['Ipaddress'], user=args['username'])
+        decode_token = token_verify_or_raise(token=args['Authorization'], ip=args['Ipaddress'], user=args['username'])
+        if not decode_token["role"] in [ROLES_EMPLOYER, ROLES_REVIEW_MANAGER]:
+            raise Unauthorized()
         token_data = Token.query.filter_by(TokenID=TokenID).first()
         if token_data is not None and token_data.TokenStatus == status.STATUS_ACTIVE:
             termination_form = Terminationform.query.filter_by(FormID=token_data.FormID).first()
@@ -71,7 +73,7 @@ class GetTermination(Resource):
                             "Comment": comment.Comment
                         })
 
-                return {
+                return json.dumps({
                     "EmployerName": termination_form.EmployerName,
                     "EmployerID": termination_form.EmployerID,
                     "InitiatedDate": termination_form.InitiatedDate,
@@ -91,6 +93,6 @@ class GetTermination(Resource):
                     "PendingFrom": termination_form.PendingFrom,
                     "PhoneNumber": termination_form.PhoneNumber,
                     "Comment": comments_list
-                }, 200
+                }, default=converter)
         else:
             raise UnprocessableEntity('Invalid token')

@@ -29,25 +29,16 @@ parser.add_argument('key', type=str, location='json', required=False)
 parser.add_argument('role', type=str, location='json', required=False)
 parser.add_argument('offset', type=int, location='json', required=True)
 
-response_model_members = {
+response_model_members = ns.model('GetSearchMembers', {
     'MKEY': fields.String,
     'MEMNO': fields.String,
     'FNAME': fields.String,
     'LNAME': fields.String,
     'EMAIL': fields.String,
-    'BIRTH': fields.String,
-    'ENTRY_DATE': fields.String,
-    'NR_DATE': fields.String,
-    'HIRE': fields.String,
     'PSTATUS': fields.String,
-    'EMPOYER': fields.String,
-    'STREET1': fields.String,
     'EM_STATUS': fields.String,
-    'CITY': fields.String,
-    'COUNTRY': fields.String,
-    'BEN_NAMES': fields.String,
-    'RELNAME': fields.String,
-}
+
+})
 
 response_model_employers = ns.model('GetSearchEmployers', {
     'ERKEY': fields.String,
@@ -100,8 +91,8 @@ class Search(Resource):
                                                       MemberView.LNAME.like("%" + args_dict["name"] + "%")),
                                                   MemberView.EMAIL.like("%" + args_dict["email"] + "%"),
                                                   MemberView.PSTATUS.like("%" + args_dict["status"] + "%"),
-                                                  MemberView.EMPOYER.like("%" + employer_sname + "%"))\
-                                                    .offset(offset_).limit(25).all()
+                                                  MemberView.EMPOYER.like("%" + employer_sname + "%")) \
+                    .offset(offset_).limit(25).all()
                 if members is not None:
                     member_list = []
                     for mem in members:
@@ -111,18 +102,8 @@ class Search(Resource):
                             'FNAME': mem.FNAME,
                             'LNAME': mem.LNAME,
                             'EMAIL': mem.EMAIL,
-                            'BIRTH': mem.BIRTH,
-                            'ENTRY_DATE': mem.ENTRY_DATE,
-                            'NR_DATE': mem.NR_DATE,
-                            'HIRE': mem.HIRE,
                             'PSTATUS': mem.PSTATUS,
-                            'EMPOYER': mem.EMPOYER,
-                            'STREET1': mem.STREET1,
-                            'EM_STATUS': mem.EM_STATUS,
-                            'CITY': mem.CITY,
-                            'COUNTRY': mem.COUNTRY,
-                            'BEN_NAMES': mem.BEN_NAMES,
-                            'RELNAME': mem.RELNAME
+                            'EM_STATUS': mem.EM_STATUS
                         })
                     # print(member_list)
                     return json.dumps({"members": member_list}, default=converter)

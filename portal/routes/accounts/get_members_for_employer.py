@@ -25,18 +25,8 @@ response_model_child = ns.model('GetGetMembersChild', {
     'FNAME': fields.String,
     'LNAME': fields.String,
     'EMAIL': fields.String,
-    'BIRTH': fields.String,
-    'ENTRY_DATE': fields.String,
-    'NR_DATE': fields.String,
-    'HIRE': fields.String,
     'PSTATUS': fields.String,
-    'EMPOYER': fields.String,
-    'STREET1': fields.String,
-    'EM_STATUS': fields.String,
-    'CITY': fields.String,
-    'COUNTRY': fields.String,
-    'BEN_NAMES': fields.String,
-    'RELNAME': fields.String
+    'EM_STATUS': fields.String
 })
 
 response_model = ns.model('GetGetMembers', {
@@ -77,18 +67,8 @@ class GetMembersForEmployer(Resource):
                     'FNAME': mem.FNAME,
                     'LNAME': mem.LNAME,
                     'EMAIL': mem.EMAIL,
-                    'BIRTH': mem.BIRTH,
-                    'ENTRY_DATE': mem.ENTRY_DATE,
-                    'NR_DATE': mem.NR_DATE,
-                    'HIRE': mem.HIRE,
                     'PSTATUS': mem.PSTATUS,
-                    'EMPOYER': mem.EMPOYER,
-                    'STREET1': mem.STREET1,
-                    'EM_STATUS': mem.EM_STATUS,
-                    'CITY': mem.CITY,
-                    'COUNTRY': mem.COUNTRY,
-                    'BEN_NAMES': mem.BEN_NAMES,
-                    'RELNAME': mem.RELNAME
+                    'EM_STATUS': mem.EM_STATUS
                 })
             return {"members": member_list}, 200
         except Exception as e:

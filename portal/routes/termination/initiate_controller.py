@@ -58,10 +58,10 @@ class TerminationInitiationController(Resource):
         args = parser.parse_args()
         auth = token_verify_or_raise(token=args['Authorization'], ip=args['Ipaddress'], user=args['username'])
 
-        if auth['role'] != ROLES_EMPLOYER:
+        if auth['role'] == ROLES_MEMBER or auth['role'] == '':
             raise Unauthorized()
 
-        employer_username = auth['username']
+        intiated_by = auth['username']
         initiation_date = datetime.utcnow()
         data = json.loads(str(request.data, encoding='utf-8'))
         print(data)
@@ -76,7 +76,7 @@ class TerminationInitiationController(Resource):
 
         form = Terminationform(
             EmployerName=employer_name,
-            EmployerID=employernumber,
+            EmployerID=employer_id,
             InitiatedDate=initiation_date,
             MemberName=args['MemberName'],
             MemberNumber=args['MemberNumber'],
@@ -91,8 +91,8 @@ class TerminationInitiationController(Resource):
 
         token = Token(
             FormID=form.FormID,
-            EmployerID=employernumber,
-            InitiatedBy=employer_id,
+            EmployerID=employer_id,
+            InitiatedBy=intiated_by,
             InitiatedDate=initiation_date,
             FormStatus=status.STATUS_PENDING,
             FormType=TOKEN_FORMTYPE_TERMINATION,
