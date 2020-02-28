@@ -106,7 +106,7 @@ class Search(Resource):
                             'EM_STATUS': mem.EM_STATUS
                         })
                     # print(member_list)
-                    return json.dumps({"members": member_list}, default=converter)
+                    return {"members": member_list}
                 else:
                     return {"members": []}
             except Exception as e:
