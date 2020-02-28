@@ -5,7 +5,7 @@ from flask import Blueprint, jsonify, request, abort, current_app as app
 from flask_restx import Resource, reqparse, fields
 from sqlalchemy import or_
 
-from ...helpers import randomStringwithDigitsAndSymbols, token_verify, token_verify_or_raise
+from ...helpers import randomStringwithDigitsAndSymbols, token_verify, token_verify_or_raise, converter
 from ...encryption import Encryption
 from ...models import db, status, roles
 from ...models.member_view import MemberView
@@ -35,10 +35,10 @@ response_model_members = {
     'FNAME': fields.String,
     'LNAME': fields.String,
     'EMAIL': fields.String,
-    'BIRTH': fields.DateTime,
-    'ENTRY_DATE': fields.DateTime,
-    'NR_DATE': fields.DateTime,
-    'HIRE': fields.DateTime,
+    'BIRTH': fields.String,
+    'ENTRY_DATE': fields.String,
+    'NR_DATE': fields.String,
+    'HIRE': fields.String,
     'PSTATUS': fields.String,
     'EMPOYER': fields.String,
     'STREET1': fields.String,
@@ -124,8 +124,8 @@ class Search(Resource):
                             'BEN_NAMES': mem.BEN_NAMES,
                             'RELNAME': mem.RELNAME
                         })
-                    print(member_list)
-                    return {"members": member_list}
+                    # print(member_list)
+                    return json.dumps({"members": member_list}, default=converter)
                 else:
                     return {"members": []}
             except Exception as e:

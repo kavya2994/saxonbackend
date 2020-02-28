@@ -4,7 +4,7 @@ import time
 import uuid
 import random
 import string
-
+from datetime import datetime
 from flask import current_app as app
 from datetime import timedelta
 from werkzeug.exceptions import Unauthorized
@@ -22,6 +22,11 @@ def delete_excel(filename):
     time.sleep(5)  # ??!!
     print("deleting file -" + filename)
     os.remove(filename)
+
+
+def converter(o):
+    if isinstance(o, datetime):
+        return o.__str__()
 
 
 def token_verify_or_raise(token, user, ip):
