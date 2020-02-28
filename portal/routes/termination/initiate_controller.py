@@ -58,7 +58,7 @@ class TerminationInitiationController(Resource):
         args = parser.parse_args()
         auth = token_verify_or_raise(token=args['Authorization'], ip=args['Ipaddress'], user=args['username'])
 
-        if auth['role'] == ROLES_MEMBER or auth['role'] == '':
+        if auth['role'] in [ROLES_REVIEW_MANAGER, ROLES_EMPLOYER, ROLES_HR]:
             raise Unauthorized()
 
         intiated_by = auth['username']
