@@ -35,10 +35,10 @@ response_model_members = ns.model('GetSearchMembers', {
     'FNAME': fields.String,
     'LNAME': fields.String,
     'EMAIL': fields.String,
-    'BIRTH': fields.Date,
-    'ENTRY_DATE': fields.Date,
-    'NR_DATE': fields.Date,
-    'HIRE': fields.Date,
+    'BIRTH': fields.DateTime,
+    'ENTRY_DATE': fields.DateTime,
+    'NR_DATE': fields.DateTime,
+    'HIRE': fields.DateTime,
     'PSTATUS': fields.String,
     'EMPOYER': fields.String,
     'STREET1': fields.String,
@@ -125,9 +125,9 @@ class Search(Resource):
                             'RELNAME': mem.RELNAME
                         })
 
-                    return {"members": member_list}, 200
+                    return {"members": member_list}
                 else:
-                    return {"members": []}, 200
+                    return {"members": []}
             except Exception as e:
                 LOG.error(e)
                 raise InternalServerError("Can't retrieve members")
