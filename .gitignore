@@ -131,6 +131,7 @@ dmypy.json
 
 ######
 .DS_Store
+*.sock
 *.log
 *.log.*
 *.xls

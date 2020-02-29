@@ -46,6 +46,7 @@ class GetMembers(Resource):
         ip = args['Ipaddress']
         offset = args["offset"]
         decoded_token = token_verify_or_raise(token, username, ip)
+        member_list = []
 
         if offset is None or str(offset) == "":
             offset = 0
@@ -53,23 +54,22 @@ class GetMembers(Resource):
         if decoded_token["role"] not in [roles.ROLES_ADMIN, roles.ROLES_REVIEW_MANAGER]:
             raise Unauthorized()
 
+        LOG.info('GetMembers: fetching MemberView, offset: %s, limit: 50', offset)
         members = MemberView.query.offset(offset).limit(50).all()
-        member_list = []
-        try:
-            if members is not None:
-                for mem in members:
-                    member_list.append({
-                        'MKEY': mem.MKEY,
-                            'MEMNO': mem.MEMNO,
-                            'FNAME': mem.FNAME,
-                            'LNAME': mem.LNAME,
-                            'EMAIL': mem.EMAIL,
-                            'PSTATUS': mem.PSTATUS,
-                            'EM_STATUS': mem.EM_STATUS
-                    })
-            return {"members": member_list}, 200
-        except Exception as e:
-            LOG.error(e)
-            raise InternalServerError("Can't get members")
+        LOG.info('GetMembers: finished fetching MemberView. Got %s result', len(members))
+
+        if members is not None:
+            for mem in members:
+                member_list.append({
+                    'MKEY': mem.MKEY,
+                    'MEMNO': mem.MEMNO,
+                    'FNAME': mem.FNAME,
+                    'LNAME': mem.LNAME,
+                    'EMAIL': mem.EMAIL,
+                    'PSTATUS': mem.PSTATUS,
+                    'EM_STATUS': mem.EM_STATUS
+                })
+
+        return {"members": member_list}
 
 

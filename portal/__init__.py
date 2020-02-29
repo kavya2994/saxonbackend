@@ -35,12 +35,18 @@ def init_logger(app):
     LOG = app.logger
     LOG.info('Initialized logger with level %s', log_level)
 
+
 def init_cors(app):
     CORS(app=app, origins=app.config['CORS_ORIGIN_WHITELIST'], allow_headers=app.config['CORS_HEADERS'])
     LOG.info('Initialized CORS')
 
+
 def create_app():
     global APP
+
+    if APP is not None:
+        return APP
+
     APP = Flask(__name__, static_url_path='/static')
     APP.debug = True
 
