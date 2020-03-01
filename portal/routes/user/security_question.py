@@ -12,7 +12,7 @@ from ...models import db
 from ...models.users import Users
 from ...models.security_question import SecurityQuestion
 from . import ns
-from ... import APP
+from ... import APP, LOG
 
 getParser = reqparse.RequestParser()
 getParser.add_argument('Authorization', type=str, location='headers', required=True)
@@ -75,17 +75,19 @@ class SecurityQuestion(Resource):
         user = Users.query.filter_by(Username=args["username"]).first()
         if not user:
             raise NotFound()
-
-        user.SecurityQuestionID = args["SecurityQuestionID"]
-        user.SecurityAnswer = Encryption().encrypt(args["SecurityAnswer"])
-        user.Email = args["Email"]
         try:
+            user.SecurityQuestionID = args["SecurityQuestionID"]
+            user.SecurityAnswer = Encryption().encrypt(args["SecurityAnswer"])
+            user.Email = args["Email"]
+
             db.session.commit()
             return RESPONSE_OK
-
+        except AttributeError as e:
+            LOG.error(e)
+            raise BadRequest("Please enter valid details")
         except KeyError as e:
-            print(str(e))
-            raise BadRequest
+            LOG.error(e)
+            raise BadRequest("payload error")
         except jwt.DecodeError:
             raise Unauthorized
         except jwt.ExpiredSignatureError:

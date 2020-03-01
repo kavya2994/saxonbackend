@@ -1,9 +1,15 @@
-DEBUG = True
+import os
+import logging
 
-DATA_DIR = "./data/"
-LOG_DIR = "./data/"
-ZIP_DATA_DIR = f"{DATA_DIR}/zip/"
-EXCEL_TEMPLATE_DIR = f"{DATA_DIR}/excel/"
+
+LOG_LEVEL = logging.DEBUG
+
+ROOT_DIR = os.path.abspath(os.path.join(os.path.abspath(__file__), '..', '..'))
+DATA_DIR = os.path.join(ROOT_DIR, 'data')
+
+LOG_DIR = os.path.join(DATA_DIR, 'log')
+ZIP_DATA_DIR = os.path.join(DATA_DIR, 'zip')
+EXCEL_TEMPLATE_DIR = os.path.join(DATA_DIR, 'excel')
 
 DIRECTORIES = [
     'termination', 'Statements', 'rev_inbox', 'Resources', 'pensioninfo',

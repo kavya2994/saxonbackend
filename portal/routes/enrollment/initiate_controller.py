@@ -60,6 +60,8 @@ class EnrollmentInitiationController(Resource):
                 InitiatedDate=initiation_date,
                 FirstName=args["MemberFirstName"],
                 EmailAddress=args["MemberEmail"],
+                PendingFrom=roles.ROLES_MEMBER,
+                Status=status.STATUS_PENDING
             )
 
             db.session.add(new_enrollment)
@@ -77,7 +79,7 @@ class EnrollmentInitiationController(Resource):
                 # EmployerID='',
 
                 FormID=new_enrollment.FormID,
-                InitiatedBy=employer_id,
+                InitiatedBy=args["username"],
                 InitiatedDate=initiation_date,
                 FormStatus=status.STATUS_PENDING,
                 FormType=TOKEN_FORMTYPE_ENROLLMENT,

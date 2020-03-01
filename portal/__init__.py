@@ -21,10 +21,7 @@ def init_logger(app):
     global LOG
     log_file = os.path.join(app.config['LOG_DIR'], 'backend.log')
 
-    log_level = logging.WARNING
-    if app.config['DEBUG'] == True:
-        log_level = logging.DEBUG
-
+    log_level =  app.config['LOG_LEVEL']
     log_format = Formatter("[%(asctime)s] [%(levelname)-7s] %(message)s")
 
     file_handler = RotatingFileHandler(filename=log_file, maxBytes=10000, backupCount=1)

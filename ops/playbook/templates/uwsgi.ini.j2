@@ -1,7 +1,7 @@
 [uwsgi]
-http = 0.0.0.0:8080
+http = 0.0.0.0:{{ uwsgi_port }}
 plugin = python3
-base = /var/www
+base = {{ docroot }}
 chdir = %(base)
 module = app:app
 virtualenv = %(base)/venv

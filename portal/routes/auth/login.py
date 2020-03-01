@@ -52,7 +52,7 @@ class Login(Resource):
         if (userinfo.Status == status.STATUS_DELETE) or \
                 (userinfo.Role in [roles.ROLES_REVIEW_MANAGER, roles.ROLES_ADMIN] and str(userinfo.Status).upper()
                  == status.STATUS_INACTIVE):
-            LOG.debug("Auth failed. User is not active. Username:%s, status:%s, role:%s", username)
+            LOG.debug("Auth failed. User is not active. Username:%s, status:%s, role:%s" % (username, userinfo.Status, userinfo.Role))
             raise UnprocessableEntity('User is not active')
 
         try:

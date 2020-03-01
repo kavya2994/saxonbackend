@@ -130,7 +130,10 @@ dmypy.json
 
 
 ######
+vault_password
+.deployment_info
 .DS_Store
+*.retry
 *.sock
 *.log
 *.log.*

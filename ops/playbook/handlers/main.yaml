@@ -1,0 +1,22 @@
+---
+  - name: run_ldconfig
+    command: "/sbin/ldconfig"
+    become: True
+    args:
+      creates: "/sbin/ldconfig"
+
+  - name: reload_systemctl
+    become: True
+    command: systemctl daemon-reload
+
+  - name: restart_nginx
+    become: True
+    command: systemctl restart nginx
+
+  - name: reload_firewalld
+    become: True
+    command: firewall-cmd --reload
+
+  - name: restart_backend
+    become: True
+    command: systemctl restart backend

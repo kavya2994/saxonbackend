@@ -8,6 +8,7 @@ import zipfile
 from datetime import datetime
 from flask import Blueprint, jsonify, request, send_file, current_app as app
 from flask_restx import Resource, reqparse
+from werkzeug.exceptions import NotFound
 from werkzeug.utils import secure_filename
 from xlutils.copy import copy
 
@@ -28,17 +29,17 @@ parser.add_argument('path', type=str, location='json', required=True)
 @ns.route("/download")
 class FileDownload(Resource):
     @ns.doc(description='Download File',
-            responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 500: 'Internal Server Error'})
+            responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 500: 'Internal Server Error', 404: "Not Found"})
     @ns.expect(parser, validate=True)
     def post(self):
         args = parser.parse_args()
         token_verify_or_raise(token=args["Authorization"], user=args["username"], ip=args["Ipaddress"])
         root = app.config['DATA_DIR']
         data = json.loads(str(request.data, encoding='utf-8'))
-        print("-------------")
-        print(data)
         root = os.path.join(root, data["requestfolder"])
         path_ = os.path.join(app.config['DATA_DIR'], data["requestfolder"])
         paths = list(data["path"])
         print(paths)
+        if not os.path.exists(os.path.join(path_, paths[0])):
+            raise NotFound("File not found")
         return send_file(os.path.join(path_, paths[0]))

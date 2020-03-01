@@ -1,0 +1,84 @@
+---
+- hosts: all
+  become: yes
+  become_method: sudo
+  vars_files:
+    - ./vars/main.yaml
+    - ./vars/secrets.yaml
+  handlers:
+    - name: run_ldconfig
+      command: "/sbin/ldconfig"
+      become: True
+      args:
+        creates: "/sbin/ldconfig"
+
+    - name: reload_systemctl
+      become: True
+      command: systemctl daemon-reload
+
+    - name: reload_firewalld
+      become: True
+      command: firewall-cmd --reload && systemctl restart firewalld
+
+    - name: restart_nginx
+      become: True
+      command: systemctl restart nginx
+
+    - name: restart_backend
+      become: True
+      command: systemctl restart backend
+
+  tasks:
+    - name: Clone the code repository to the docroot
+      become_user: www-data
+      git:
+        repo: "{{ git_repo }}"
+        dest: "{{ docroot }}"
+        version: "{{ git_version }}"
+        accept_hostkey: yes
+        key_file: /home/www-data/.ssh/deploy_key
+
+    - name: install modules in a virtualenv
+      pip:
+        requirements: "{{ docroot }}/requirements.txt"
+        virtualenv: "{{ docroot }}/venv"
+        virtualenv_python: python3
+        virtualenv_command: /usr/local/bin/virtualenv
+
+    - debug: msg="Restart Backend"
+      notify: restart_backend
+      changed_when: true
+
+    - name: Ensure service nginx config exists
+      template:
+        src: nginx.conf.j2
+        dest: /etc/nginx/conf.d/backend.conf
+        mode: 644
+
+    - debug: msg="Restart Nginx"
+      notify: restart_nginx
+      changed_when: true
+
+    - name: update GIT_VERSION in deployment file
+      lineinfile:
+        path: "{{ docroot }}/ops/.deployment_info"
+        regexp: '^GIT_VERSION='
+        line: "GIT_VERSION={{ git_version }}"
+        state: present
+        create: yes
+
+    - name: update GIT_ACTOR in deployment file
+      lineinfile:
+        path: "{{ docroot }}/ops/.deployment_info"
+        regexp: '^GIT_ACTOR='
+        line: "GIT_ACTOR={{ git_actor }}"
+        state: present
+        create: yes
+
+    - name: update DEPLOYMENT_TIME in deployment file
+      lineinfile:
+        path: "{{ docroot }}/ops/.deployment_info"
+        regexp: '^DEPLOYMENT_TIME='
+        line: "DEPLOYMENT_TIME={{ ansible_date_time.iso8601 }}"
+        state: present
+        create: yes

@@ -1,0 +1,21 @@
+[Unit]
+Description=Backend API
+After=network.target
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=1
+StartLimitBurst=5
+User=www-data
+EnvironmentFile="{{ docroot }}/ops/.deployment_info"
+Environment="BACKEND_ENV={{ app_env }}"
+Environment="FLASK_ENV={{ app_env }}"
+Environment="ORACLE_HOME=/usr/lib/oracle/18.5/client64"
+Environment="PATH=$PATH:/usr/lib/oracle/18.5/client64/bin"
+Environment="LD_LIBRARY_PATH=/usr/lib/oracle/18.5/client64/lib"
+Environment="TNS_ADMIN=/usr/lib/oracle/18.5/client64/network/admin/tnsnames.ora"
+ExecStart=/bin/bash -c '{{ docroot }}/venv/bin/uwsgi --ini {{ docroot }}/ops/uwsgi.ini'
+
+[Install]
+WantedBy=multi-user.target

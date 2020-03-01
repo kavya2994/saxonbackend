@@ -7,11 +7,11 @@ from flask import request, render_template, current_app as app
 
 
 def send_email(to_address, subject, body=None, template=None):
-    if template is None and body is None:
+    if body is None:
         raise Exception('One of body/template is required')
 
-    if template:
-        body = render_template(os.path.join('emails', template))
+    # if template:
+    #     body = render_template(os.path.join('emails', template))
 
     return send_mail_with_domain(to_address, subject, body)
 

@@ -1,0 +1,186 @@
+---
+- hosts: all
+  become: yes
+  become_method: sudo
+  vars_files:
+    - ./vars/main.yaml
+    - ./vars/secrets.yaml
+  handlers:
+    - name: run_ldconfig
+      command: "/sbin/ldconfig"
+      become: True
+      args:
+        creates: "/sbin/ldconfig"
+
+    - name: reload_systemctl
+      become: True
+      command: systemctl daemon-reload
+
+    - name: reload_firewalld
+      become: True
+      command: firewall-cmd --reload && systemctl restart firewalld
+
+    - name: restart_nginx
+      become: True
+      command: systemctl restart nginx
+
+  tasks:
+    - name: install yum packages
+      yum:
+        state: present
+        name:
+          - gcc
+          - python3
+          - python3-pip
+          - python3-devel
+          - nginx
+          - git
+          - https://yum.oracle.com/repo/OracleLinux/OL7/oracle/instantclient/x86_64/getPackage/oracle-instantclient18.5-basic-18.5.0.0.0-3.x86_64.rpm
+          - https://yum.oracle.com/repo/OracleLinux/OL7/oracle/instantclient/x86_64/getPackage/oracle-instantclient18.5-devel-18.5.0.0.0-3.x86_64.rpm
+          - https://yum.oracle.com/repo/OracleLinux/OL7/oracle/instantclient/x86_64/getPackage/oracle-instantclient18.5-sqlplus-18.5.0.0.0-3.x86_64.rpm
+
+    - name: install pip packages
+      pip:
+        executable: pip3
+        name: virtualenv
+
+    - name: "Add Oracle client to library path"
+      lineinfile:
+        dest: "/etc/ld.so.conf.d/oracle.conf"
+        line: "{{ ld_library_path }}"
+        insertbefore: "BOF"
+        create: True
+      notify: run_ldconfig
+
+    - name: Put SELinux in permissive mode, logging actions that would be blocked.
+      selinux:
+        policy: targeted
+        state: permissive
+
+    - name: Configuring firewall
+      firewalld:
+        port: "{{ nginx_port }}/tcp"
+        permanent: yes
+        state: enabled
+      notify: reload_firewalld
+
+    - name: Ensure group "www-data" exists
+      group:
+        name: www-data
+        state: present
+
+    - name: Add the 'www-data' user
+      user:
+        name: www-data
+        shell: /bin/bash
+        group: www-data
+
+    - name: Ensure /var/www/ directory has correct permissions.
+      file:
+        path: /var/www/
+        state: directory
+        owner: www-data
+        group: www-data
+
+    - name: Ensure .ssh directory exists.
+      file:
+        path: /home/www-data/.ssh
+        state: directory
+        mode: 0700
+        owner: www-data
+        group: www-data
+
+    - name: Ensure GitHub deploy key is present on the server.
+      copy:
+        content: "{{ vault_deploy_private_key }}"
+        dest: /home/www-data/.ssh/deploy_key
+        mode: 0600
+        owner: www-data
+        group: www-data
+
+    - name: Clone the code repository to the docroot
+      become_user: www-data
+      git:
+        repo: "{{ git_repo }}"
+        dest: "{{ docroot }}"
+        version: "{{ git_version }}"
+        force: yes
+        accept_hostkey: yes
+        key_file: /home/www-data/.ssh/deploy_key
+
+    - name: install modules in a virtualenv
+      pip:
+        requirements: "{{ docroot }}/requirements.txt"
+        virtualenv: "{{ docroot }}/venv"
+        virtualenv_python: python3
+        virtualenv_command: /usr/local/bin/virtualenv
+
+    - name: create uWsgi file
+      template:
+        src: uwsgi.ini.j2
+        dest: "{{ docroot }}/ops/uwsgi.ini"
+        mode: 0644
+        owner: www-data
+        group: www-data
+
+    - name: create Systemd Unit file
+      template:
+        src: backend.service.j2
+        dest: /etc/systemd/system/backend.service
+        mode: 0644
+      notify:
+        - reload_systemctl
+
+    - name: enable backend service and ensure it is started
+      systemd:
+        name: backend
+        enabled: yes
+        state: started
+
+    - name: Copy Nginx hostless main config
+      template:
+        src: nginx_hostless.conf.j2
+        dest: /etc/nginx/nginx.conf
+        mode: 0644
+
+    - name: Ensure service nginx config exists
+      template:
+        src: nginx.conf.j2
+        dest: /etc/nginx/conf.d/backend.conf
+        mode: 0644
+      notify:
+        - restart_nginx
+
+    - name: enable nginx service and ensure it is started
+      systemd:
+        name: nginx
+        enabled: yes
+        state: started
+
+    - name: update GIT_VERSION in deployment file
+      lineinfile:
+        path: "{{ docroot }}/ops/.deployment_info"
+        regexp: '^GIT_VERSION='
+        line: "GIT_VERSION={{ git_version }}"
+        state: present
+        create: yes
+
+    - name: update GIT_ACTOR in deployment file
+      lineinfile:
+        path: "{{ docroot }}/ops/.deployment_info"
+        regexp: '^GIT_ACTOR='
+        line: "GIT_ACTOR={{ git_actor }}"
+        state: present
+        create: yes
+
+    - name: update DEPLOYMENT_TIME in deployment file
+      lineinfile:
+        path: "{{ docroot }}/ops/.deployment_info"
+        regexp: '^DEPLOYMENT_TIME='
+        line: "DEPLOYMENT_TIME={{ ansible_date_time.iso8601 }}"
+        state: present
+        create: yes
+
+# # sudo setcap CAP_NET_BIND_SERVICE=+eip uwsgi
+# # setsebool httpd_can_network_connect on -P
+# # sudo semanage permissive -a httpd_t

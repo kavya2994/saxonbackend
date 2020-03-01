@@ -15,10 +15,19 @@ parser = reqparse.RequestParser()
 parser.add_argument('Authorization', type=str, location='headers', required=True)
 parser.add_argument('username', type=str, location='headers', required=True)
 parser.add_argument('Ipaddress', type=str, location='headers', required=True)
+parser.add_argument('user', type=str, location='json', required=True)
+parser.add_argument('displayname', type=str, location='json', required=True)
+parser.add_argument('email', type=str, location='json', required=True)
+parser.add_argument('password', type=str, location='json', required=False)
+parser.add_argument('role', type=str, location='json', required=True)
+parser.add_argument('phonenumber', type=str, location='json', required=False)
+parser.add_argument('statuschange', type=bool, location='json', required=True)
+parser.add_argument('passwordchange', type=bool, location='json', required=True)
 
 response_model = ns.model('PostUpdateUser', {
     'result': fields.String,
 })
+
 
 @ns.route("/user/update")
 class UpdateUser(Resource):
@@ -32,30 +41,31 @@ class UpdateUser(Resource):
         token = args["Authorization"]
         ip = args['Ipaddress']
         decoded_token = token_verify_or_raise(token, username, ip)
-        data = json.loads(str(request.data, encoding='utf-8'))
-        print(data)
-        role = data["role"]
+        # data = json.loads(str(request.data, encoding='utf-8'))
+        # print(data)
+        role = args["role"]
         print(role)
-        user_name = data["username"]
-        print(data["statuschange"])
+        user_name = args["user"]
+        print(args["statuschange"])
         user = Users.query.filter_by(Username=user_name).first()
         msgtext = None
         subject = None
-
+        if "password" in args.keys():
+            print(args.keys())
         if user is None:
             raise UnprocessableEntity('Username is not valid')
         try:
             if role == roles.ROLES_REVIEW_MANAGER or role == roles.ROLES_ADMIN:
 
-                status_change = data["statuschange"]
+                status_change = args["statuschange"]
                 print(status_change)
 
                 if not status_change:
 
-                    display_name = data["displayname"]
-                    email = data["email"]
-                    phone_number = data["phonenumber"]
-                    is_password_change = data["passwordchange"]
+                    display_name = args["displayname"]
+                    email = args["email"]
+                    phone_number = args["phonenumber"]
+                    is_password_change = args["passwordchange"]
                     # session_expiry = data["session_expiry"]
 
                     if is_password_change:
@@ -68,17 +78,20 @@ class UpdateUser(Resource):
                         user.Password = password_enc
                         user.TemporaryPassword = True
                         msgtext = f'<p>Your password has been reset. The temporary password is: {password}</p>' + \
-                                '<p>Please log into your system as soon as possible to set your new password.</p>'
+                                  '<p>Please log into your system as soon as possible to set your new password.</p>'
 
                         subject = "Temporary Password for Saxon Portals"
 
                     else:
+                        if "password" in args and args["password"] is not None:
+                            user.Password = Encryption().encrypt(args["password"])
+                            user.TemporaryPassword = True
                         print("not password change")
                         user.DisplayName = display_name
                         user.Email = email
                         user.PhoneNumber = phone_number
                 else:
-                    status = data["status"]
+                    status = args["status"]
                     user.Status = str(status).upper()
 
                 db.session.commit()
@@ -86,10 +99,10 @@ class UpdateUser(Resource):
                     send_email(user.Email, subject=subject, body=msgtext)
                 return RESPONSE_OK
             elif role == roles.ROLES_EMPLOYER or role == roles.ROLES_MEMBER or role == roles.ROLES_HR:
-                display_name = data["displayname"]
-                email = data["email"]
+                display_name = args["displayname"]
+                email = args["email"]
 
-                is_password_change = data["passwordchange"]
+                is_password_change = args["passwordchange"]
 
                 if is_password_change:
                     password = randomStringwithDigitsAndSymbols()
@@ -97,11 +110,15 @@ class UpdateUser(Resource):
                     user.DisplayName = display_name
                     user.Email = email
                     user.Password = password_enc
+                    user.TemporaryPassword = True
                     msgtext = f'<p>Your password has been reset. The temporary password is: {password}</p>' + \
-                            f'<p>Please log into your system as soon as possible to set your new password.</p>'
+                              f'<p>Please log into your system as soon as possible to set your new password.</p>'
 
                     subject = "Temporary Password for Saxon Portals"
                 else:
+                    if "password" in args and args["password"] is not None:
+                        user.Password = Encryption().encrypt(args["password"])
+                        user.TemporaryPassword = True
                     user.DisplayName = display_name
                     user.Email = email
                 db.session.commit()
@@ -113,5 +130,3 @@ class UpdateUser(Resource):
         except Exception as e:
             LOG.error("Exception while updating user", e)
             raise InternalServerError("Can't update user")
-
-

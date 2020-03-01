@@ -21,3 +21,4 @@ class Token(db.Model):
     EmployerID = db.Column(db.String(255))
     OlderTokenID = db.Column(db.String(255))
     LastModifiedDate = db.Column(db.DateTime)
+    # LastNotifiedDate = db.Column(db.DateTime)

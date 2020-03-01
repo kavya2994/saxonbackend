@@ -6,13 +6,17 @@ from datetime import datetime
 from email.mime.multipart import MIMEMultipart
 from flask import Blueprint, jsonify, request
 from flask_restx import Resource, reqparse, fields, inputs, cors
+from werkzeug.datastructures import FileStorage
 from werkzeug.exceptions import NotFound, BadRequest, Unauthorized, UnprocessableEntity, InternalServerError
-from ...helpers import token_verify_or_raise
+from werkzeug.utils import secure_filename
+
+from ...helpers import token_verify_or_raise, RESPONSE_OK
 from ...models.enrollmentform import Enrollmentform
 from ...models.token import Token
 from ...models.comments import Comments
 from ...models.roles import *
-from ...models import db
+from ...models import db, status
+from ...models.status import *
 from ...api import api
 from ...services.mail import send_email
 from . import ns
@@ -25,41 +29,53 @@ RequestType_ApprovalConfirmation = 'ApprovalConfirmation'
 RequestType_Reject = 'Rejected'
 
 getParser = reqparse.RequestParser()
+getParser.add_argument('Authorization', type=str, location='headers', required=False)
+getParser.add_argument('username', type=str, location='headers', required=False)
+getParser.add_argument('Ipaddress', type=str, location='headers', required=False)
+
+deleteParser = reqparse.RequestParser()
+deleteParser.add_argument('Authorization', type=str, location='headers', required=True)
+deleteParser.add_argument('username', type=str, location='headers', required=True)
+deleteParser.add_argument('Ipaddress', type=str, location='headers', required=True)
+
 parser = reqparse.RequestParser()
 
 parser.add_argument('Authorization', type=str, location='headers', required=False)
 parser.add_argument('username', type=str, location='headers', required=False)
 parser.add_argument('Ipaddress', type=str, location='headers', required=False)
 
-parser.add_argument('RequestType', type=str, location='json', required=True,
+parser.add_argument('RequestType', type=str, location='form', required=True,
                     help=f"Valid Values: [{RequestType_MemberSubmission}, {RequestType_SaveFormData}, {RequestType_EmployerSubmission}, {RequestType_ApprovalConfirmation}, {RequestType_Reject}]")
-parser.add_argument('FirstName', type=str, location='json', required=True)
-parser.add_argument('MiddleName', type=str, location='json', required=True)
-parser.add_argument('LastName', type=str, location='json', required=True)
-parser.add_argument('DOB', type=inputs.date_from_iso8601, location='json', required=True)
-parser.add_argument('Title', type=str, location='json', required=True)
-parser.add_argument('MaritalStatus', type=str, location='json', required=True)
-parser.add_argument('MailingAddress', type=str, location='json', required=True)
-parser.add_argument('AddressLine2', type=str, location='json', required=True)
-parser.add_argument('District', type=str, location='json', required=True)
-parser.add_argument('PostalCode', type=str, location='json', required=True)
-parser.add_argument('Country', type=str, location='json', required=True)
-parser.add_argument('EmailAddress', type=str, location='json', required=True)
-parser.add_argument('Telephone', type=str, location='json', required=True)
-parser.add_argument('StartDateofContribution', type=inputs.date_from_iso8601, location='json', required=True,
+parser.add_argument('FirstName', type=str, location='form', required=True)
+parser.add_argument('MiddleName', type=str, location='form', required=True)
+parser.add_argument('LastName', type=str, location='form', required=True)
+parser.add_argument('DOB', type=inputs.date_from_iso8601, location='form', required=False)
+parser.add_argument('Title', type=str, location='form', required=True)
+parser.add_argument('MaritalStatus', type=str, location='form', required=True)
+parser.add_argument('MailingAddress', type=str, location='form', required=True)
+parser.add_argument('AddressLine2', type=str, location='form', required=True)
+parser.add_argument('District', type=str, location='form', required=True)
+parser.add_argument('PostalCode', type=str, location='form', required=True)
+parser.add_argument('Country', type=str, location='form', required=True)
+parser.add_argument('EmailAddress', type=str, location='form', required=True)
+parser.add_argument('Telephone', type=str, location='form', required=True)
+parser.add_argument('StartDateofContribution', type=inputs.date_from_iso8601, location='form', required=False,
                     help='iso8601 format. eg: 2012-11-25')
-parser.add_argument('StartDateofEmployment', type=inputs.date_from_iso8601, location='json', required=True,
+parser.add_argument('StartDateofEmployment', type=inputs.date_from_iso8601, location='form', required=False,
                     help='iso8601 format. eg: 2012-11-25')
-parser.add_argument('ConfirmationStatus', type=str, location='json', required=True)
-parser.add_argument('EstimatedAnnualIncomeRange', type=str, location='json', required=True)
-parser.add_argument('ImmigrationStatus', type=str, location='json', required=True)
-parser.add_argument('SpouseName', type=str, location='json', required=True)
-parser.add_argument('SpouseDOB', type=inputs.date_from_iso8601, location='json', required=True)
-parser.add_argument('EmployerName', type=str, location='json', required=False)
-parser.add_argument('EmployerID', type=str, location='json', required=False)
-parser.add_argument('SignersName', type=str, location='json', required=False)
-parser.add_argument('Signature', type=str, location='json', required=False)
-parser.add_argument('RejectionReason', type=str, location='json', required=False)
+parser.add_argument('ConfirmationStatus', type=str, location='form', required=True)
+parser.add_argument('EstimatedAnnualIncomeRange', type=str, location='form', required=True)
+parser.add_argument('ImmigrationStatus', type=str, location='form', required=True)
+parser.add_argument('SpouseName', type=str, location='form', required=True)
+parser.add_argument('SpouseDOB', type=inputs.date_from_iso8601, location='form', required=False)
+parser.add_argument('EmployerName', type=str, location='form', required=False)
+parser.add_argument('EmployerID', type=str, location='form', required=False)
+parser.add_argument('MemberID', type=str, location='form', required=False)
+parser.add_argument('SignersName', type=str, location='form', required=False)
+parser.add_argument('Signature', type=str, location='form', required=False)
+parser.add_argument('RejectionReason', type=str, location='form', required=False)
+parser.add_argument('isExistingMember', type=bool, location='form', required=False)
+parser.add_argument('file', type=FileStorage, location='files', required=False)
 
 comments_model = ns.model('Comments', {
     "Name": fields.String,
@@ -98,6 +114,7 @@ response_model = ns.model('GetEnrollmentController', {
     "spouse_name": fields.String,
     "spouse_dob": fields.String,
     "member_id": fields.String,
+    "filename": fields.String
 })
 
 
@@ -120,7 +137,13 @@ class EnrollmentController(Resource):
 
         if token is None:
             raise BadRequest()
+        if token.TokenStatus != STATUS_ACTIVE:
+            raise NotFound("Not a valid token")
+        if token.PendingFrom != ROLES_MEMBER and token.TokenStatus == status.STATUS_ACTIVE:
+            auth = token_verify_or_raise(token=args["Authorization"], ip=args["Ipaddress"], user=args["username"])
 
+            if not auth['role'] in [ROLES_EMPLOYER, ROLES_REVIEW_MANAGER]:
+                raise Unauthorized()
         try:
             enrollmentform = Enrollmentform.query.get(token.FormID)
             comments = Comments.query.filter(Comments.FormID == token.FormID).order_by(
@@ -141,38 +164,40 @@ class EnrollmentController(Resource):
                 })
 
         return {
-                    "tokenID": TokenID,
-                    "employername": enrollmentform.EmployerName,
-                    "employernumber": enrollmentform.EmployerID,
-                    "formType": 'Enrollment',
-                    "formCreatedDate": enrollmentform.InitiatedDate,
-                    "isExistingMember": enrollmentform.AlreadyEnrolled,
-                    "memberfirstName": enrollmentform.FirstName,
-                    "memberLastName": enrollmentform.LastName,
-                    "title": enrollmentform.Title,
-                    "maidenName": enrollmentform.MaidenName,
-                    "dob": enrollmentform.DOB,
-                    "address": enrollmentform.MailingAddress,
-                    "addressLine2": enrollmentform.AddressLine2,
-                    "district": enrollmentform.District,
-                    "postalcode": enrollmentform.PostalCode,
-                    "country": enrollmentform.Country,
-                    "email": enrollmentform.EmailAddress,
-                    "phoneNumber": enrollmentform.Telephone,
-                    "incomerange": enrollmentform.EstimatedAnnualIncomeRange,
-                    "immigrationstatus": enrollmentform.ImmigrationStatus,
-                    "comments": comments_list,
-                    "maritalstatus": enrollmentform.MaritalStatus,
-                    "middlename": enrollmentform.MiddleName,
-                    "status": enrollmentform.Status,
-                    "pendingFrom": enrollmentform.PendingFrom,
-                    "startemployment": enrollmentform.StartDateofEmployment,
-                    "startdate": enrollmentform.StartDateofContribution,
-                    "spouse_name": enrollmentform.SpouseName,
-                    "spouse_dob": enrollmentform.SpouseDOB,
-                    "member_id": enrollmentform.MemberID
-                }, 200
-
+                   "tokenID": TokenID,
+                   "employername": enrollmentform.EmployerName,
+                   "employernumber": enrollmentform.EmployerID,
+                   "formType": 'Enrollment',
+                   "formCreatedDate": enrollmentform.InitiatedDate,
+                   "isExistingMember": enrollmentform.AlreadyEnrolled,
+                   "memberfirstName": enrollmentform.FirstName,
+                   "memberLastName": enrollmentform.LastName,
+                   "title": enrollmentform.Title,
+                   "maidenName": enrollmentform.MaidenName,
+                   "dob": enrollmentform.DOB,
+                   "address": enrollmentform.MailingAddress,
+                   "addressLine2": enrollmentform.AddressLine2,
+                   "district": enrollmentform.District,
+                   "postalcode": enrollmentform.PostalCode,
+                   "country": enrollmentform.Country,
+                   "email": enrollmentform.EmailAddress,
+                   "phoneNumber": enrollmentform.Telephone,
+                   "incomerange": enrollmentform.EstimatedAnnualIncomeRange,
+                   "immigrationstatus": enrollmentform.ImmigrationStatus,
+                   "comments": comments_list,
+                   "maritalstatus": enrollmentform.MaritalStatus,
+                   "middlename": enrollmentform.MiddleName,
+                   "status": enrollmentform.Status,
+                   "pendingFrom": enrollmentform.PendingFrom,
+                   "startemployment": enrollmentform.StartDateofEmployment,
+                   "startdate": enrollmentform.StartDateofContribution,
+                   "spouse_name": enrollmentform.SpouseName,
+                   "spouse_dob": enrollmentform.SpouseDOB,
+                   "member_id": enrollmentform.MemberID,
+                   "filename": enrollmentform.FilePath.split("\\")[
+                       len(str(enrollmentform.FilePath).split(
+                           "\\")) - 1] if enrollmentform.FilePath is not None else "",
+               }, 200
 
     @ns.doc(description='Update Enrollment Data by TokenID',
             responses={
@@ -190,10 +215,10 @@ class EnrollmentController(Resource):
         if token is None:
             raise NotFound('Token Not Found')
 
-        form = Enrollmentform.query.get(token.FormID).first()
+        form = Enrollmentform.query.get(token.FormID)
         if form is None:
             raise NotFound('Form Not Found')
-
+        print(args["RequestType"])
         if args['RequestType'] == RequestType_MemberSubmission:
             self._memberSubmission_pre_update(token, form, args)
         elif args['RequestType'] == RequestType_SaveFormData:
@@ -228,7 +253,9 @@ class EnrollmentController(Resource):
             form.ImmigrationStatus = args['ImmigrationStatus']
             form.SpouseName = args['SpouseName']
             form.SpouseDOB = args['SpouseDOB']
-
+            form.AlreadyEnrolled = args["isExistingMember"]
+            form.MemberID = args["MemberID"]
+            # print(args["StartDateofContribution"], "StartDateofContribution")
             if args['RequestType'] != 'MemberSubmission':
                 if 'EmployerName' in args:
                     form.EmployerName = args['EmployerName']
@@ -249,25 +276,50 @@ class EnrollmentController(Resource):
 
         if args['RequestType'] == RequestType_MemberSubmission:
             self._memberSubmission_post_update(token, form, args)
+            return RESPONSE_OK
         elif args['RequestType'] == RequestType_SaveFormData:
             self._saveFormData_post_update(token, form, args)
         elif args['RequestType'] == RequestType_EmployerSubmission:
             self._employerSubmission_post_update(token, form, args)
+            return RESPONSE_OK
         elif args['RequestType'] == RequestType_ApprovalConfirmation:
             self._approvalConfirmation_post_update(token, form, args)
+            return RESPONSE_OK
         elif args['RequestType'] == RequestType_Reject:
             self._reject_post_update(token, form, args)
+            return RESPONSE_OK
         else:
             raise BadRequest('Unkown RequestType')
 
         return form
 
     def _memberSubmission_pre_update(self, token, form, args):
+        print(token)
         if token is None:
             raise NotFound('Token was not found')
 
-        if token.PendingFrom != 'Member' or token.TokenStatus != 'Active' or token.FormStatus != 'Pending':
+        if token.PendingFrom != ROLES_MEMBER or token.TokenStatus != STATUS_ACTIVE or token.FormStatus != STATUS_PENDING:
             raise NotFound('Token was not Found or is not Active')
+
+        if 'file' in request.files and form.FilePath is None:
+            path = APP.config['DATA_DIR']
+            file = request.files['file']
+            filename = secure_filename(file.filename)
+            print(filename)
+            path = os.path.join(path, "Employers")
+            if not os.path.exists(path):
+                os.mkdir(path)
+            path = os.path.join(path, token.EmployerID)
+            if not os.path.exists(path):
+                os.mkdir(path)
+            path = os.path.join(path, "enrollment")
+            if not os.path.exists(path):
+                os.mkdir(path)
+            path = os.path.join(path, str(token.TokenID))
+            if not os.path.exists(path):
+                os.mkdir(path)
+            file.save(os.path.join(path, filename))
+            form.FilePath = os.path.join(path, filename)
 
     def _memberSubmission_post_update(self, token, form, args):
         newToken = Token(
@@ -275,36 +327,68 @@ class EnrollmentController(Resource):
             FormType=token.FormType,
             InitiatedBy=token.InitiatedBy,
             InitiatedDate=datetime.utcnow(),
-            FormStatus='Pending',
-            PendingFrom='Employer',
-            TokenStatus='Active',
+            FormStatus=STATUS_PENDING,
+            PendingFrom=ROLES_EMPLOYER,
+            TokenStatus=STATUS_ACTIVE,
             EmployerID=token.EmployerID,
             OlderTokenID=token.TokenID,
             LastModifiedDate=datetime.utcnow(),
         )
 
         db.session.add(newToken)
-        token.FormStatus = 'Submitted'
-        token.TokenStatus = 'Inactive'
+        token.FormStatus = STATUS_SUBMIT
+        token.TokenStatus = STATUS_INACTIVE
         token.LastModifiedDate = datetime.utcnow()
 
-    def _saveFormData_pre_update(self, token, form, args):
-        if 'Authorization' not in args or 'IpAddress' not in args or 'Username' not in args:
-            raise Unauthorized()
+        form.PendingFrom = ROLES_EMPLOYER
+        form.Status = STATUS_PENDING
+        print("member submission")
+        db.session.commit()
 
-        token_verify_or_raise(token=args["Authorization"], ip=args["Ipaddress"], user=args["username"])
+    def _saveFormData_pre_update(self, token, form, args):
 
         if token is None:
             raise NotFound()
+        if token.PendingFrom == ROLES_MEMBER and token.TokenStatus == status.STATUS_ACTIVE:
+            return
+        if 'Authorization' not in args or 'Ipaddress' not in args or 'username' not in args:
+            raise Unauthorized()
+        decoded_token = token_verify_or_raise(token=args["Authorization"], ip=args["Ipaddress"], user=args["username"])
+        if not decoded_token["role"] in [ROLES_HR, ROLES_EMPLOYER, ROLES_REVIEW_MANAGER]:
+            raise Unauthorized()
 
-        if token.PendingFrom != 'Employer' or token.TokenStatus != 'Active' or token.FormStatus != 'Pending':
+        if token.TokenStatus != STATUS_ACTIVE or token.FormStatus != STATUS_PENDING:
             raise NotFound('Token was not Found or is not Active')
+        if 'file' in request.files and form.FilePath is None:
+            path = APP.config['DATA_DIR']
+            file = request.files['file']
+            filename = secure_filename(file.filename)
+            print(filename)
+            path = os.path.join(path, "Employers")
+            if not os.path.exists(path):
+                os.mkdir(path)
+            path = os.path.join(path, token.EmployerID)
+            if not os.path.exists(path):
+                os.mkdir(path)
+            path = os.path.join(path, "enrollment")
+            if not os.path.exists(path):
+                os.mkdir(path)
+            path = os.path.join(path, str(token.TokenID))
+            if not os.path.exists(path):
+                os.mkdir(path)
+            file.save(os.path.join(path, filename))
+            form.FilePath = os.path.join(path, filename)
+
+
 
     def _saveFormData_post_update(self, token, form, args):
+        form.Status = STATUS_PENDING
+        token.LastModifiedDate = datetime.utcnow()
+        db.session.commit()
         pass
 
     def _employerSubmission_pre_update(self, token, form, args):
-        if 'Authorization' not in args or 'IpAddress' not in args or 'Username' not in args:
+        if 'Authorization' not in args or 'Ipaddress' not in args or 'username' not in args:
             raise Unauthorized()
 
         auth = token_verify_or_raise(token=args["Authorization"], ip=args["Ipaddress"], user=args["username"])
@@ -315,17 +399,17 @@ class EnrollmentController(Resource):
         if token is None or form is None:
             raise NotFound()
 
-        if token.PendingFrom != 'Employer' or token.TokenStatus != 'Active' or token.FormStatus != 'Pending':
+        if token.PendingFrom != ROLES_EMPLOYER or token.TokenStatus != STATUS_ACTIVE or token.FormStatus != STATUS_PENDING:
             raise NotFound('Token was not Found or is not Active')
 
     def _employerSubmission_post_update(self, token, form, args):
-        form.PendingFrom = 'ReviewerManager'
-        token.PendingFrom = 'ReviewerManager'
+        form.PendingFrom = ROLES_REVIEW_MANAGER
+        token.PendingFrom = ROLES_REVIEW_MANAGER
         token.LastModifiedDate = datetime.utcnow()
         db.session.commit()
 
     def _approvalConfirmation_pre_update(self, token, form, args):
-        if 'Authorization' not in args or 'IpAddress' not in args or 'Username' not in args:
+        if 'Authorization' not in args or 'Ipaddress' not in args or 'username' not in args:
             raise Unauthorized()
 
         auth = token_verify_or_raise(token=args["Authorization"], ip=args["Ipaddress"], user=args["username"])
@@ -336,19 +420,22 @@ class EnrollmentController(Resource):
         if token is None or form is None:
             raise NotFound()
 
-        if token.PendingFrom != 'ReviewerManager' or token.TokenStatus != 'Active' or token.FormStatus != 'Pending':
+        if token.PendingFrom != ROLES_REVIEW_MANAGER or token.TokenStatus != STATUS_ACTIVE or token.FormStatus != STATUS_PENDING:
             raise NotFound('Token was not Found or is not Active')
 
     def _approvalConfirmation_post_update(self, token, form, args):
-        token.FormStatus = 'Approved'
+        token.FormStatus = STATUS_APPROVE
         db.session.commit()
-
+        name = form.FirstName + " " + form.LastName
         subject = 'Your Enrollment has been approved'
+        body = '<p>**This is an auto-generated e-mail message. Please do not reply to this message. **</p>' + \
+               '<p>Dear ' + name + '</p>' + \
+               '<p>Your Enrollment has been processed</p>'
         send_email(to_address=form.EmailAddress, subject=subject,
-                   template='enrollment_approval_confirmation_to_member.html')
+                   body=body)
 
     def _reject_pre_update(self, token, form, args):
-        if 'Authorization' not in args or 'IpAddress' not in args or 'Username' not in args:
+        if 'Authorization' not in args or 'Ipaddress' not in args or 'username' not in args:
             raise Unauthorized()
 
         auth = token_verify_or_raise(token=args["Authorization"], ip=args["Ipaddress"], user=args["username"])
@@ -359,7 +446,7 @@ class EnrollmentController(Resource):
         if token is None or form is None:
             raise NotFound()
 
-        if token.PendingFrom != 'ReviewerManager' or token.TokenStatus != 'Active' or token.FormStatus != 'Pending':
+        if token.PendingFrom != ROLES_REVIEW_MANAGER or token.TokenStatus != STATUS_ACTIVE or token.FormStatus != STATUS_PENDING:
             raise NotFound('Token was not Found or is not Active')
 
     def _reject_post_update(self, token, form, args):
@@ -371,12 +458,58 @@ class EnrollmentController(Resource):
             comment = Comments(
                 FormID=form.FormID,
                 Role=auth['role'],
+                Name=args["username"],
                 Comment=args['RejectionReason'],
                 Date=datetime.utcnow(),
             )
 
             db.session.add(comment)
             db.session.commit()
-
+        name = form.FirstName + " " + form.LastName
         subject = 'Your Enrollment has been rejected'
-        send_email(to_address=form.EmailAddress, subject=subject, template='enrollment_rejected_to_member.html')
+        body = '<p>**This is an auto-generated e-mail message.' + \
+               ' Please do not reply to this message. **</p>' + \
+               '<p>Dear ' + name + '</p>' + \
+               '<p>Your Enrollment has been rejected </p>' + \
+               '<p>Please click here. Otherwise, cut and paste the link below into a browser, ' + \
+               'fill in the required information, and when you are done hit the submit button to ' + \
+               'start your enrollment into the plan.</p>' + \
+               '<p>%s</p>' + \
+               '<p>-----------------------------------</p>' + \
+               '<p>' + APP.config["FRONTEND_URL"] + '/enrollment-form/' + token + '</p>' + \
+               '<p>To learn more about the Silver Thatch Pension ' + \
+               'Plan, click here to review our members handbook. </p>'
+        send_email(to_address=form.EmailAddress, subject=subject, body=body)
+
+    @ns.doc(description='Delete enrollment file',
+            responses={
+                200: 'OK',
+                401: 'Unauthorized',
+                404: 'NotFound',
+                500: 'Internal Server Error'
+            })
+    @ns.expect(deleteParser, validate=True)
+    # @ns.marshal_with()
+    def delete(self, TokenID):
+        args = deleteParser.parse_args(strict=True)
+
+        token = Token.query.get(TokenID)
+        if token is None:
+            raise NotFound("Can't find the token")
+        if token.PendingFrom == ROLES_MEMBER and token.TokenStatus == status.STATUS_ACTIVE:
+            pass
+        else:
+            auth = token_verify_or_raise(token=args['Authorization'], ip=args['Ipaddress'], user=args['username'])
+            if auth['role'] != ROLES_REVIEW_MANAGER:
+                raise Unauthorized()
+        enrollment = Enrollmentform.query.get(token.FormID)
+        if os.path.exists(enrollment.FilePath):
+            os.remove(enrollment.FilePath)
+        enrollment.FilePath = None
+
+        try:
+            db.session.commit()
+            return RESPONSE_OK
+        except Exception as e:
+            LOG.error("Exception while deleting the form", e)
+            raise InternalServerError("Error while deleting the form. Please try again")

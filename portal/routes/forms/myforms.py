@@ -137,15 +137,15 @@ class MyForms(Resource):
                     "FormStatus": tokens_data.FormStatus,
                     "LastModifiedDate": tokens_data.LastModifiedDate
                 })
-            contribution_forms = Contributionform.query.order_by(Contributionform.LastModifiedDate.desc()).all()
-            for contributions in contribution_forms:
-                forms_data.append({
-                    "FormID": contributions.FormID,
-                    "EmployerID": contributions.EmployerID,
-                    "FormType": "Contribution",
-                    "FormStatus": contributions.Status,
-                    "LastModifiedDate": contributions.LastModifiedDate,
-                    "FilePath": contributions.FilePath
-                })
+            # contribution_forms = Contributionform.query.order_by(Contributionform.LastModifiedDate.desc()).all()
+            # for contributions in contribution_forms:
+            #     forms_data.append({
+            #         "FormID": contributions.FormID,
+            #         "EmployerID": contributions.EmployerID,
+            #         "FormType": "Contribution",
+            #         "FormStatus": contributions.Status,
+            #         "LastModifiedDate": contributions.LastModifiedDate,
+            #         "FilePath": contributions.FilePath
+            #     })
 
             return {"myforms": forms_data}, 200

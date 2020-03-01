@@ -48,7 +48,7 @@ class GetMembersForEmployer(Resource):
         offset = args["offset"]
         decoded_token = token_verify_or_raise(token, username, ip)
 
-        if decoded_token["role"] not in [roles.ROLES_ADMIN, roles.ROLES_REVIEW_MANAGER]:
+        if decoded_token["role"] not in [roles.ROLES_EMPLOYER, roles.ROLES_HR, roles.ROLES_REVIEW_MANAGER]:
             raise Unauthorized()
 
         if EmployerID is None:

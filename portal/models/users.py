@@ -23,3 +23,5 @@ class Users(db.Model):
     UserCreatedTime = db.Column(db.DateTime)
     Timezone = db.Column(db.String(255))
     Language = db.Column(db.String(255))
+    Last5Passwords = db.Column(db.String(255))
+    PassLastUpdatedDate = db.Column(db.DateTime)

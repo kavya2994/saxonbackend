@@ -14,9 +14,9 @@ from . import ns
 from ... import APP, LOG
 
 parser = reqparse.RequestParser()
-# parser.add_argument('Authorization', type=str, location='headers', required=True)
-# parser.add_argument('username', type=str, location='headers', required=True)
-# parser.add_argument('Ipaddress', type=str, location='headers', required=True)
+parser.add_argument('Authorization', type=str, location='headers', required=False)
+parser.add_argument('username', type=str, location='headers', required=False)
+parser.add_argument('Ipaddress', type=str, location='headers', required=False)
 
 comments_response = ns.model('GetGetTerminationComments', {
     "Name": fields.String,
@@ -61,9 +61,13 @@ class GetTermination(Resource):
         #     raise Unauthorized()
         token_data = Token.query.filter_by(TokenID=TokenID).first()
         if token_data is not None and token_data.TokenStatus == status.STATUS_ACTIVE:
+            if not token_data.PendingFrom == ROLES_MEMBER:
+                decode_token = token_verify_or_raise(token=args['Authorization'], ip=args['Ipaddress'], user=args['username'])
+                if not decode_token["role"] in [ROLES_EMPLOYER, ROLES_REVIEW_MANAGER]:
+                    raise Unauthorized()
             termination_form = Terminationform.query.filter_by(FormID=token_data.FormID).first()
             comments = Comments.query.filter(Comments.FormID == token_data.FormID).order_by(Comments.CommentsID.desc()).all()
-            comments_list =[]
+            comments_list = []
             if termination_form is not None:
                 if comments is not None:
                     for comment in comments:

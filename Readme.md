@@ -1,3 +1,7 @@
+
+![Deploying Application](https://github.com/mousavian/backend-0/workflows/Deploying%20Application/badge.svg)
+
+
 ## How To Run
 
 Create virtual environment:

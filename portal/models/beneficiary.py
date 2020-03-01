@@ -14,5 +14,4 @@ class Beneficiary(db.Model):
     DOB = db.Column(db.Date)
     Relationship = db.Column(db.String(255))
     Role = db.Column(db.String(255))
-    PhoneNumber = db.Column(db.String(255))
     Percentage = db.Column(db.Float)

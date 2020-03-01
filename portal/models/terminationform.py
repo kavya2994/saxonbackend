@@ -29,6 +29,7 @@ class Terminationform(db.Model):
     Status = db.Column(db.String(255), nullable=True)
     PendingFrom = db.Column(db.String(255), nullable=True)
     PhoneNumber = db.Column(db.String(255), nullable=True)
+    LastNotifiedDate = db.Column(db.Date, nullable=True)
     # FilePath = db.Column(db.String(255), nullable=True)
 
     # termination_form = relationship('Token', foreign_keys='Token.FormID')

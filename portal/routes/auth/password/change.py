@@ -12,7 +12,7 @@ from ....models import db
 from ....models.users import Users
 from ....models.security_question import SecurityQuestion
 from .. import ns
-from .... import APP
+from .... import APP, LOG
 
 parser = reqparse.RequestParser()
 parser.add_argument('Authorization', type=str, location='headers', required=True)
@@ -52,6 +52,37 @@ class PasswordChange(Resource):
             raise BadRequest('Old Password is wrong')
 
         try:
+            decrypted = None
+            decrypted_list = []
+            last5 = ""
+            if user.Last5Passwords is not None and user.Last5Passwords != "":
+                print(user.Last5Passwords)
+                try:
+                    decrypted = Encryption().decrypt(user.Last5Passwords)
+                except Exception as e:
+                    print(e)
+                    LOG.error(e)
+                if decrypted is not None:
+                    decrypted_list = decrypted.split("/,deli#@./")
+                    if new_pass in decrypted_list:
+                        raise UnprocessableEntity("This password was used recently (one of the last 5). Please try "
+                                                  "another.")
+            decrypted_list.append(new_pass)
+            print(decrypted_list)
+            if len(decrypted_list) >= 5:
+                for i in range(len(decrypted_list) - 5):
+                    decrypted_list.remove(decrypted_list[0])
+
+            for i in decrypted_list:
+                if i is not None:
+                    if not decrypted_list.index(i) == len(decrypted_list) - 1:
+                        last5 += str(i) + "/,deli#@./"
+                    else:
+                        last5 += str(i)
+            print(last5)
+            if not last5 == "":
+                user.Last5Passwords = Encryption().encrypt(last5)
+                user.PassLastUpdatedDate = datetime.utcnow()
             user.Password = Encryption().encrypt(new_pass)
             user.TemporaryPassword = False
             db.session.commit()

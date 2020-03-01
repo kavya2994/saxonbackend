@@ -1,0 +1,22 @@
+name: Setup Production Server
+
+on:
+  push:
+    paths:
+      - 'ops/playbook/inventory/production'
+      - 'ops/playbook/inventory/.trigger-setup-production'
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Execute Ansible Playbook
+        uses: saubermacherag/ansible-playbook-docker-action@v1.3
+        with:
+          playbookName: ./ops/playbook/main.yaml
+          inventoryFile: ./ops/playbook/inventory/production
+          keyFile: ./ops/ssh/prod_deploy_private_key
+          keyFileVaultPass: ${{ secrets.ANSIBLE_VAULT_SECRET }}
+          extraVars: "-e app_env=production -e git_version=${{ github.sha }} -e git_actor=${{ github.actor }}"
+          verbosity: "vv"

@@ -1,4 +1,7 @@
-DEBUG = True
+import logging
+
+
+LOG_LEVEL = logging.DEBUG
 
 DATA_DIR = "E:/Saxons_folders/"
 LOG_DIR = "C:/Users/Manomay/Desktop/backend-0/"
