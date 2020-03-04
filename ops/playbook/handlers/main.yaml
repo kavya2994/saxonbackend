@@ -15,8 +15,8 @@
 
   - name: reload_firewalld
     become: True
-    command: firewall-cmd --reload
+    command: firewall-cmd --reload && systemctl restart firewalld
 
   - name: restart_backend
     become: True
-    command: systemctl restart backend
+    command: systemctl daemon-reload && systemctl restart backend

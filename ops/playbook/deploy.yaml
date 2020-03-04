@@ -26,7 +26,7 @@
 
     - name: restart_backend
       become: True
-      command: systemctl restart backend
+      command: systemctl daemon-reload && systemctl restart backend
 
   tasks:
     - name: Clone the code repository to the docroot
