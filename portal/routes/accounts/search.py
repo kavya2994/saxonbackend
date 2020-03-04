@@ -114,12 +114,19 @@ class Search(Resource):
                 raise InternalServerError("Can't retrieve members")
         elif search_role == roles.ROLES_EMPLOYER:
             try:
-                employers = EmployerView.query.filter(or_(EmployerView.EMAIL.like("%" + args_dict["email"] + "%"),
-                                                          EmployerView.EMAIL is None),
-                                                      EmployerView.ERKEY.like("%" + args_dict["key"] + "%"),
-                                                      EmployerView.ERNO.like("%" + args_dict["employerusername"] + "%"),
-                                                      EmployerView.ENAME.like("%" + args_dict["name"] + "%")
-                                                      ).offset(offset_).limit(25).all()
+                employers = None
+                if args_dict["email"] is not None:
+                    employers = EmployerView.query.filter(EmployerView.EMAIL.like("%" + args_dict["email"] + "%"),
+                                                          EmployerView.ERNO.like(
+                                                              "%" + args_dict["employerusername"] + "%"),
+                                                          EmployerView.ENAME.like("%" + args_dict["name"] + "%")
+                                                          ).offset(offset_).limit(25).all()
+                else:
+                    employers = EmployerView.query.filter(EmployerView.EMAIL == None,
+                                                          EmployerView.ERNO.like(
+                                                              "%" + args_dict["employerusername"] + "%"),
+                                                          EmployerView.ENAME.like("%" + args_dict["name"] + "%")
+                                                          ).offset(offset_).limit(25).all()
                 employer_list = []
                 if employers is not None:
                     for emp in employers:

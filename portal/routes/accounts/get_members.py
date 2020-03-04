@@ -55,7 +55,8 @@ class GetMembers(Resource):
             raise Unauthorized()
 
         LOG.info('GetMembers: fetching MemberView, offset: %s, limit: 50', offset)
-        members = MemberView.query.offset(offset).limit(50).all()
+        members = MemberView.query.order_by(
+                MemberView.MEMNO.desc()).offset(offset).limit(50).all()
         LOG.info('GetMembers: finished fetching MemberView. Got %s result', len(members))
 
         if members is not None:

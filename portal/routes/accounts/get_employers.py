@@ -56,7 +56,8 @@ class GetEmployers(Resource):
 
         try:
             LOG.info('GetEmployers: fetching EmployerView, offset: %s, limit: 50', offset)
-            employers = EmployerView.query.offset(offset).limit(50).all()
+            employers = EmployerView.query.order_by(
+                EmployerView.ERNO.desc()).offset(offset).limit(50).all()
             LOG.info('GetEmployers: finished fetching EmployerView. Got %s result', len(employers))
         except Exception as e:
             LOG.error(e)
