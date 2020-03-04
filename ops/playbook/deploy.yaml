@@ -20,7 +20,7 @@
       become: True
       command: firewall-cmd --reload
 
-      - name: restart_firewalld
+    - name: restart_firewalld
       become: True
       command: systemctl restart firewalld
 
