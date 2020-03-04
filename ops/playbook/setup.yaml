@@ -18,7 +18,11 @@
 
     - name: reload_firewalld
       become: True
-      command: firewall-cmd --reload && systemctl restart firewalld
+      command: firewall-cmd --reload
+
+    - name: restart_firewalld
+      become: True
+      command: systemctl restart firewalld
 
     - name: restart_nginx
       become: True
@@ -62,7 +66,14 @@
         port: "{{ nginx_port }}/tcp"
         permanent: yes
         state: enabled
+
+    - debug: msg="Reload firewalld"
       notify: reload_firewalld
+      changed_when: true
+
+    - debug: msg="Restart firewalld"
+      notify: restart_firewalld
+      changed_when: true
 
     - name: Ensure group "www-data" exists
       group:

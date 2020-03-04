@@ -18,7 +18,11 @@
 
     - name: reload_firewalld
       become: True
-      command: firewall-cmd --reload && systemctl restart firewalld
+      command: firewall-cmd --reload
+
+      - name: restart_firewalld
+      become: True
+      command: systemctl restart firewalld
 
     - name: restart_nginx
       become: True
@@ -26,7 +30,7 @@
 
     - name: restart_backend
       become: True
-      command: systemctl daemon-reload && systemctl restart backend
+      command: systemctl restart backend
 
   tasks:
     - name: Clone the code repository to the docroot
@@ -50,6 +54,10 @@
         src: backend.service.j2
         dest: /etc/systemd/system/backend.service
         mode: 0644
+
+    - debug: msg="Reload systemctl"
+      notify: reload_systemctl
+      changed_when: true
 
     - debug: msg="Restart Backend"
       notify: restart_backend
