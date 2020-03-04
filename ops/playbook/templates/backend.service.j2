@@ -17,7 +17,7 @@ Environment="ORACLE_HOME=/usr/lib/oracle/18.5/client64"
 Environment="PATH=$PATH:/usr/lib/oracle/18.5/client64/bin"
 Environment="LD_LIBRARY_PATH=/usr/lib/oracle/18.5/client64/lib"
 Environment="TNS_ADMIN=/usr/lib/oracle/18.5/client64/network/admin/tnsnames.ora"
-GIT_VERSION={{ git_version }}
-GIT_ACTOR={{ git_actor }}
-DEPLOYMENT_TIME={{ ansible_date_time.iso8601 }}
+Environment="GIT_VERSION={{ git_version }}"
+Environment="GIT_ACTOR={{ git_actor }}"
+Environment="DEPLOYMENT_TIME={{ ansible_date_time.iso8601 }}"
 ExecStart=/bin/bash -c '{{ docroot }}/venv/bin/uwsgi --ini {{ docroot }}/ops/uwsgi.ini'
