@@ -115,15 +115,14 @@ class Search(Resource):
         elif search_role == roles.ROLES_EMPLOYER:
             try:
                 employers = None
-                if args_dict["email"] is not None:
+                if args_dict["email"] != "" and args_dict["email"] is not None:
                     employers = EmployerView.query.filter(EmployerView.EMAIL.like("%" + args_dict["email"] + "%"),
                                                           EmployerView.ERNO.like(
                                                               "%" + args_dict["employerusername"] + "%"),
                                                           EmployerView.ENAME.like("%" + args_dict["name"] + "%")
                                                           ).offset(offset_).limit(25).all()
                 else:
-                    employers = EmployerView.query.filter(EmployerView.EMAIL == None,
-                                                          EmployerView.ERNO.like(
+                    employers = EmployerView.query.filter(EmployerView.ERNO.like(
                                                               "%" + args_dict["employerusername"] + "%"),
                                                           EmployerView.ENAME.like("%" + args_dict["name"] + "%")
                                                           ).offset(offset_).limit(25).all()
