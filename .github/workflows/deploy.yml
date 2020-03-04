@@ -66,5 +66,5 @@ jobs:
           inventoryFile: ./ops/playbook/inventory/production
           keyFile: ./ops/ssh/prod_deploy_private_key
           keyFileVaultPass: ${{ secrets.ANSIBLE_VAULT_SECRET }}
-          extraVars: "-e app_env=staging -e git_version=${{ github.sha }} -e git_actor=${{ github.actor }}"
+          extraVars: "-e app_env=production -e git_version=${{ github.sha }} -e git_actor=${{ github.actor }}"
           verbosity: "vv"
