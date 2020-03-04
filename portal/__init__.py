@@ -67,6 +67,6 @@ def create_app():
         LOG.warning('An error happened during initilizing app components: %s', e)
         raise
 
-    APP.logger.info('App Initialization is finished successfully')
+    APP.logger.info('App Initialization is finished successfully.')
     return APP
 
