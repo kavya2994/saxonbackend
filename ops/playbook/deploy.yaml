@@ -45,6 +45,12 @@
         virtualenv_python: python3
         virtualenv_command: /usr/local/bin/virtualenv
 
+    - name: Update Systemd Unit file
+      template:
+        src: backend.service.j2
+        dest: /etc/systemd/system/backend.service
+        mode: 0644
+
     - debug: msg="Restart Backend"
       notify: restart_backend
       changed_when: true
@@ -58,27 +64,3 @@
     - debug: msg="Restart Nginx"
       notify: restart_nginx
       changed_when: true
-
-    - name: update GIT_VERSION in deployment file
-      lineinfile:
-        path: "{{ docroot }}/ops/.deployment_info"
-        regexp: '^GIT_VERSION='
-        line: "GIT_VERSION={{ git_version }}"
-        state: present
-        create: yes
-
-    - name: update GIT_ACTOR in deployment file
-      lineinfile:
-        path: "{{ docroot }}/ops/.deployment_info"
-        regexp: '^GIT_ACTOR='
-        line: "GIT_ACTOR={{ git_actor }}"
-        state: present
-        create: yes
-
-    - name: update DEPLOYMENT_TIME in deployment file
-      lineinfile:
-        path: "{{ docroot }}/ops/.deployment_info"
-        regexp: '^DEPLOYMENT_TIME='
-        line: "DEPLOYMENT_TIME={{ ansible_date_time.iso8601 }}"
-        state: present
-        create: yes

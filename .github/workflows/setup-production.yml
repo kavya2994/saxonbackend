@@ -14,7 +14,7 @@ jobs:
       - name: Execute Ansible Playbook
         uses: saubermacherag/ansible-playbook-docker-action@v1.3
         with:
-          playbookName: ./ops/playbook/main.yaml
+          playbookName: ./ops/playbook/setup.yaml
           inventoryFile: ./ops/playbook/inventory/production
           keyFile: ./ops/ssh/prod_deploy_private_key
           keyFileVaultPass: ${{ secrets.ANSIBLE_VAULT_SECRET }}

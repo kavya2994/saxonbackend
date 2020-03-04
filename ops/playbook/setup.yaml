@@ -157,30 +157,3 @@
         enabled: yes
         state: started
 
-    - name: update GIT_VERSION in deployment file
-      lineinfile:
-        path: "{{ docroot }}/ops/.deployment_info"
-        regexp: '^GIT_VERSION='
-        line: "GIT_VERSION={{ git_version }}"
-        state: present
-        create: yes
-
-    - name: update GIT_ACTOR in deployment file
-      lineinfile:
-        path: "{{ docroot }}/ops/.deployment_info"
-        regexp: '^GIT_ACTOR='
-        line: "GIT_ACTOR={{ git_actor }}"
-        state: present
-        create: yes
-
-    - name: update DEPLOYMENT_TIME in deployment file
-      lineinfile:
-        path: "{{ docroot }}/ops/.deployment_info"
-        regexp: '^DEPLOYMENT_TIME='
-        line: "DEPLOYMENT_TIME={{ ansible_date_time.iso8601 }}"
-        state: present
-        create: yes
-
-# # sudo setcap CAP_NET_BIND_SERVICE=+eip uwsgi
-# # setsebool httpd_can_network_connect on -P
-# # sudo semanage permissive -a httpd_t

@@ -14,9 +14,9 @@ jobs:
       - name: Execute Ansible Playbook
         uses: saubermacherag/ansible-playbook-docker-action@v1.3
         with:
-          playbookName: ./ops/playbook/main.yaml
+          playbookName: ./ops/playbook/setup.yaml
           inventoryFile: ./ops/playbook/inventory/staging
           keyFile: ./ops/ssh/deploy_private_key
           keyFileVaultPass: ${{ secrets.ANSIBLE_VAULT_SECRET }}
           extraVars: "-e app_env=staging -e git_version=${{ github.sha }} -e git_actor=${{ github.actor }}"
-          verbosity: "vvvvv"
+          verbosity: "vv"
