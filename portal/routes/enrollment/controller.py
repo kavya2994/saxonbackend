@@ -344,6 +344,13 @@ class EnrollmentController(Resource):
         form.Status = STATUS_PENDING
         print("member submission")
         db.session.commit()
+        name = form.FirstName + " " + form.LastName
+        subject = 'Your Enrollment has been submitted'
+        body = f'<p>**This is an auto-generated e-mail message. Please do not reply to this message. **</p>' + \
+               f'<p>Dear {name}</p>' + \
+               f'<p>Your Enrollment was submitted on {datetime.utcnow().strftime("%Y-%m-%d")} ' + \
+               f'You will receive notification once your form has been processed.</p>'
+        send_email(to_address=form.EmailAddress, subject=subject, body=body)
 
     def _saveFormData_pre_update(self, token, form, args):
 

@@ -13,7 +13,6 @@ from ....services.mail import send_email
 from .. import ns
 from .... import APP, LOG
 
-
 parser = reqparse.RequestParser()
 parser.add_argument('request_type', type=str, location='json', required=True,
                     help='Accepted Values: [Admin|SecurityQuestion|Email]')
@@ -25,13 +24,15 @@ response_model = ns.model('PostPasswordReset', {
     'result': fields.String,
 })
 
+
 def _change_password(username, email, display_name):
     try:
         password = randomStringwithDigitsAndSymbols()
         pass_encrypt = Encryption().encrypt(password)
         message = f'<p>Dear {display_name}</p>' + \
-                f'<p>Your password has been reset.</p>' + \
-                f'<p>The temporary password is: {password}</p>'
+                  f'<p>Username is {username}</p>' + \
+                  f'<p>Your password has been reset.</p>' + \
+                  f'<p>The temporary password is: <b>{password}</b></p>'
 
         user = Users.query.filter_by(Username=username).first()
         user.Password = pass_encrypt

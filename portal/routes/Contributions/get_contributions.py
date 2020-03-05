@@ -29,7 +29,7 @@ response_model_child = ns.model('GetGetContributionsChild', {
     "StartDate": fields.String,
     "EndDate": fields.String,
     "FormStatus": fields.String,
-    "LastModifiedDate": fields.DateTime,
+    "LastModifiedDate": fields.String,
     "FileName": fields.String
 })
 
@@ -55,7 +55,8 @@ class GetContributions(Resource):
             offset_ = 0
         employer_id = args["user"]
         forms_data = []
-        contribution_forms = Contributionform.query.filter_by(EmployerID=employer_id).offset(offset_).limit(50).all()
+        contribution_forms = Contributionform.query.filter_by(EmployerID=employer_id)\
+            .order_by(Contributionform.LastModifiedDate.desc()).offset(offset_).limit(50).all()
         if contribution_forms is None:
             return {"contributions": []}, 200
         for contributions in contribution_forms:

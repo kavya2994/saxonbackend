@@ -22,6 +22,7 @@ response_model = ns.model('PostAddUser', {
     'result': fields.String,
 })
 
+
 @ns.route("/createuser")
 class AddUser(Resource):
     @ns.doc(description='Create New User',
@@ -56,9 +57,9 @@ class AddUser(Resource):
                     db.session.add(new_user)
                     db.session.commit()
                     msg_text = f'<p>Dear {displayname}</p>' + \
-                                f'<p>Your account has been reactivated</p>' + \
-                                f'<p>Username is {username}</p>' + \
-                                f'<p> please use this password {password} to log in</p>'
+                               f'<p>Your account has been reactivated</p>' + \
+                               f'<p>Username is {username}</p>' + \
+                               f'<p> please use this password <b>{password}</b> to log in</p>'
 
                     send_email(email, "Welcome to Pension Management portal", body=msg_text)
                     return {"result": "Success"}, 200
@@ -74,9 +75,9 @@ class AddUser(Resource):
                     userexist.UserCreatedTime = datetime.utcnow()
                     db.session.commit()
                     msg_text = f'<p>Dear {displayname}</p>' + \
-                                f'<p>Your account is created</p>' + \
-                                f'<p>Username is {username}</p>' + \
-                                f'<p> please use this password {password} to log in</p>'
+                               f'<p>Your account is created</p>' + \
+                               f'<p>Username is {username}</p>' + \
+                               f'<p> please use this password {password} to log in</p>'
 
                     send_email(email, "Welcome to Pension Management portal", body=msg_text)
 
@@ -88,4 +89,3 @@ class AddUser(Resource):
                 raise InternalServerError("Can't add user")
         else:
             raise Unauthorized('You have No Authorization')
-

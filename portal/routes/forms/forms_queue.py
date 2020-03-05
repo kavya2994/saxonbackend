@@ -5,6 +5,7 @@ from flask_restx import Resource, reqparse, inputs, fields
 from werkzeug.exceptions import NotFound, BadRequest, Unauthorized, UnprocessableEntity, InternalServerError
 from ...helpers import token_verify_or_raise, RESPONSE_OK
 from ...models import db, status, roles
+from ...models.contributionform import Contributionform
 from ...models.enrollmentform import Enrollmentform
 from ...models.terminationform import Terminationform
 from ...models.token import Token, TOKEN_FORMTYPE_TERMINATION
@@ -20,7 +21,8 @@ response_model_child = ns.model('GetFormQueueChild', {
     "MemberName": fields.String,
     "FormType": fields.String,
     "FormStatus": fields.String,
-    "LastModifiedDate": fields.DateTime
+    "LastModifiedDate": fields.DateTime,
+    "EmailID": fields.String
 })
 
 response_model = ns.model('GetFormQueue', {
@@ -74,6 +76,18 @@ class FormQueue(Resource):
                     "FormType": tokens_data.FormType,
                     "FormStatus": tokens_data.FormStatus,
                     "LastModifiedDate": tokens_data.LastModifiedDate
+                })
+            contribution_forms = Contributionform.query.filter(Contributionform.PendingFrom == ROLES_REVIEW_MANAGER)\
+                .order_by(Contributionform.LastModifiedDate.desc()).all()
+            for contributions in contribution_forms:
+                forms_data.append({
+                    "FormID": contributions.FormID,
+                    "EmployerID": contributions.EmployerID,
+                    "FormType": "Contribution",
+                    "FormStatus": contributions.Status,
+                    "LastModifiedDate": contributions.LastModifiedDate,
+                    "FilePath": str(contributions.FilePath).split("\\")[
+                        len(str(contributions.FilePath).split("\\")) - 1] if contributions.FilePath is not None else ""
                 })
 
             return {"forms_queue": forms_data}, 200

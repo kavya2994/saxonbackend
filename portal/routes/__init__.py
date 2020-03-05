@@ -15,10 +15,10 @@ def init_app(app):
     from .admin import new, update, delete, add_employer_to_member, get_internal_users, get_settings, new_settings, get_employer_to_member, get_user_data, delete_employer_to_member
     from .Subsidiaries import add_subsidiaries, delete_subsidiaries, get_subsidiary
     from .member import get_member_details, member_termination_details
-    from .accounts import get_employers, get_members, search, get_members_for_employer
+    from .accounts import get_employers, get_members, search, get_members_for_employer, get_member_count
     from .messages import get_messages
     from .health import status
-    from .forms import forms_with_employees, forms_queue, myforms, controller
+    from .forms import forms_with_employees, forms_queue, myforms, controller, remainders
     from .Contributions import get_contributions, initiate_controller, download_excel, controller
 
     app.logger.info('Initialized routes')

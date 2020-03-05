@@ -18,10 +18,11 @@ parser.add_argument('username', type=str, location='headers', required=True)
 parser.add_argument('Ipaddress', type=str, location='headers', required=True)
 
 
-@ns.route("/logout")
+@ns.route("/logout/<Token>")
 class Logout(Resource):
     @ns.doc(description='Create New User',
             responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 500: 'Internal Server Error'})
     @ns.expect(parser, validate=True)
-    def post(self):
+    def post(self, Token):
         args = parser.parse_args(strict=False)
+        token = token_verify_or_raise(token=args["Authorization"], ip=args["Ipaddress"], user=args["username"])

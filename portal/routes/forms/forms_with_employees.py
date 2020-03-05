@@ -65,7 +65,8 @@ class FormWithEmployees(Resource):
                     "MemberName": enrollments.FirstName if enrollments.FirstName is not None else "" + " " + enrollments.MiddleName if enrollments.MiddleName is not None else "" + " " + enrollments.LastName if enrollments.LastName is not None else "",
                     "FormType": tokens_data.FormType,
                     "FormStatus": tokens_data.FormStatus,
-                    "LastModifiedDate": tokens_data.LastModifiedDate
+                    "LastModifiedDate": tokens_data.LastModifiedDate,
+                    "EmailID": enrollments.EmailAddress
                 })
 
             termination_form_data = db.session.query(Token, Terminationform).filter(
@@ -83,7 +84,8 @@ class FormWithEmployees(Resource):
                     "MemberName": terminations.MemberName,
                     "FormType": tokens_data.FormType,
                     "FormStatus": tokens_data.FormStatus,
-                    "LastModifiedDate": tokens_data.LastModifiedDate
+                    "LastModifiedDate": tokens_data.LastModifiedDate,
+                    "EmailID": terminations.EmailAddress
                 })
 
             return {"forms_employees": forms_data}, 200
@@ -112,7 +114,8 @@ class FormWithEmployees(Resource):
                     "MemberName": enrollments.FirstName if enrollments.FirstName is not None else "" + " " + enrollments.MiddleName if enrollments.MiddleName is not None else "" + " " + enrollments.LastName if enrollments.LastName is not None else "",
                     "FormType": tokens_data.FormType,
                     "FormStatus": tokens_data.FormStatus,
-                    "LastModifiedDate": tokens_data.LastModifiedDate
+                    "LastModifiedDate": tokens_data.LastModifiedDate,
+                    "EmailID": enrollments.EmailAddress
                 })
 
             termination_form_data = db.session.query(Token, Terminationform).filter(
@@ -131,7 +134,8 @@ class FormWithEmployees(Resource):
                     "MemberName": terminations.MemberName,
                     "FormType": tokens_data.FormType,
                     "FormStatus": tokens_data.FormStatus,
-                    "LastModifiedDate": tokens_data.LastModifiedDate
+                    "LastModifiedDate": tokens_data.LastModifiedDate,
+                    "EmailID": terminations.EmailAddress
                 })
             print(forms_data)
             return {"forms_employees": forms_data}, 200

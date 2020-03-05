@@ -6,7 +6,8 @@ from flask import Blueprint, jsonify, request, abort, current_app as app
 from flask_restx import Resource, reqparse, fields
 from ...helpers import randomStringwithDigitsAndSymbols, token_verify, token_verify_or_raise
 from ...encryption import Encryption
-from ...models import db, status, roles
+from ...models import db, status
+from ...models.roles import *
 from ...models.subsidiaries import Subsidiaries
 from werkzeug.exceptions import UnprocessableEntity, Unauthorized, InternalServerError
 from . import ns
@@ -45,7 +46,7 @@ class GetSubsidiary(Resource):
             employer_id = args["employer_id"]
             decoded_token = token_verify_or_raise(token, username, ip)
             # print(decoded_token)
-            if decoded_token["role"] == roles.ROLES_ADMIN or decoded_token["role"] == roles.ROLES_REVIEW_MANAGER:
+            if decoded_token["role"] in [ROLES_REVIEW_MANAGER, ROLES_EMPLOYER, ROLES_ADMIN]:
 
                 subsidiaries = Subsidiaries.query.filter_by(EmployerID=employer_id).all()
                 subsidiaries_list = []

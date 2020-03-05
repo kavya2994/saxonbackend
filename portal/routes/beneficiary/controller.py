@@ -129,6 +129,11 @@ class BeneficiaryFormController(Resource):
         if form is None:
             raise NotFound()
 
+        beneficiary = Beneficiary.query.filter(Beneficiary.EnrollmentformID == FormID).all()
+        if beneficiary is not None:
+            total_existing = reduce(lambda a, ben: a + beneficiary.Percentage, beneficiary, 0)
+            if total_existing >= 100:
+                raise BadRequest("Can't add benficiary your total percentage is already 100")
         # if args['Percentage'] <= 0:
         #     raise BadRequest('Invalid Percentage')
         beneficiary_list = args["beneficiaries"]

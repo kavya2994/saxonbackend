@@ -11,6 +11,7 @@ from flask_restx import Resource, reqparse, fields, inputs, cors
 from werkzeug.exceptions import NotFound, BadRequest, Unauthorized, UnprocessableEntity, InternalServerError
 from ...helpers import token_verify_or_raise, RESPONSE_OK
 from ...models.beneficiary import Beneficiary
+from ...models.contributionform import Contributionform
 from ...models.enrollmentform import Enrollmentform
 from ...models.roles import *
 from ...models.status import *
@@ -26,11 +27,13 @@ postParser = reqparse.RequestParser()
 postParser.add_argument('Authorization', type=str, location='headers', required=True)
 postParser.add_argument('username', type=str, location='headers', required=True)
 postParser.add_argument('Ipaddress', type=str, location='headers', required=True)
+postParser.add_argument('EmailID', type=str, location='json', required=True)
 
 deleteParser = reqparse.RequestParser()
 deleteParser.add_argument('Authorization', type=str, location='headers', required=True)
 deleteParser.add_argument('username', type=str, location='headers', required=True)
 deleteParser.add_argument('Ipaddress', type=str, location='headers', required=True)
+deleteParser.add_argument('FormType', type=str, location='json', required=True)
 
 response_model_ok = ns.model('DeleteBeneficiaryFormController', {
     "result": fields.String,
@@ -54,7 +57,12 @@ class FormController(Resource):
 
         if auth['role'] not in [ROLES_EMPLOYER, ROLES_REVIEW_MANAGER]:
             raise Unauthorized()
-
+        if args["FormType"] == "Contribution":
+            if auth['role'] != ROLES_REVIEW_MANAGER:
+                raise Unauthorized()
+            form = Contributionform.query.get(TokenID)
+            form.Status = STATUS_DELETE
+            return RESPONSE_OK
         token = Token.query.get(TokenID)
         if token is None:
             raise NotFound("Can't find the token")
@@ -74,6 +82,7 @@ class FormController(Resource):
             raise BadRequest("Can't delete")
         try:
             db.session.commit()
+            return RESPONSE_OK
         except Exception as e:
             LOG.error("Exception while deleting the form", e)
             raise InternalServerError("Error while deleting the form. Please try again")
@@ -85,7 +94,7 @@ class FormController(Resource):
                 404: 'NotFound',
                 500: 'Internal Server Error'
             })
-    @ns.expect(deleteParser, validate=True)
+    @ns.expect(postParser, validate=True)
     @ns.marshal_with(response_model_ok)
     def post(self, TokenID):
         args = postParser.parse_args(strict=True)
@@ -100,10 +109,10 @@ class FormController(Resource):
 
         if token.TokenStatus != STATUS_ACTIVE or token.PendingFrom != ROLES_MEMBER:
             raise BadRequest("Can't send mail")
-
+        email_id = args["EmailID"]
         if token.FormType == "Enrollment":
             form = Enrollmentform.query.get(token.FormID)
-            name = form.FirstName + " " + form.LastName
+            name = form.FirstName if form.FirstName is not None else "" + " " + form.LastName if form.LastName is not None else ""
             subject = "Your Silver Thatch Pensions Enrollment Form needs to be completed"
             msgtext = '<p>**This is an auto-generated e-mail message.' + \
                       ' Please do not reply to this message. **</p>' + \
@@ -118,12 +127,13 @@ class FormController(Resource):
                       '<p>To learn more about the Silver Thatch Pension Plan,' + \
                       ' click here to review our members handbook. </p>'
             try:
-                send_email(to_address=form.EmailAddress, subject=subject, body=msgtext)
+                send_email(to_address=email_id, subject=subject, body=msgtext)
                 form.LastNotifiedDate = datetime.utcnow()
                 db.session.commit()
+                return RESPONSE_OK
             except SMTPException as e:
                 LOG.error("Exception while sending mail in remainder enrollment form", e)
-                raise InternalServerError("Can't notify the user")
+                raise InternalServerError("Can't notify the user please enter a valid email id")
             except Exception as e:
                 LOG.error("Exception while reminding enrollment form", e)
                 raise InternalServerError("Can't notify the user")
@@ -145,9 +155,10 @@ class FormController(Resource):
                       '<p>To learn more about the Silver Thatch Pension Plan,' + \
                       ' click here to review our members handbook. </p>'
             try:
-                send_email(to_address=form.EmailAddress, subject=subject, body=msgtext)
+                send_email(to_address=email_id, subject=subject, body=msgtext)
                 form.LastNotifiedDate = datetime.utcnow()
                 db.session.commit()
+                return RESPONSE_OK
             except SMTPException as e:
                 LOG.error("Exception while sending mail in remainder enrollment form", e)
                 raise InternalServerError("Can't notify the user")
