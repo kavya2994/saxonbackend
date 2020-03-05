@@ -17,6 +17,7 @@ from ...services.mail import send_email
 
 def send_remainder():
     LOG.info("Running the scheduler")
+    print("hello")
     enrollment_form_data = db.session.query(Token, Enrollmentform).filter(
         Token.FormID == Enrollmentform.FormID,
         Token.FormStatus == STATUS_PENDING,

@@ -18,7 +18,7 @@ def init_app(app):
     from .accounts import get_employers, get_members, search, get_members_for_employer, get_member_count
     from .messages import get_messages
     from .health import status
-    from .forms import forms_with_employees, forms_queue, myforms, controller, remainders
+    from .forms import forms_with_employees, forms_queue, myforms, controller
     from .Contributions import get_contributions, initiate_controller, download_excel, controller
 
     app.logger.info('Initialized routes')
