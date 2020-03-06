@@ -34,7 +34,7 @@ postParser.add_argument('Ipaddress', type=str, location='headers', required=Fals
 # postParser.add_argument('DOB', type=inputs.date_from_iso8601, location='json', required=True,
 #                         help='iso8601 format. eg: 2012-11-25')
 # postParser.add_argument('Relationship', type=str, location='json', required=True)
-# postParser.add_argument('Percentage', type=float, location='json', required=True)
+postParser.add_argument('requesttype', type=str, location='json', required=True)
 postParser.add_argument('beneficiaries', type=list, location='json', required=False)
 
 deleteParser = reqparse.RequestParser()
@@ -134,14 +134,13 @@ class BeneficiaryFormController(Resource):
             total_existing = reduce(lambda a, ben: a + beneficiary.Percentage, beneficiary, 0)
             if total_existing >= 100:
                 raise BadRequest("Can't add benficiary your total percentage is already 100")
-        # if args['Percentage'] <= 0:
-        #     raise BadRequest('Invalid Percentage')
         beneficiary_list = args["beneficiaries"]
         print(beneficiary_list)
         total = reduce(lambda a, ben: a + float(ben['Percentage']), beneficiary_list, 0)
 
-        if total != 100:
-            raise BadRequest("Invalid Percentage")
+        if args["requesttype"] == "submit":
+            if total != 100:
+                raise BadRequest("Invalid Percentage")
 
         for benef in beneficiary_list:
             print(type(benef['DOB']))
