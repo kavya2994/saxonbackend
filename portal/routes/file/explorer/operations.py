@@ -21,6 +21,8 @@ parser = reqparse.RequestParser()
 parser.add_argument('Authorization', type=str, location='headers', required=True)
 parser.add_argument('username', type=str, location='headers', required=True)
 parser.add_argument('Ipaddress', type=str, location='headers', required=True)
+parser.add_argument('operation', type=str, location='json', required=True)
+parser.add_argument('requestfolder', type=str, location='json', required=True)
 
 
 @ns.route("/explorer/operations")
@@ -34,6 +36,7 @@ class FileExplorerOperations(Resource):
         token = args["Authorization"]
         ip = args['Ipaddress']
         decoded_token = token_verify_or_raise(token, username, ip)
+        print(request.data)
         data = json.loads(str(request.data, encoding='utf-8'))
         operation = data["operation"]
         print(operation)
@@ -102,12 +105,6 @@ class FileExplorerOperations(Resource):
             except Exception as e:
                 print(str(e))
                 return {"error": "Something wrong happened"}, 500
-        elif operation == "upload":
-            file = request.files['file']
-            filename = secure_filename(file.filename)
-            file.save(os.path.join(path, filename))
-            return jsonify({"result": "Success"}), 200
-            # return send_file(os.path.join(path, filename))
         elif operation == "createnewfolder":
             folder_path = os.path.join(path, data["source"])
             try:

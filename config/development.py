@@ -1,6 +1,5 @@
 import logging
 
-
 LOG_LEVEL = logging.DEBUG
 
 DATA_DIR = "E:/Saxons_folders/"
@@ -46,7 +45,9 @@ CORS_ORIGIN_WHITELIST = [
     "https://localhost:5000",
     "http://localhost:4200",
     "https://localhost:4200",
-    "http://192.168.2.132:812"
+    "http://192.168.2.132:812",
+    "http://portal-uat.silverthatch.org.ky",
+    "https://portal-uat.silverthatch.org.ky"
 ]
 
 MAILGUN_API_KEY = "1dcbf1bdff3416543d67867101b08e49-52b6835e-5b18bf8e"

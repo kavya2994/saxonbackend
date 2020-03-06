@@ -8,19 +8,26 @@ import zipfile
 from datetime import datetime
 from flask import Blueprint, jsonify, request, send_file, current_app as app
 from flask_restx import Resource, reqparse
+from werkzeug.datastructures import FileStorage
+from werkzeug.exceptions import BadRequest, InternalServerError, Unauthorized, UnprocessableEntity
 from werkzeug.utils import secure_filename
 from xlutils.copy import copy
-from ....helpers import token_verify, delete_excel
+from ....helpers import token_verify, delete_excel, RESPONSE_OK, token_verify_or_raise
 from ....models import db, roles, status
 from ....models.contributionform import Contributionform
+from ....models.roles import *
 from ....models.token import Token
 from .. import ns
-from .... import APP
+from .... import APP, LOG
 
 parser = reqparse.RequestParser()
 parser.add_argument('Authorization', type=str, location='headers', required=True)
 parser.add_argument('username', type=str, location='headers', required=True)
 parser.add_argument('Ipaddress', type=str, location='headers', required=True)
+parser.add_argument('request_type', type=str, location='form', required=True)
+parser.add_argument('file', type=FileStorage, location='files', required=True)
+parser.add_argument('foldername', type=str, location='form', required=True)
+parser.add_argument('employerusername', type=str, location='form', required=True)
 
 
 @ns.route("/explorer/operation")
@@ -29,91 +36,33 @@ class FileExplorerOperation(Resource):
             responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 500: 'Internal Server Error'})
     @ns.expect(parser, validate=True)
     def post(self):
-        print(request.headers)
-        if "Authorization" in request.headers.keys() and token_verify(token=request.headers["Authorization"],
-                                                                      ip=request.headers["Ipaddress"],
-                                                                      user=request.headers["User"]):
-            try:
-                auth1 = request.headers["Authorization"]
-                auth1 = jwt.decode(auth1, key=app.config['JWT_SECRET'])
-                path = app.config['DATA_DIR']
-                file = request.files['file']
-                print("----------------")
-                print(request.form["request_type"])
-                print("----------------")
-                # print(file.filename)
-                if request.form["request_type"] == "contribution":
-                    startdate = request.form["startDate"]
-                    enddate = request.form["endDate"]
-                    print(startdate)
-                    start_date = datetime.strptime(startdate, "%a %b %d %Y")
-                    end_date = datetime.strptime(enddate, "%a %b %d %Y")
-                    formtype = request.form["formType"]
-                    userid = request.form["employerusername"]
-                    employer = request.form["employer"]
-                    path = os.path.join(path, "Employers")
+        args = parser.parse_args(strict=False)
+        decoded_token = token_verify_or_raise(token=args["Authorization"], user=args["username"], ip=args["Ipaddress"])
+        if decoded_token['role'] != ROLES_EMPLOYER:
+            raise Unauthorized()
+        if args["request_type"] == "upload":
+            if 'file' in request.files:
+                print("hello")
+                try:
+                    employer_id = args["employerusername"]
+                    path = APP.config["DATA_DIR"]
+                    file = args['file']
+                    foldername = args["foldername"]
+                    path = os.path.join(path, foldername)
+                    filename = secure_filename(file.filename)
+                    print(filename)
+                    filename = str(datetime.today().strftime("%Y%m%d %H%M%S.%f") + filename)
+                    path = os.path.join(path, employer_id)
                     if not os.path.exists(path):
-                        os.mkdir(path)
-                    path = os.path.join(path, userid)
-                    if not os.path.exists(path):
-                        os.mkdir(path)
-                    path = os.path.join(path, "contribution")
-                    if not os.path.exists(path):
-                        os.mkdir(path)
-                    if 'file' in request.files:
-                        print("hello")
-                        filename = secure_filename(file.filename)
-                        print(filename)
-                        # filename = str(datetime.today().strftime("%Y%m%d %H%M%S.%f") + filename)
-                        # myforms = db1.collection("myforms").add({"filename": filename, "startDate": start_date,
-                        #                                          "endDate": end_date,
-                        #                                          "employername": employer,
-                        #                                          "employernumber": employer_id, "formType": formtype,
-                        #                                          "formCreatedDate": datetime.utcnow(), "status": "pending",
-                        #                                          "pendingFrom": "reviewer"})
-                        # print(myforms[1].id)
-                        contribution = Contributionform(
-                            FormStatus=status.STATUS_PENDING,
-                            FormType=formtype,
-                            InitiatedBy=userid,
-                            # InitiatedDate=,
-                            Status=status.STATUS_PENDING,
-                            PendingFrom=roles.ROLES_REVIEW_MANAGER,
-                            TokenStatus=status.STATUS_ACTIVE,
-                            EmployerID=userid,
-                            LastModifiedDate=datetime.utcnow()
-                        )
-                        db.session.add(contribution)
-                        db.session.commit()
-
-                        path = os.path.join(path, str(contribution.FormID))
-                        if not os.path.exists(path):
-                            os.mkdir(path)
-                        file.save(os.path.join(path, filename))
-                    else:
-                        return jsonify({"error": "Bad request"}), 400
-
-                    return jsonify({"result": "Success"}), 200
-                elif request.form["request_type"] == "upload":
-                    if 'file' in request.files:
-                        print("hello")
-                        try:
-                            foldername = request.form["foldername"]
-                            path = os.path.join(path, foldername)
-                            filename = secure_filename(file.filename)
-                            print(filename)
-                            filename = str(datetime.today().strftime("%Y%m%d %H%M%S.%f") + filename)
-                            # path += str(employer_id) + "/"
-                            # if not os.path.exists(path):
-                            #     os.mkdir(path)
-                            file.save(os.path.join(path, filename))
-                            return jsonify({"result": "Success"}), 200
-                        except Exception as e:
-                            print(str(e))
-                            jsonify({"error": "Bad Request"}), 400
-                    return jsonify({"error": "No file found in the request"}), 400
-            except Exception as e:
-                print(str(e))
-                return jsonify({"error": "Not Authorized"}), 401
+                        os.mkdir(path, mode=0o777)
+                    file.save(os.path.join(path, filename))
+                    return RESPONSE_OK
+                except Exception as e:
+                    LOG.error(e)
+                    raise InternalServerError()
+            else:
+                raise BadRequest("No file found")
         else:
-            return jsonify({"error": "Not Authorized"}), 401
+            UnprocessableEntity("Please enter valid info")
+
+

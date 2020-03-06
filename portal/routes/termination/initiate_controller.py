@@ -58,7 +58,7 @@ class TerminationInitiationController(Resource):
         args = parser.parse_args()
         auth = token_verify_or_raise(token=args['Authorization'], ip=args['Ipaddress'], user=args['username'])
 
-        if auth['role'] in [ROLES_REVIEW_MANAGER, ROLES_EMPLOYER, ROLES_HR]:
+        if auth['role'] not in [ROLES_REVIEW_MANAGER, ROLES_EMPLOYER, ROLES_HR]:
             raise Unauthorized()
 
         intiated_by = auth['username']
@@ -121,13 +121,15 @@ class TerminationInitiationController(Resource):
                 f'<p>**This is an auto-generated e-mail message. Please do not reply to this message. **</p>' + \
                 f'<p>Dear {member_name}</p>' + \
                 f'<p>In an effort to keep you connected with your Silver Thatch Pension after you leave your ' + \
-                f'current position, please click here or copy the link below into a browser to complete the ' + \
+                f'current position, please click <a href="{APP.config["FRONTEND_URL"]}/terminationform/{token_id}">here</a>' \
+                f' or copy the link below into a browser to complete the ' + \
                 f'termination of employment form. This form notifies us that you are no longer employed with ' + \
                 f'your current employer and allows Silver Thatch Pensions to stay in touch with you in regards ' + \
                 f'to your pension. </p><p>-----------------------------------------</p> ' + \
                 f'<p>{APP.config["FRONTEND_URL"]}/terminationform/{token_id}</p>' + \
                 f'<p>To learn more about the Silver Thatch Pension Plan,' + \
-                f' click here to review our members handbook. </p>'
+                f' click <a href="{APP.config["FRONTEND_URL"]}/terminationform/{token_id}">here</a>' \
+                f' to review our members handbook. </p>'
 
             send_email(to_address=form.EmailAddress, subject=subject, body=msg_text)
             return RESPONSE_OK

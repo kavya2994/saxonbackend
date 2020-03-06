@@ -65,7 +65,9 @@ CORS_ORIGIN_WHITELIST = [
     "http://192.168.2.132:812",
 
     "http://portal.silverthatch.org.ky",
-    "https://portal.silverthatch.org.ky"
+    "https://portal.silverthatch.org.ky",
+    "http://portal-uat.silverthatch.org.ky",
+    "https://portal-uat.silverthatch.org.ky"
 ]
 
 MAILGUN_API_KEY = "1dcbf1bdff3416543d67867101b08e49-52b6835e-5b18bf8e"
