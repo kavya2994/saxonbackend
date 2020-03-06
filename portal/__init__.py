@@ -5,6 +5,7 @@ from logging.handlers import RotatingFileHandler
 from flask import Flask
 from flask_restx import Api, Resource
 from flask_cors import CORS
+from werkzeug.middleware.proxy_fix import ProxyFix
 
 
 APP = None
@@ -46,6 +47,7 @@ def create_app():
 
     APP = Flask(__name__, static_url_path='/static')
     APP.debug = True
+    APP.wsgi_app = ProxyFix(APP.wsgi_app, x_for=2)
 
     config_file_path = get_config_file_path()
     if config_file_path is not None:
