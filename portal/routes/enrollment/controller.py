@@ -34,9 +34,9 @@ getParser.add_argument('username', type=str, location='headers', required=False)
 getParser.add_argument('Ipaddress', type=str, location='headers', required=False)
 
 deleteParser = reqparse.RequestParser()
-deleteParser.add_argument('Authorization', type=str, location='headers', required=True)
-deleteParser.add_argument('username', type=str, location='headers', required=True)
-deleteParser.add_argument('Ipaddress', type=str, location='headers', required=True)
+deleteParser.add_argument('Authorization', type=str, location='headers', required=False)
+deleteParser.add_argument('username', type=str, location='headers', required=False)
+deleteParser.add_argument('Ipaddress', type=str, location='headers', required=False)
 
 parser = reqparse.RequestParser()
 
@@ -194,8 +194,8 @@ class EnrollmentController(Resource):
                    "spouse_name": enrollmentform.SpouseName,
                    "spouse_dob": enrollmentform.SpouseDOB,
                    "member_id": enrollmentform.MemberID,
-                   "filename": enrollmentform.FilePath.split("\\")[
-                       len(str(enrollmentform.FilePath).split(
+                   "filename": str(enrollmentform.FilePath).replace("/", "\\").split("\\")[
+                       len(str(enrollmentform.FilePath).replace("/", "\\").split(
                            "\\")) - 1] if enrollmentform.FilePath is not None else "",
                }, 200
 
@@ -291,7 +291,7 @@ class EnrollmentController(Resource):
         else:
             raise BadRequest('Unkown RequestType')
 
-        return form
+        return RESPONSE_OK
 
     def _memberSubmission_pre_update(self, token, form, args):
         print(token)
@@ -366,6 +366,12 @@ class EnrollmentController(Resource):
 
         if token.TokenStatus != STATUS_ACTIVE or token.FormStatus != STATUS_PENDING:
             raise NotFound('Token was not Found or is not Active')
+        print(form.FilePath)
+
+
+
+
+    def _saveFormData_post_update(self, token, form, args):
         if 'file' in request.files and form.FilePath is None:
             path = APP.config['DATA_DIR']
             file = request.files['file']
@@ -385,10 +391,6 @@ class EnrollmentController(Resource):
                 os.mkdir(path)
             file.save(os.path.join(path, filename))
             form.FilePath = os.path.join(path, filename)
-
-
-
-    def _saveFormData_post_update(self, token, form, args):
         form.Status = STATUS_PENDING
         token.LastModifiedDate = datetime.utcnow()
         db.session.commit()

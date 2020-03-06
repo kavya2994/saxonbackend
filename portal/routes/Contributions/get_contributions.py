@@ -68,7 +68,7 @@ class GetContributions(Resource):
                 "EndDate": contributions.EndDate,
                 "FormStatus": contributions.Status,
                 "LastModifiedDate": contributions.LastModifiedDate,
-                "FileName": str(contributions.FilePath).split("\\")[len(str(contributions.FilePath).split("\\")) - 1] if contributions.FilePath is not None else ""
+                "FileName": str(contributions.FilePath).replace("/", "\\").split("\\")[len(str(contributions.FilePath).replace("/", "\\").split("\\")) - 1] if contributions.FilePath is not None else ""
             })
 
         return {"contributions": forms_data}, 200

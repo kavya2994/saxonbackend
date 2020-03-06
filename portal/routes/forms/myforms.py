@@ -95,7 +95,7 @@ class MyForms(Resource):
                     "FormType": "Contribution",
                     "FormStatus": contributions.Status,
                     "LastModifiedDate": contributions.LastModifiedDate,
-                    "FilePath": str(contributions.FilePath).split("\\")[len(str(contributions.FilePath).split("\\")) - 1] if contributions.FilePath is not None else ""
+                    "FilePath": str(contributions.FilePath).replace("/", "\\").split("\\")[len(str(contributions.FilePath).replace("/", "\\").split("\\")) - 1] if contributions.FilePath is not None else ""
                 })
 
             return {"myforms": forms_data}, 200

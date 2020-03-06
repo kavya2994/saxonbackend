@@ -22,9 +22,10 @@ parser.add_argument('Ipaddress', type=str, location='headers', required=True)
 parser.add_argument('FormType', type=str, location='json', required=True)
 parser.add_argument('Employer', type=str, location='json', required=False)
 parser.add_argument('Member', type=str, location='json', required=False)
-parser.add_argument('SubmittedFrom', type=str, location='json', required=True)
-parser.add_argument('SubmittedTo', type=str, location='json', required=True)
-# parser.add_argument('offset', type=int, location='args', required=True)
+parser.add_argument('SubmittedFrom', type=inputs.date_from_iso8601, location='json', required=True,
+                    help='iso8601 format. eg: 2012-11-25')
+parser.add_argument('SubmittedTo', type=inputs.date_from_iso8601, location='json', required=True,
+                    help='iso8601 format. eg: 2012-11-25')
 
 response_model_child = ns.model('PostSearchFormsChild', {
     "Token": fields.String,
