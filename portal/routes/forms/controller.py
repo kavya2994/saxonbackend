@@ -87,7 +87,7 @@ class FormController(Resource):
             LOG.error("Exception while deleting the form", e)
             raise InternalServerError("Error while deleting the form. Please try again")
 
-    @ns.doc(description='Delete Form',
+    @ns.doc(description='Send mail as a remainder',
             responses={
                 200: 'OK',
                 401: 'Unauthorized',
@@ -114,18 +114,19 @@ class FormController(Resource):
             form = Enrollmentform.query.get(token.FormID)
             name = form.FirstName if form.FirstName is not None else "" + " " + form.LastName if form.LastName is not None else ""
             subject = "Your Silver Thatch Pensions Enrollment Form needs to be completed"
-            msgtext = '<p>**This is an auto-generated e-mail message.' + \
-                      ' Please do not reply to this message. **</p>' + \
-                      '<p>Dear ' + name + '</p>' + \
-                      '<p>Please click here. Otherwise, ' + \
-                      'cut and paste the link below into a browser, fill in the ' + \
-                      'required information, and when you are done' + \
-                      ' hit the submit button to start your enrollment ' + \
-                      'into the plan.</p>' + \
-                      '<p>-----------------------------------------</p>' + \
-                      '<p>' + APP.config["FRONTEND_URL"] + '/enrollment-form/' + TokenID + '</p>' + \
-                      '<p>To learn more about the Silver Thatch Pension Plan,' + \
-                      ' click here to review our members handbook. </p>'
+            msgtext = f'<p>**This is an auto-generated e-mail message.' + \
+                      f' Please do not reply to this message. **</p>' + \
+                      f'<p>Dear{name}</p>' + \
+                      f'<p>Please click <a href="{APP.config["FRONTEND_URL"]}/enrollment-form/{TokenID}">here</a>' \
+                      f'. Otherwise, ' + \
+                      f'cut and paste the link below into a browser, fill in the ' + \
+                      f'required information, and when you are done' + \
+                      f' hit the submit button to start your enrollment ' + \
+                      f'into the plan.</p>' + \
+                      f'<p>-----------------------------------------</p>' + \
+                      f'<p>{APP.config["FRONTEND_URL"]}/enrollment-form/{TokenID}</p>' + \
+                      f'<p>To learn more about the Silver Thatch Pension Plan,' + \
+                      f' click here to review our members handbook. </p>'
             try:
                 send_email(to_address=email_id, subject=subject, body=msgtext)
                 form.LastNotifiedDate = datetime.utcnow()

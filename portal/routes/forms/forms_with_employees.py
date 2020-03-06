@@ -21,7 +21,8 @@ response_model_child = ns.model('GetFormWithEmployeesChild', {
     "MemberName": fields.String,
     "FormType": fields.String,
     "FormStatus": fields.String,
-    "LastModifiedDate": fields.DateTime
+    "LastModifiedDate": fields.DateTime,
+    "EmailID": fields.String
 })
 
 response_model = ns.model('GetFormWithEmployees', {

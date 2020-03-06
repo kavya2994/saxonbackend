@@ -23,6 +23,8 @@ parser.add_argument('Ipaddress', type=str, location='headers', required=True)
 parser.add_argument('MemberName', type=str, location='json', required=True)
 parser.add_argument('MemberNumber', type=str, location='json', required=True)
 parser.add_argument('EmailAddress', type=str, location='json', required=True)
+parser.add_argument('employerusername', type=str, location='json', required=True)
+parser.add_argument('employername', type=str, location='json', required=True)
 parser.add_argument('Comment', type=str, location='json', required=False)
 parser.add_argument('CommentName', type=str, location='json', required=False)
 
@@ -63,10 +65,8 @@ class TerminationInitiationController(Resource):
 
         intiated_by = auth['username']
         initiation_date = datetime.utcnow()
-        data = json.loads(str(request.data, encoding='utf-8'))
-        print(data)
-        employer_id = data["employerusername"]
-        employer_name = data["employername"]
+        employer_id = args["employerusername"]
+        employer_name = args["employername"]
         employernumber = employer_id
         member_name = args['MemberNumber']
 

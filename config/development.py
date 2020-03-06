@@ -19,6 +19,7 @@ DBAAS_WRITEONLY_CONNECTION_STRING = "oracle+cx_oracle://system:Sportal_DB#23@140
 SERVER_ADDRESS = "0.0.0.0"
 SERVER_PORT = 811
 SERVER_WEB_URL = f'http://{SERVER_ADDRESS}:{SERVER_PORT}/static/'
+MAIL_ENROLLMENT_URL = 'https://silverthatch.org.ky/?d=756'
 
 FRONTEND_URL = 'http://192.168.2.132:812/'
 

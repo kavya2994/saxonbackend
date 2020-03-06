@@ -81,10 +81,11 @@ class Search(Resource):
         if search_role == roles.ROLES_MEMBER:
             employer_username = args_dict["employerusername"]
             employer_sname = ""
-            if not employer_username == "":
+            if not employer_username == "" and employer_username is not None:
                 employer_ = EmployerView.query.filter_by(ERNO=employer_username).first()
-                if employer_ is not None:
-                    employer_sname = employer_.SNAME
+                if employer_ is None:
+                    raise UnprocessableEntity("Invalid employer")
+                employer_sname = employer_.SNAME
             try:
                 members = MemberView.query.filter(MemberView.MEMNO.like("%" + args_dict["ID"] + "%"),
                                                   or_(MemberView.FNAME.like("%" + args_dict["name"] + "%"),

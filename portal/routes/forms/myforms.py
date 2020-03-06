@@ -29,7 +29,8 @@ response_model_child = ns.model('GetMyFormsChild', {
     "FormType": fields.String,
     "FormStatus": fields.String,
     "LastModifiedDate": fields.DateTime,
-    "FilePath": fields.String
+    "FilePath": fields.String,
+    "EmailID": fields.String
 })
 
 response_model = ns.model('GetMyForms', {
@@ -65,7 +66,8 @@ class MyForms(Resource):
                     "MemberName": enrollments.FirstName if enrollments.FirstName is not None else "" + " " + enrollments.MiddleName if enrollments.MiddleName is not None else "" + " " + enrollments.LastName if enrollments.LastName is not None else "",
                     "FormType": tokens_data.FormType,
                     "FormStatus": tokens_data.FormStatus,
-                    "LastModifiedDate": tokens_data.LastModifiedDate
+                    "LastModifiedDate": tokens_data.LastModifiedDate,
+                    "EmailID": enrollments.EmailAddress
                 })
 
             termination_form_data = db.session.query(Token, Terminationform).filter(
@@ -81,7 +83,8 @@ class MyForms(Resource):
                     "MemberName": terminations.MemberName,
                     "FormType": tokens_data.FormType,
                     "FormStatus": tokens_data.FormStatus,
-                    "LastModifiedDate": tokens_data.LastModifiedDate
+                    "LastModifiedDate": tokens_data.LastModifiedDate,
+                    "EmailID": terminations.EmailAddress
                 })
 
             contribution_forms = Contributionform.query.order_by(Contributionform.LastModifiedDate.desc()).all()
@@ -117,7 +120,8 @@ class MyForms(Resource):
                     "MemberName": enrollments.FirstName if enrollments.FirstName is not None else "" + " " + enrollments.MiddleName if enrollments.MiddleName is not None else "" + " " + enrollments.LastName if enrollments.LastName is not None else "",
                     "FormType": tokens_data.FormType,
                     "FormStatus": tokens_data.FormStatus,
-                    "LastModifiedDate": tokens_data.LastModifiedDate
+                    "LastModifiedDate": tokens_data.LastModifiedDate,
+                    "EmailID": enrollments.EmailAddress
                 })
 
             termination_form_data = db.session.query(Token, Terminationform).filter(
@@ -135,7 +139,8 @@ class MyForms(Resource):
                     "MemberName": terminations.MemberName,
                     "FormType": tokens_data.FormType,
                     "FormStatus": tokens_data.FormStatus,
-                    "LastModifiedDate": tokens_data.LastModifiedDate
+                    "LastModifiedDate": tokens_data.LastModifiedDate,
+                    "EmailID": terminations.EmailAddress
                 })
             # contribution_forms = Contributionform.query.order_by(Contributionform.LastModifiedDate.desc()).all()
             # for contributions in contribution_forms:

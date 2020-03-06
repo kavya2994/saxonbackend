@@ -39,28 +39,27 @@ class GetSubsidiary(Resource):
     @ns.marshal_with(response_model)
     def post(self):
         args = parser.parse_args(strict=False)
+
+        username = args['username']
+        token = args["Authorization"]
+        ip = args['Ipaddress']
+        employer_id = args["employer_id"]
+        decoded_token = token_verify_or_raise(token, username, ip)
+        # print(decoded_token)
+        if not decoded_token["role"] in [ROLES_REVIEW_MANAGER, ROLES_EMPLOYER, ROLES_ADMIN]:
+            raise Unauthorized()
         try:
-            username = args['username']
-            token = args["Authorization"]
-            ip = args['Ipaddress']
-            employer_id = args["employer_id"]
-            decoded_token = token_verify_or_raise(token, username, ip)
-            # print(decoded_token)
-            if decoded_token["role"] in [ROLES_REVIEW_MANAGER, ROLES_EMPLOYER, ROLES_ADMIN]:
+            subsidiaries = Subsidiaries.query.filter_by(EmployerID=employer_id).all()
+            subsidiaries_list = []
+            for subsidiary in subsidiaries:
+                subsidiaries_list.append({
+                    'EmployerID': subsidiary.EmployerID,
+                    'EmployerName': subsidiary.EmployerName,
+                    'SubsidiaryID': subsidiary.SubsidiaryID,
+                    'SubsidiaryName': subsidiary.SubsidiaryName
+                })
 
-                subsidiaries = Subsidiaries.query.filter_by(EmployerID=employer_id).all()
-                subsidiaries_list = []
-                for subsidiary in subsidiaries:
-                    subsidiaries_list.append({
-                        'EmployerID': subsidiary.EmployerID,
-                        'EmployerName': subsidiary.EmployerName,
-                        'SubsidiaryID': subsidiary.SubsidiaryID,
-                        'SubsidiaryName': subsidiary.SubsidiaryName
-                    })
-
-                return {'subsidiaries': subsidiaries_list}, 200
-            else:
-                raise Unauthorized()
+            return {'subsidiaries': subsidiaries_list}, 200
         except Exception as e:
             LOG.error("Exception while fetching subsidiaries", e)
             raise InternalServerError("Can't fetch subsidiaries")
