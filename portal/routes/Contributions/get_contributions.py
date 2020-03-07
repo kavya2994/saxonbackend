@@ -30,7 +30,8 @@ response_model_child = ns.model('GetGetContributionsChild', {
     "EndDate": fields.String,
     "FormStatus": fields.String,
     "LastModifiedDate": fields.String,
-    "FileName": fields.String
+    "FileName": fields.String,
+    "PendingFrom": fields.String
 })
 
 response_model = ns.model('GetGetContributions', {
@@ -68,6 +69,7 @@ class GetContributions(Resource):
                 "EndDate": contributions.EndDate,
                 "FormStatus": contributions.Status,
                 "LastModifiedDate": contributions.LastModifiedDate,
+                "PendingFrom": contributions.PendingFrom,
                 "FileName": str(contributions.FilePath).replace("/", "\\").split("\\")[len(str(contributions.FilePath).replace("/", "\\").split("\\")) - 1] if contributions.FilePath is not None else ""
             })
 

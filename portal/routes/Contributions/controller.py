@@ -109,9 +109,7 @@ class ContributionController(Resource):
                        "EndDate": contributions.EndDate,
                        "FormStatus": contributions.Status,
                        "LastModifiedDate": contributions.LastModifiedDate,
-                       "FileName": str(contributions.FilePath).split("\\")[
-                           len(str(contributions.FilePath).split(
-                               "\\")) - 1] if contributions.FilePath is not None else "",
+                       "FileName": str(contributions.FilePath).replace("/", "\\").split("\\")[len(str(contributions.FilePath).replace("/", "\\").split("\\")) - 1] if contributions.FilePath is not None else "",
                        "comments": comments_list
                    }, 200
         else:
@@ -131,7 +129,6 @@ class ContributionController(Resource):
 
         contribution = Contributionform.query.filter_by(FormID=FormID).first()
         initiation_date = datetime.utcnow()
-        print(args["request_type"], "request_type")
         if contribution is not None:
             if args["request_type"] == RequestType_SaveFormData:
                 if decode_token["role"] == roles.ROLES_EMPLOYER:

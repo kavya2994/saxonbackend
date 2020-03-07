@@ -2,6 +2,7 @@ import json
 from datetime import datetime
 from flask import Blueprint, jsonify, request
 from flask_restx import Resource, reqparse, inputs, fields
+from sqlalchemy import or_
 from werkzeug.exceptions import NotFound, BadRequest, Unauthorized, UnprocessableEntity, InternalServerError
 from ...helpers import token_verify_or_raise, RESPONSE_OK
 from ...models import db, status, roles
@@ -22,9 +23,11 @@ parser.add_argument('Ipaddress', type=str, location='headers', required=True)
 parser.add_argument('FormType', type=str, location='json', required=True)
 parser.add_argument('Employer', type=str, location='json', required=False)
 parser.add_argument('Member', type=str, location='json', required=False)
-parser.add_argument('SubmittedFrom', type=inputs.date_from_iso8601, location='json', required=True,
+parser.add_argument('FormStatus', type=str, location='json', required=True)
+parser.add_argument('PendingFrom', type=str, location='json', required=True)
+parser.add_argument('SubmittedFrom', type=inputs.date_from_iso8601, location='json', required=False,
                     help='iso8601 format. eg: 2012-11-25')
-parser.add_argument('SubmittedTo', type=inputs.date_from_iso8601, location='json', required=True,
+parser.add_argument('SubmittedTo', type=inputs.date_from_iso8601, location='json', required=False,
                     help='iso8601 format. eg: 2012-11-25')
 
 response_model_child = ns.model('PostSearchFormsChild', {
@@ -53,7 +56,7 @@ class SearchForms(Resource):
         args = parser.parse_args(strict=False)
         token = token_verify_or_raise(token=args["Authorization"], user=args["username"], ip=args["Ipaddress"])
         forms_data = []
-        parameters = ["FormType", "Status", "Employer", "Member", "SubmittedFrom", "SubmittedTo"]
+        parameters = ["FormType", "FormStatus", "Employer", "Member", "SubmittedFrom", "SubmittedTo", "PendingFrom"]
         parameters_dict = {}
         for arg in parameters:
             if args[arg] is None:
@@ -61,16 +64,24 @@ class SearchForms(Resource):
             else:
                 parameters_dict[arg] = args[arg]
         try:
-            form_status = args["FormStatus"]
-            submitted_from = args["SubmittedFrom"]
-            submitted_to = args["SubmittedTo"]
-            if args["FormType"] == TOKEN_FORMTYPE_TERMINATION:
+            if parameters_dict["SubmittedFrom"] == "":
+                parameters_dict["SubmittedFrom"] = datetime(year=1, month=1, day=1)
+                parameters_dict["SubmittedTo"] = datetime(year=9999, month=1, day=1)
+            form_status = parameters_dict["FormStatus"]
+            submitted_from = parameters_dict["SubmittedFrom"]
+            submitted_to = parameters_dict["SubmittedTo"]
+            if args["FormType"] == TOKEN_FORMTYPE_TERMINATION or args["FormType"] == "":
 
                 termination_form_data = db.session.query(Token, Terminationform).filter(
+                    Token.FormID == Terminationform.FormID,
                     Token.FormType == TOKEN_FORMTYPE_TERMINATION,
                     Token.TokenStatus == status.STATUS_ACTIVE,
                     Terminationform.EmployerName.like("%" + parameters_dict["Employer"] + "%"),
-                    Terminationform.MemberName.like("%" + parameters_dict["Member"] + "%")).order_by(
+                    Terminationform.MemberName.like("%" + parameters_dict["Member"] + "%"),
+                    Terminationform.PendingFrom.like("%" + parameters_dict["PendingFrom"] + "%"),
+                    Token.InitiatedDate < submitted_to,
+                    Token.InitiatedDate > submitted_from,
+                    Token.FormStatus.like("%" + form_status + "%")).order_by(
                     Token.LastModifiedDate.desc()).all()
                 # still date criteria pending
                 for tokens_data, terminations in termination_form_data:
@@ -80,23 +91,36 @@ class SearchForms(Resource):
                         "MemberName": terminations.MemberName,
                         "FormType": tokens_data.FormType,
                         "FormStatus": tokens_data.FormStatus,
-                        "LastModifiedDate": tokens_data.LastModifiedDate
+                        "LastModifiedDate": tokens_data.LastModifiedDate,
+                        "PendingFrom": tokens_data.PendingFrom
                     })
-                return {"forms": forms_data}, 200
-            elif args["FormType"] == TOKEN_FORMTYPE_ENROLLMENT:
+                print(forms_data)
+            if args["FormType"] == TOKEN_FORMTYPE_ENROLLMENT or args["FormType"] == "":
                 enrollment_form_data = db.session.query(Token, Enrollmentform).filter(
-                    Token.FormStatus == status.STATUS_PENDING,
-                    Token.TokenStatus == status.STATUS_ACTIVE).order_by(Token.LastModifiedDate.desc()).all()
+                    Token.FormID == Enrollmentform.FormID,
+                    Enrollmentform.PendingFrom.like("%" + parameters_dict["PendingFrom"] + "%"),
+                    or_(Enrollmentform.FirstName.like("%" + parameters_dict["Member"] + "%"),
+                        Enrollmentform.LastName.like("%" + parameters_dict["Member"] + "%")),
+                    Token.EmployerID.like("%" + parameters_dict["Employer"] + "%"),
+                    Token.TokenStatus == status.STATUS_ACTIVE,
+                    Token.InitiatedDate < submitted_to,
+                    Token.InitiatedDate > submitted_from,
+                    Token.FormStatus.like("%" + form_status + "%")
+
+                ).order_by(Token.LastModifiedDate.desc()).all()
 
                 for tokens_data, enrollments in enrollment_form_data:
                     forms_data.append({
                         "Token": tokens_data.TokenID,
                         "EmployerID": tokens_data.EmployerID,
-                        "MemberName": enrollments.MemberName,
+                        "MemberName": enrollments.FirstName if enrollments.FirstName is not None else "" + " " + enrollments.MiddleName if enrollments.MiddleName is not None else "" + " " + enrollments.LastName if enrollments.LastName is not None else "",
                         "FormType": tokens_data.FormType,
                         "FormStatus": tokens_data.FormStatus,
-                        "LastModifiedDate": tokens_data.LastModifiedDate
+                        "LastModifiedDate": tokens_data.LastModifiedDate,
+                        "PendingFrom": tokens_data.PendingFrom
                     })
+                print(forms_data)
+            return {"forms": forms_data}, 200
         except Exception as e:
             LOG.error("Exception while adding employer to member", e)
             raise InternalServerError("Can't add employer to user")

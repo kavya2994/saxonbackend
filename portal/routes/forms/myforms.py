@@ -20,6 +20,7 @@ parser.add_argument('Authorization', type=str, location='headers', required=True
 parser.add_argument('username', type=str, location='headers', required=True)
 parser.add_argument('Ipaddress', type=str, location='headers', required=True)
 parser.add_argument('offset', type=int, location='args', required=True)
+parser.add_argument('user', type=str, location='args', required=True)
 
 response_model_child = ns.model('GetMyFormsChild', {
     "Token": fields.String,
@@ -30,7 +31,8 @@ response_model_child = ns.model('GetMyFormsChild', {
     "FormStatus": fields.String,
     "LastModifiedDate": fields.DateTime,
     "FilePath": fields.String,
-    "EmailID": fields.String
+    "EmailID": fields.String,
+    "PendingFrom": fields.String
 })
 
 response_model = ns.model('GetMyForms', {
@@ -67,7 +69,8 @@ class MyForms(Resource):
                     "FormType": tokens_data.FormType,
                     "FormStatus": tokens_data.FormStatus,
                     "LastModifiedDate": tokens_data.LastModifiedDate,
-                    "EmailID": enrollments.EmailAddress
+                    "EmailID": enrollments.EmailAddress,
+                    "PendingFrom": tokens_data.PendingFrom
                 })
 
             termination_form_data = db.session.query(Token, Terminationform).filter(
@@ -84,7 +87,8 @@ class MyForms(Resource):
                     "FormType": tokens_data.FormType,
                     "FormStatus": tokens_data.FormStatus,
                     "LastModifiedDate": tokens_data.LastModifiedDate,
-                    "EmailID": terminations.EmailAddress
+                    "EmailID": terminations.EmailAddress,
+                    "PendingFrom": tokens_data.PendingFrom
                 })
 
             contribution_forms = Contributionform.query.order_by(Contributionform.LastModifiedDate.desc()).all()
@@ -95,12 +99,13 @@ class MyForms(Resource):
                     "FormType": "Contribution",
                     "FormStatus": contributions.Status,
                     "LastModifiedDate": contributions.LastModifiedDate,
+                    "PendingFrom": contributions.PendingFrom,
                     "FilePath": str(contributions.FilePath).replace("/", "\\").split("\\")[len(str(contributions.FilePath).replace("/", "\\").split("\\")) - 1] if contributions.FilePath is not None else ""
                 })
 
             return {"myforms": forms_data}, 200
         elif token["role"] in [roles.ROLES_EMPLOYER, roles.ROLES_HR]:
-            employer_id = str(args["username"]).replace("HR", "")
+            employer_id = args["user"]
             offset = args["offset"]
             if offset is None or str(offset) == "":
                 offset = 0
@@ -121,7 +126,8 @@ class MyForms(Resource):
                     "FormType": tokens_data.FormType,
                     "FormStatus": tokens_data.FormStatus,
                     "LastModifiedDate": tokens_data.LastModifiedDate,
-                    "EmailID": enrollments.EmailAddress
+                    "EmailID": enrollments.EmailAddress,
+                    "PendingFrom": tokens_data.PendingFrom
                 })
 
             termination_form_data = db.session.query(Token, Terminationform).filter(
@@ -140,7 +146,8 @@ class MyForms(Resource):
                     "FormType": tokens_data.FormType,
                     "FormStatus": tokens_data.FormStatus,
                     "LastModifiedDate": tokens_data.LastModifiedDate,
-                    "EmailID": terminations.EmailAddress
+                    "EmailID": terminations.EmailAddress,
+                    "PendingFrom": tokens_data.PendingFrom
                 })
             # contribution_forms = Contributionform.query.order_by(Contributionform.LastModifiedDate.desc()).all()
             # for contributions in contribution_forms:

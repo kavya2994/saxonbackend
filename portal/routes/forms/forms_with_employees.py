@@ -22,7 +22,8 @@ response_model_child = ns.model('GetFormWithEmployeesChild', {
     "FormType": fields.String,
     "FormStatus": fields.String,
     "LastModifiedDate": fields.DateTime,
-    "EmailID": fields.String
+    "EmailID": fields.String,
+    "PendingFrom": fields.String
 })
 
 response_model = ns.model('GetFormWithEmployees', {
@@ -34,6 +35,7 @@ parser.add_argument('Authorization', type=str, location='headers', required=True
 parser.add_argument('username', type=str, location='headers', required=True)
 parser.add_argument('Ipaddress', type=str, location='headers', required=True)
 parser.add_argument('offset', type=int, location='args', required=True)
+parser.add_argument('user', type=str, location='args', required=True)
 
 
 @ns.route("/employees")
@@ -67,6 +69,7 @@ class FormWithEmployees(Resource):
                     "FormType": tokens_data.FormType,
                     "FormStatus": tokens_data.FormStatus,
                     "LastModifiedDate": tokens_data.LastModifiedDate,
+                    "PendingFrom": tokens_data.PendingFrom,
                     "EmailID": enrollments.EmailAddress
                 })
 
@@ -86,14 +89,13 @@ class FormWithEmployees(Resource):
                     "FormType": tokens_data.FormType,
                     "FormStatus": tokens_data.FormStatus,
                     "LastModifiedDate": tokens_data.LastModifiedDate,
+                    "PendingFrom": tokens_data.PendingFrom,
                     "EmailID": terminations.EmailAddress
                 })
 
             return {"forms_employees": forms_data}, 200
         elif decode_token["role"] in [roles.ROLES_EMPLOYER, roles.ROLES_HR]:
-            employer_id = args["username"]
-            if str(args["username"])[-2:].__contains__("HR"):
-                employer_id = str(args["username"])[:-2]
+            employer_id = args["user"]
             offset_ = args["offset"]
             if offset_ is None or str(offset_) == "":
                 offset_ = 0
@@ -116,6 +118,7 @@ class FormWithEmployees(Resource):
                     "FormType": tokens_data.FormType,
                     "FormStatus": tokens_data.FormStatus,
                     "LastModifiedDate": tokens_data.LastModifiedDate,
+                    "PendingFrom": tokens_data.PendingFrom,
                     "EmailID": enrollments.EmailAddress
                 })
 
@@ -136,6 +139,7 @@ class FormWithEmployees(Resource):
                     "FormType": tokens_data.FormType,
                     "FormStatus": tokens_data.FormStatus,
                     "LastModifiedDate": tokens_data.LastModifiedDate,
+                    "PendingFrom": tokens_data.PendingFrom,
                     "EmailID": terminations.EmailAddress
                 })
             print(forms_data)

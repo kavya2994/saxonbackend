@@ -34,6 +34,7 @@ parser = reqparse.RequestParser()
 parser.add_argument('Authorization', type=str, location='headers', required=True)
 parser.add_argument('username', type=str, location='headers', required=True)
 parser.add_argument('Ipaddress', type=str, location='headers', required=True)
+parser.add_argument('user', type=str, location='args', required=True)
 
 
 @ns.route("/myqueue")
@@ -94,7 +95,7 @@ class FormQueue(Resource):
 
             return {"forms_queue": forms_data}, 200
         elif token["role"] in [roles.ROLES_EMPLOYER, roles.ROLES_HR]:
-            employer_id = str(args["username"]).replace("HR", "")
+            employer_id = args["user"]
             forms_data = []
             enrollment_form_data = db.session.query(Token, Enrollmentform).filter(
                 Token.FormID == Enrollmentform.FormID,
