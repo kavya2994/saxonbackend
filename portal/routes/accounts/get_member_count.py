@@ -33,7 +33,6 @@ class GetMembersForEmployer(Resource):
         username = args['username']
         token = args["Authorization"]
         ip = args['Ipaddress']
-        offset = args["offset"]
         decoded_token = token_verify_or_raise(token, username, ip)
 
         if decoded_token["role"] not in [roles.ROLES_EMPLOYER, roles.ROLES_HR, roles.ROLES_REVIEW_MANAGER]:
@@ -46,7 +45,8 @@ class GetMembersForEmployer(Resource):
             raise UnprocessableEntity("Not a valid employerid")
         employer_sname = employer_.SNAME
         try:
-            members_count = MemberView.query.filter_by(EMPOYER=employer_sname).count()
+            members_count = MemberView.query\
+                .filter(MemberView.EMPOYER == employer_sname, MemberView.EM_STATUS != "Terminated").count()
             return {"members": members_count}, 200
         except Exception as e:
             LOG.error(e)

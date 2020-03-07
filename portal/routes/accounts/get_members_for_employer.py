@@ -57,7 +57,8 @@ class GetMembersForEmployer(Resource):
         if employer_ is None:
             raise UnprocessableEntity("Not a valid employerid")
         employer_sname = employer_.SNAME
-        members = MemberView.query.filter_by(EMPOYER=employer_sname).offset(offset).limit(50).all()
+        members = MemberView.query.filter(MemberView.EMPOYER == employer_sname, MemberView.EM_STATUS != "Terminated")\
+            .offset(offset).limit(50).all()
         member_list = []
         try:
             for mem in members:

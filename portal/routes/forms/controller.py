@@ -123,10 +123,12 @@ class FormController(Resource):
                       f'required information, and when you are done' + \
                       f' hit the submit button to start your enrollment ' + \
                       f'into the plan.</p>' + \
+                      f'<p>Have you had a chance to look at this yet?</p>' + \
                       f'<p>-----------------------------------------</p>' + \
                       f'<p>{APP.config["FRONTEND_URL"]}/enrollment-form/{TokenID}</p>' + \
-                      f'<p>To learn more about the Silver Thatch Pension Plan,' + \
-                      f' click here to review our members handbook. </p>'
+                      f'<p>To learn more about the Silver Thatch Pension Plan,' \
+                      f'click <a href="{APP.config["MAIL_ENROLLMENT_URL"]}">here</a>' \
+                      f'to review our members handbook. </p>'
             try:
                 send_email(to_address=email_id, subject=subject, body=msgtext)
                 form.LastNotifiedDate = datetime.utcnow()
@@ -151,10 +153,9 @@ class FormController(Resource):
                       'form notifies us that you are no longer employed with your current ' + \
                       'employer and allows Silver Thatch Pensions to stay in touch with you in ' + \
                       'regards to your pension. </p> ' + \
+                      '<p>Have you had a chance to look at this yet?</p>' + \
                       '<p>-----------------------------------------</p>' + \
-                      '<p>' + APP.config["FRONTEND_URL"] + '/terminationform/' + TokenID + '</p>' + \
-                      '<p>To learn more about the Silver Thatch Pension Plan,' + \
-                      ' click here to review our members handbook. </p>'
+                      '<p>' + APP.config["FRONTEND_URL"] + '/terminationform/' + TokenID + '</p>'
             try:
                 send_email(to_address=email_id, subject=subject, body=msgtext)
                 form.LastNotifiedDate = datetime.utcnow()

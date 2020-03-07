@@ -10,6 +10,7 @@ from ...models.enrollmentform import Enrollmentform
 from ...models.terminationform import Terminationform
 from ...models.token import Token, TOKEN_FORMTYPE_TERMINATION
 from ...models.comments import Comments
+from ...models.status import *
 from ...models.roles import *
 from ...services.mail import send_email
 from . import ns
@@ -77,7 +78,8 @@ class FormQueue(Resource):
                     "FormStatus": tokens_data.FormStatus,
                     "LastModifiedDate": tokens_data.LastModifiedDate
                 })
-            contribution_forms = Contributionform.query.filter(Contributionform.PendingFrom == ROLES_REVIEW_MANAGER)\
+            contribution_forms = Contributionform.query.filter(Contributionform.PendingFrom == ROLES_REVIEW_MANAGER,
+                                                               Contributionform.Status == STATUS_PENDING)\
                 .order_by(Contributionform.LastModifiedDate.desc()).all()
             for contributions in contribution_forms:
                 forms_data.append({

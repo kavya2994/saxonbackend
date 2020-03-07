@@ -126,10 +126,7 @@ class TerminationInitiationController(Resource):
                 f'termination of employment form. This form notifies us that you are no longer employed with ' + \
                 f'your current employer and allows Silver Thatch Pensions to stay in touch with you in regards ' + \
                 f'to your pension. </p><p>-----------------------------------------</p> ' + \
-                f'<p>{APP.config["FRONTEND_URL"]}/terminationform/{token_id}</p>' + \
-                f'<p>To learn more about the Silver Thatch Pension Plan,' + \
-                f' click <a href="{APP.config["FRONTEND_URL"]}/terminationform/{token_id}">here</a>' \
-                f' to review our members handbook. </p>'
+                f'<p>{APP.config["FRONTEND_URL"]}/terminationform/{token_id}</p>'
 
             send_email(to_address=form.EmailAddress, subject=subject, body=msg_text)
             return RESPONSE_OK
