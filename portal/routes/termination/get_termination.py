@@ -94,7 +94,7 @@ class GetTermination(Resource):
                     "PostalCode": termination_form.PostalCode,
                     "Country": termination_form.Country,
                     "EstimatedAnnualIncomeRange": termination_form.EstimatedAnnualIncomeRange,
-                    "Status": termination_form.Status,
+                    "Status": termination_form.FormStatus,
                     "PendingFrom": termination_form.PendingFrom,
                     "PhoneNumber": termination_form.PhoneNumber,
                     "Comment": comments_list
