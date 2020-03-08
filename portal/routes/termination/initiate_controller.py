@@ -104,7 +104,8 @@ class TerminationInitiationController(Resource):
         db.session.add(token)
         db.session.commit()
         token_id = token.TokenID
-        if 'Comment' in args and args['Comment'] != '':
+        comments = ""
+        if 'Comment' in args and args['Comment'] != '' and args['Comment'] is not None:
             comment = Comments(
                 FormID=form.FormID,
                 Name=employer_name,
@@ -113,6 +114,7 @@ class TerminationInitiationController(Resource):
                 Date=initiation_date,
                 FormType="Termination"
             )
+            comments = args["Comment"]
             db.session.add(comment)
             db.session.commit()
 
@@ -126,7 +128,7 @@ class TerminationInitiationController(Resource):
                 f' or copy the link below into a browser to complete the ' + \
                 f'termination of employment form. This form notifies us that you are no longer employed with ' + \
                 f'your current employer and allows Silver Thatch Pensions to stay in touch with you in regards ' + \
-                f'to your pension. </p><p>-----------------------------------------</p> ' + \
+                f'to your pension. </p><p>{comments}</p><p>-----------------------------------------</p> ' + \
                 f'<p>{APP.config["FRONTEND_URL"]}/terminationform/{token_id}</p>'
 
             send_email(to_address=form.EmailAddress, subject=subject, body=msg_text)
