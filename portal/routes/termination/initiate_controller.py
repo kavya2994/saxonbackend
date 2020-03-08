@@ -111,6 +111,7 @@ class TerminationInitiationController(Resource):
                 Role=auth['role'],
                 Comment=args['Comment'],
                 Date=initiation_date,
+                FormType="Termination"
             )
             db.session.add(comment)
             db.session.commit()

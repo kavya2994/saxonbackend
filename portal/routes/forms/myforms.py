@@ -30,7 +30,7 @@ response_model_child = ns.model('GetMyFormsChild', {
     "FormType": fields.String,
     "FormStatus": fields.String,
     "LastModifiedDate": fields.DateTime,
-    "FilePath": fields.String,
+    "FileName": fields.String,
     "EmailID": fields.String,
     "PendingFrom": fields.String
 })
@@ -100,7 +100,7 @@ class MyForms(Resource):
                     "FormStatus": contributions.Status,
                     "LastModifiedDate": contributions.LastModifiedDate,
                     "PendingFrom": contributions.PendingFrom,
-                    "FilePath": str(contributions.FilePath).replace("/", "\\").split("\\")[len(str(contributions.FilePath).replace("/", "\\").split("\\")) - 1] if contributions.FilePath is not None else ""
+                    "FileName": str(contributions.FilePath).replace("/", "\\").split("\\")[len(str(contributions.FilePath).replace("/", "\\").split("\\")) - 1] if contributions.FilePath is not None else ""
                 })
 
             return {"myforms": forms_data}, 200

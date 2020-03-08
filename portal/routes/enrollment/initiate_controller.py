@@ -93,16 +93,18 @@ class EnrollmentInitiationController(Resource):
             db.session.add(token_data)
             db.session.commit()
             comments = ""
-            if 'Comment' in args and args['Comment'] != '':
-                comment = Comments(
-                    FormID=new_enrollment.FormID,
-                    Role=auth['role'],
-                    Comment=args['Comment'],
-                    Date=initiation_date,
-
-                )
-                db.session.add(comment)
-                db.session.commit()
+            if 'Comment' in args and args['Comment'] != '' and args['Comment'] is not None:
+                # comment = Comments(
+                #     FormID=new_enrollment.FormID,
+                #     Role=auth['role'],
+                #     Comment=args['Comment'],
+                #     Date=initiation_date,
+                #     FormType="Enrollment"
+                #
+                #
+                # )
+                # db.session.add(comment)
+                # db.session.commit()
                 comments += "Comments : " + args["Comment"]
             email_subject = "Your Silver Thatch Pensions Enrollment Form needs to be completed"
 
@@ -110,14 +112,14 @@ class EnrollmentInitiationController(Resource):
                         <p>**This is an auto-generated e-mail message. Please do not reply to this message. **</p>
                         <p>Dear {args['MemberFirstName']}</p>
                         <p>Please click 
-                        <a href="{APP.config['FRONTEND_URL']}/enrollment-form/{token_data.TokenID}">here</a>.
+                        <a href="{APP.config["FRONTEND_URL"]}/enrollment-form/{token_data.TokenID}">here</a>.
                         Otherwise, cut and paste the link below into a browser, fill in the
                         required information, and when you are done hit the submit button to start your enrollment
                         into the plan.</p><p>-----------------------------------------</p>
-                        <p>{APP.config['FRONTEND_URL']}/enrollment-form/{token_data.TokenID}</p>
+                        <p>{APP.config["FRONTEND_URL"]}/enrollment-form/{token_data.TokenID}</p>
                         <p>{comments}</p>
                         <p>To learn more about the Silver Thatch Pension Plan,
-                        click <a href="{APP.config['MAIL_ENROLLMENT_URL']}">here</a>
+                        click <a href="{APP.config["MAIL_ENROLLMENT_URL"]}">here</a>
                         to review our members handbook. </p>"""
 
             send_email(to_address=args["MemberEmail"], subject=email_subject, body=email_body)

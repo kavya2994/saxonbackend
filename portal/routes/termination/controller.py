@@ -50,6 +50,7 @@ response_model = ns.model('PostTerminationInitiationController', {
     'result': fields.String,
 })
 
+
 @ns.route("/token/<TokenID>")
 class TerminationInitiationController(Resource):
     @ns.doc(description='',
@@ -111,6 +112,7 @@ class TerminationInitiationController(Resource):
                             Role=args['role'],
                             Comment=args['Comment'],
                             Date=initiation_date,
+                            FormType="Termination"
                         )
                         db.session.add(comment)
                         db.session.commit()
@@ -158,6 +160,7 @@ class TerminationInitiationController(Resource):
                             Role=args['role'],
                             Comment=args['Comment'],
                             Date=initiation_date,
+                            FormType="Termination"
                         )
                         db.session.add(comment)
                     db.session.commit()
@@ -204,6 +207,7 @@ class TerminationInitiationController(Resource):
                                 Role=args['role'],
                                 Comment=args['Comment'],
                                 Date=initiation_date,
+                                FormType="Termination"
                             )
                             db.session.add(comment)
                         db.session.commit()
@@ -225,15 +229,16 @@ class TerminationInitiationController(Resource):
                                 Role=args['role'],
                                 Comment=args['Comment'],
                                 Date=initiation_date,
+                                FormType="Termination"
                             )
                             db.session.add(comment)
                         db.session.commit()
                         try:
                             subject = 'Silver Thatch Pensions Employment Termination Form'
                             msg_text = '<p>**This is an auto-generated e-mail message.' + \
-                                    ' Please do not reply to this message. **</p>' + \
-                                    f'<p>Dear {member_name}</p>' + \
-                                    '<p>Your termination has been processed </p>'
+                                       ' Please do not reply to this message. **</p>' + \
+                                       f'<p>Dear {member_name}</p>' + \
+                                       '<p>Your termination has been processed </p>'
 
                             send_email(to_address=args['EmailAddress'], subject=subject, body=msg_text)
                             return {"result": "Success"}, 200
@@ -256,24 +261,25 @@ class TerminationInitiationController(Resource):
                                 Role=args['role'],
                                 Comment=args['Comment'],
                                 Date=initiation_date,
+                                FormType="Termination"
                             )
                             db.session.add(comment)
                         db.session.commit()
                         try:
                             subject = 'Silver Thatch Pensions Employment Termination Form'
                             msg_text = '<p>**This is an auto-generated e-mail message.' + \
-                                    ' Please do not reply to this message. **</p>' + \
-                                    f'<p>Dear {member_name}</p>' + \
-                                    '<p>Your Termination has been rejected </p>' + \
-                                    '<p>Please click here. Otherwise, cut and paste the link below into a ' + \
-                                    'browser, ' + \
-                                    'fill in the required information, and when you are done hit the ' + \
-                                    'submit button to ' + \
-                                    'start your termination into the plan.</p>' + \
-                                    '<p>-----------------------------------------------------</p>' + \
-                                    f'<p>{APP.config["FRONTEND_URL"]}/terminationform/{token} </p>' + \
-                                    '<p>To learn more about the Silver Thatch Pension ' + \
-                                    'Plan, click here to review our members handbook. </p>'
+                                       ' Please do not reply to this message. **</p>' + \
+                                       f'<p>Dear {member_name}</p>' + \
+                                       '<p>Your Termination has been rejected </p>' + \
+                                       '<p>Please click here. Otherwise, cut and paste the link below into a ' + \
+                                       'browser, ' + \
+                                       'fill in the required information, and when you are done hit the ' + \
+                                       'submit button to ' + \
+                                       'start your termination into the plan.</p>' + \
+                                       '<p>-----------------------------------------------------</p>' + \
+                                       f'<p>{APP.config["FRONTEND_URL"]}/terminationform/{token} </p>' + \
+                                       '<p>To learn more about the Silver Thatch Pension ' + \
+                                       'Plan, click here to review our members handbook. </p>'
 
                             send_email(to_address=args['EmailAddress'], subject=subject, body=msg_text)
                             return {"result": "Success"}, 200

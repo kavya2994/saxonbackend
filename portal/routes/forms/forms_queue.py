@@ -18,11 +18,13 @@ from ... import APP
 
 response_model_child = ns.model('GetFormQueueChild', {
     "Token": fields.String,
+    "FormID": fields.String,
     "EmployerID": fields.String,
     "MemberName": fields.String,
     "FormType": fields.String,
     "FormStatus": fields.String,
     "LastModifiedDate": fields.DateTime,
+    "FileName": fields.String,
     "EmailID": fields.String
 })
 
@@ -89,7 +91,7 @@ class FormQueue(Resource):
                     "FormType": "Contribution",
                     "FormStatus": contributions.Status,
                     "LastModifiedDate": contributions.LastModifiedDate,
-                    "FilePath": str(contributions.FilePath).replace("/", "\\").split("\\")[
+                    "FileName": str(contributions.FilePath).replace("/", "\\").split("\\")[
                         len(str(contributions.FilePath).replace("/", "\\").split("\\")) - 1] if contributions.FilePath is not None else ""
                 })
 

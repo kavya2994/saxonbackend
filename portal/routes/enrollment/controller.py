@@ -76,6 +76,9 @@ parser.add_argument('Signature', type=str, location='form', required=False)
 parser.add_argument('RejectionReason', type=str, location='form', required=False)
 parser.add_argument('isExistingMember', type=bool, location='form', required=False)
 parser.add_argument('file', type=FileStorage, location='files', required=False)
+parser.add_argument('Comment', type=str, location='form', required=False)
+parser.add_argument('CommentName', type=str, location='form', required=False)
+parser.add_argument('CommentRole', type=str, location='form', required=False)
 
 comments_model = ns.model('Comments', {
     "Name": fields.String,
@@ -146,8 +149,8 @@ class EnrollmentController(Resource):
                 raise Unauthorized()
         try:
             enrollmentform = Enrollmentform.query.get(token.FormID)
-            comments = Comments.query.filter(Comments.FormID == token.FormID).order_by(
-                Comments.CommentsID.desc()).all()
+            comments = Comments.query.filter(Comments.FormID == token.FormID, Comments.FormType == "Enrollment")\
+                .order_by(Comments.CommentsID.desc()).all()
         except Exception as e:
             LOG.warning('Unexpected error happened during handling enrollment: %s', e)
             raise InternalServerError()
@@ -336,6 +339,17 @@ class EnrollmentController(Resource):
         )
 
         db.session.add(newToken)
+        if 'Comment' in args and args['Comment'] != '' and args['Comment'] is not None:
+            comment = Comments(
+                FormID=form.FormID,
+                Name=args['CommentName'],
+                Role=ROLES_MEMBER,
+                Comment=args['Comment'],
+                Date=datetime.utcnow(),
+                FormType="Enrollment"
+            )
+            db.session.add(comment)
+            db.session.commit()
         token.FormStatus = STATUS_SUBMIT
         token.TokenStatus = STATUS_INACTIVE
         token.LastModifiedDate = datetime.utcnow()
@@ -393,6 +407,17 @@ class EnrollmentController(Resource):
             form.FilePath = os.path.join(path, filename)
         form.Status = STATUS_PENDING
         token.LastModifiedDate = datetime.utcnow()
+        if 'Comment' in args and args['Comment'] != '' and args['Comment'] is not None:
+            comment = Comments(
+                FormID=form.FormID,
+                Name=args['CommentName'],
+                Role=args['CommentRole'],
+                Comment=args['Comment'],
+                Date=datetime.utcnow(),
+                FormType="Enrollment"
+            )
+            db.session.add(comment)
+            db.session.commit()
         db.session.commit()
         pass
 
@@ -415,6 +440,17 @@ class EnrollmentController(Resource):
         form.PendingFrom = ROLES_REVIEW_MANAGER
         token.PendingFrom = ROLES_REVIEW_MANAGER
         token.LastModifiedDate = datetime.utcnow()
+        if 'Comment' in args and args['Comment'] != '' and args['Comment'] is not None:
+            comment = Comments(
+                FormID=form.FormID,
+                Name=args['CommentName'],
+                Role=args['CommentRole'],
+                Comment=args['Comment'],
+                Date=datetime.utcnow(),
+                FormType="Enrollment"
+            )
+            db.session.add(comment)
+            db.session.commit()
         db.session.commit()
 
     def _approvalConfirmation_pre_update(self, token, form, args):
@@ -434,6 +470,17 @@ class EnrollmentController(Resource):
 
     def _approvalConfirmation_post_update(self, token, form, args):
         token.FormStatus = STATUS_APPROVE
+        if 'Comment' in args and args['Comment'] != '' and args['Comment'] is not None:
+            comment = Comments(
+                FormID=form.FormID,
+                Name=args['CommentName'],
+                Role=ROLES_REVIEW_MANAGER,
+                Comment=args['Comment'],
+                Date=datetime.utcnow(),
+                FormType="Enrollment"
+            )
+            db.session.add(comment)
+            db.session.commit()
         db.session.commit()
         name = form.FirstName + " " + form.LastName
         subject = 'Your Enrollment has been approved'
@@ -459,35 +506,36 @@ class EnrollmentController(Resource):
             raise NotFound('Token was not Found or is not Active')
 
     def _reject_post_update(self, token, form, args):
-        token.FormStatus = 'Rejected'
+        token.FormStatus = status.STATUS_REJECT
         db.session.commit()
-
-        auth = token_verify_or_raise(token=args["Authorization"], ip=args["Ipaddress"], user=args["username"])
         if 'RejectionReason' in args and args['RejectionReason'] != '':
             comment = Comments(
                 FormID=form.FormID,
-                Role=auth['role'],
+                Role=ROLES_REVIEW_MANAGER,
                 Name=args["username"],
                 Comment=args['RejectionReason'],
                 Date=datetime.utcnow(),
+                FormType="Enrollment"
             )
 
             db.session.add(comment)
             db.session.commit()
         name = form.FirstName + " " + form.LastName
         subject = 'Your Enrollment has been rejected'
-        body = '<p>**This is an auto-generated e-mail message.' + \
-               ' Please do not reply to this message. **</p>' + \
-               '<p>Dear ' + name + '</p>' + \
-               '<p>Your Enrollment has been rejected </p>' + \
-               '<p>Please click here. Otherwise, cut and paste the link below into a browser, ' + \
-               'fill in the required information, and when you are done hit the submit button to ' + \
-               'start your enrollment into the plan.</p>' + \
-               '<p>%s</p>' + \
-               '<p>-----------------------------------</p>' + \
-               '<p>' + APP.config["FRONTEND_URL"] + '/enrollment-form/' + token + '</p>' + \
-               '<p>To learn more about the Silver Thatch Pension ' + \
-               'Plan, click here to review our members handbook. </p>'
+        body = f'<p>**This is an auto-generated e-mail message.' + \
+               f' Please do not reply to this message. **</p>' + \
+               f'<p>Dear {name} </p>' + \
+               f'<p>Your Enrollment has been rejected </p>' + \
+               f'<p>Please click <a href="{APP.config["FRONTEND_URL"]}/enrollment-form/{token}">here</a>. ' \
+               f'Otherwise, cut and paste the link below into a browser, ' + \
+               f'fill in the required information, and when you are done hit the submit button to ' + \
+               f'start your enrollment into the plan.</p>' + \
+               f'<p>{args["RejectionReason"]}</p>' + \
+               f'<p>-----------------------------------</p>' + \
+               f'<p>{APP.config["FRONTEND_URL"]}/enrollment-form/{token}</p>' + \
+               f'<p>To learn more about the Silver Thatch Pension ' + \
+               f'Plan, click <a href="{APP.config["MAIL_ENROLLMENT_URL"]}">here</a>' \
+               f' to review our members handbook. </p>'
         send_email(to_address=form.EmailAddress, subject=subject, body=body)
 
     @ns.doc(description='Delete enrollment file',

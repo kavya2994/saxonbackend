@@ -11,4 +11,5 @@ class Comments(db.Model):
     Role = db.Column(db.String(255))
     Name = db.Column(db.String(255))
     Comment = db.Column(db.String(255))
+    FormType = db.Column(db.String(255))
     Date = db.Column(db.String(255))

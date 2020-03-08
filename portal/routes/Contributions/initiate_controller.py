@@ -96,6 +96,7 @@ class InitiateContribution(Resource):
                         Role=decode_token['role'],
                         Comment=args['Comment'],
                         Date=initiation_date,
+                        FormType="Contribution"
                     )
                     db.session.add(comment)
                     db.session.commit()

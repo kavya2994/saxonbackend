@@ -66,7 +66,8 @@ class GetTermination(Resource):
                 if not decode_token["role"] in [ROLES_EMPLOYER, ROLES_REVIEW_MANAGER]:
                     raise Unauthorized()
             termination_form = Terminationform.query.filter_by(FormID=token_data.FormID).first()
-            comments = Comments.query.filter(Comments.FormID == token_data.FormID).order_by(Comments.CommentsID.desc()).all()
+            comments = Comments.query.filter(Comments.FormID == token_data.FormID,
+                                             Comments.FormType == "Termination").order_by(Comments.CommentsID.desc()).all()
             comments_list = []
             if termination_form is not None:
                 if comments is not None:

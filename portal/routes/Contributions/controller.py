@@ -89,7 +89,7 @@ class ContributionController(Resource):
             return Unauthorized()
 
         contributions = Contributionform.query.filter_by(FormID=FormID).first()
-        comments = Comments.query.filter_by(FormID=FormID).all()
+        comments = Comments.query.filter_by(FormID=FormID, FormType="Contribution").all()
         comments_list = []
         if contributions is not None:
             if comments is not None:
@@ -139,6 +139,7 @@ class ContributionController(Resource):
                             Role=roles.ROLES_EMPLOYER,
                             Comment=args['Comment'],
                             Date=initiation_date,
+                            FormType="Contribution"
                         )
                         db.session.add(comment)
                         db.session.commit()
@@ -179,9 +180,10 @@ class ContributionController(Resource):
                         comment = Comments(
                             FormID=FormID,
                             Name=args['CommentName'],
-                            Role=roles.ROLES_EMPLOYER,
+                            Role=roles.ROLES_REVIEW_MANAGER,
                             Comment=args['Comment'],
                             Date=initiation_date,
+                            FormType="Contribution"
                         )
                         db.session.add(comment)
                         db.session.commit()
@@ -232,9 +234,10 @@ class ContributionController(Resource):
                         comment = Comments(
                             FormID=FormID,
                             Name=args['CommentName'],
-                            Role=roles.ROLES_EMPLOYER,
+                            Role=roles.ROLES_REVIEW_MANAGER,
                             Comment=args['Comment'],
                             Date=initiation_date,
+                            FormType="Contribution"
                         )
                         db.session.add(comment)
                     db.session.commit()
