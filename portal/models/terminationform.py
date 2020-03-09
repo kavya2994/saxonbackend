@@ -30,6 +30,8 @@ class Terminationform(db.Model):
     PendingFrom = db.Column(db.String(255), nullable=True)
     PhoneNumber = db.Column(db.String(255), nullable=True)
     LastNotifiedDate = db.Column(db.Date, nullable=True)
+    # Signature = db.Column(db.String(255), nullable=True)
+    # SignatureType = db.Column(db.String(255), nullable=True)
     # FilePath = db.Column(db.String(255), nullable=True)
 
     # termination_form = relationship('Token', foreign_keys='Token.FormID')

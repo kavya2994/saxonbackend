@@ -56,7 +56,8 @@ class SearchForms(Resource):
         args = parser.parse_args(strict=False)
         token = token_verify_or_raise(token=args["Authorization"], user=args["username"], ip=args["Ipaddress"])
         forms_data = []
-        parameters = ["FormType", "FormStatus", "Employer", "Member", "SubmittedFrom", "SubmittedTo", "PendingFrom"]
+        parameters = ["FormType", "FormStatus", "Employer", "Member", "SubmittedFrom", "SubmittedTo", "PendingFrom",
+                      "FormType"]
         parameters_dict = {}
         for arg in parameters:
             if args[arg] is None:
@@ -70,7 +71,9 @@ class SearchForms(Resource):
             form_status = parameters_dict["FormStatus"]
             submitted_from = parameters_dict["SubmittedFrom"]
             submitted_to = parameters_dict["SubmittedTo"]
-            if args["FormType"] == TOKEN_FORMTYPE_TERMINATION or args["FormType"] == "":
+            print(submitted_from)
+            print(parameters_dict)
+            if args["FormType"] == TOKEN_FORMTYPE_TERMINATION or parameters_dict["FormType"] == "":
 
                 termination_form_data = db.session.query(Token, Terminationform).filter(
                     Token.FormID == Terminationform.FormID,
@@ -79,8 +82,8 @@ class SearchForms(Resource):
                     Terminationform.EmployerName.like("%" + parameters_dict["Employer"] + "%"),
                     Terminationform.MemberName.like("%" + parameters_dict["Member"] + "%"),
                     Terminationform.PendingFrom.like("%" + parameters_dict["PendingFrom"] + "%"),
-                    Token.InitiatedDate < submitted_to,
-                    Token.InitiatedDate > submitted_from,
+                    or_(Token.InitiatedDate <= submitted_to,
+                        Token.InitiatedDate >= submitted_from),
                     Token.FormStatus.like("%" + form_status + "%")).order_by(
                     Token.LastModifiedDate.desc()).all()
                 # still date criteria pending
@@ -95,7 +98,7 @@ class SearchForms(Resource):
                         "PendingFrom": tokens_data.PendingFrom
                     })
                 print(forms_data)
-            if args["FormType"] == TOKEN_FORMTYPE_ENROLLMENT or args["FormType"] == "":
+            if args["FormType"] == TOKEN_FORMTYPE_ENROLLMENT or parameters_dict["FormType"] == "":
                 enrollment_form_data = db.session.query(Token, Enrollmentform).filter(
                     Token.FormID == Enrollmentform.FormID,
                     Enrollmentform.PendingFrom.like("%" + parameters_dict["PendingFrom"] + "%"),
@@ -103,8 +106,8 @@ class SearchForms(Resource):
                         Enrollmentform.LastName.like("%" + parameters_dict["Member"] + "%")),
                     Token.EmployerID.like("%" + parameters_dict["Employer"] + "%"),
                     Token.TokenStatus == status.STATUS_ACTIVE,
-                    Token.InitiatedDate < submitted_to,
-                    Token.InitiatedDate > submitted_from,
+                    or_(Token.InitiatedDate <= submitted_to,
+                        Token.InitiatedDate >= submitted_from),
                     Token.FormStatus.like("%" + form_status + "%")
 
                 ).order_by(Token.LastModifiedDate.desc()).all()

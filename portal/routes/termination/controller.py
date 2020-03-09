@@ -45,6 +45,8 @@ parser.add_argument('PhoneNumber', type=str, location='json', required=False)
 parser.add_argument('Comment', type=str, location='json', required=False)
 parser.add_argument('CommentName', type=str, location='json', required=False)
 parser.add_argument('PendingFrom', type=str, location='json', required=False)
+parser.add_argument('Signature', type=str, location='json', required=False)
+parser.add_argument('SignatureType', type=str, location='json', required=False)
 
 response_model = ns.model('PostTerminationInitiationController', {
     'result': fields.String,

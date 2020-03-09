@@ -35,7 +35,7 @@ parser.add_argument('key', type=str, location='json', required=False)
 parser.add_argument('role', type=str, location='json', required=False)
 
 
-@ns.route("/accounts/export")
+@ns.route("/export")
 class ExportAccounts(Resource):
     @ns.doc(description='Get all employers in b/w min and max',
             responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 500: 'Internal Server Error'})
