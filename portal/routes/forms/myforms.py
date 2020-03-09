@@ -21,6 +21,7 @@ parser.add_argument('username', type=str, location='headers', required=True)
 parser.add_argument('Ipaddress', type=str, location='headers', required=True)
 parser.add_argument('offset', type=int, location='args', required=True)
 parser.add_argument('user', type=str, location='args', required=True)
+parser.add_argument('role', type=str, location='args', required=True)
 
 response_model_child = ns.model('GetMyFormsChild', {
     "Token": fields.String,
@@ -53,7 +54,11 @@ class MyForms(Resource):
         if offset is None or str(offset) == "":
             offset = 0
         offset = int(offset)
-        if token["role"] == roles.ROLES_REVIEW_MANAGER:
+        if token["role"] not in [roles.ROLES_HR, roles.ROLES_EMPLOYER, roles.ROLES_REVIEW_MANAGER]:
+            raise Unauthorized()
+        if args["role"] == roles.ROLES_REVIEW_MANAGER:
+            if token["role"] != roles.ROLES_REVIEW_MANAGER:
+                raise Unauthorized()
             forms_data = []
             enrollment_form_data = db.session.query(Token, Enrollmentform).filter(
                 Token.FormID == Enrollmentform.FormID,
@@ -104,7 +109,7 @@ class MyForms(Resource):
                 })
 
             return {"myforms": forms_data}, 200
-        elif token["role"] in [roles.ROLES_EMPLOYER, roles.ROLES_HR]:
+        elif args["role"] == roles.ROLES_EMPLOYER:
             employer_id = args["user"]
             offset = args["offset"]
             if offset is None or str(offset) == "":

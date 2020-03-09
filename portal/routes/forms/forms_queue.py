@@ -37,6 +37,7 @@ parser.add_argument('Authorization', type=str, location='headers', required=True
 parser.add_argument('username', type=str, location='headers', required=True)
 parser.add_argument('Ipaddress', type=str, location='headers', required=True)
 parser.add_argument('user', type=str, location='args', required=True)
+parser.add_argument('role', type=str, location='args', required=True)
 
 
 @ns.route("/myqueue")
@@ -48,7 +49,11 @@ class FormQueue(Resource):
     def get(self):
         args = parser.parse_args(strict=False)
         token = token_verify_or_raise(token=args["Authorization"], user=args["username"], ip=args["Ipaddress"])
-        if token["role"] == roles.ROLES_REVIEW_MANAGER:
+        if token["role"] not in [roles.ROLES_HR, roles.ROLES_EMPLOYER, roles.ROLES_REVIEW_MANAGER]:
+            raise Unauthorized()
+        if args["role"] == roles.ROLES_REVIEW_MANAGER:
+            if token["role"] != roles.ROLES_REVIEW_MANAGER:
+                raise Unauthorized()
             forms_data = []
             enrollment_form_data = db.session.query(Token, Enrollmentform).filter(
                 Token.FormID == Enrollmentform.FormID,
@@ -96,7 +101,7 @@ class FormQueue(Resource):
                 })
 
             return {"forms_queue": forms_data}, 200
-        elif token["role"] in [roles.ROLES_EMPLOYER, roles.ROLES_HR]:
+        elif args["role"] == roles.ROLES_EMPLOYER:
             employer_id = args["user"]
             forms_data = []
             enrollment_form_data = db.session.query(Token, Enrollmentform).filter(

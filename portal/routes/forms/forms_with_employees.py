@@ -36,6 +36,7 @@ parser.add_argument('username', type=str, location='headers', required=True)
 parser.add_argument('Ipaddress', type=str, location='headers', required=True)
 parser.add_argument('offset', type=int, location='args', required=True)
 parser.add_argument('user', type=str, location='args', required=True)
+parser.add_argument('role', type=str, location='args', required=True)
 
 
 @ns.route("/employees")
@@ -51,7 +52,11 @@ class FormWithEmployees(Resource):
         if offset_ is None or str(offset_) == "":
             offset_ = 0
         offset_ = int(offset_)
-        if decode_token["role"] == roles.ROLES_REVIEW_MANAGER:
+        if decode_token["role"] not in [roles.ROLES_HR, roles.ROLES_EMPLOYER, roles.ROLES_REVIEW_MANAGER]:
+            raise Unauthorized()
+        if args["role"] == roles.ROLES_REVIEW_MANAGER:
+            if decode_token != roles.ROLES_REVIEW_MANAGER:
+                raise Unauthorized()
             forms_data = []
             enrollment_form_data = db.session.query(Token, Enrollmentform).filter(
                 Token.FormID == Enrollmentform.FormID,
@@ -94,7 +99,7 @@ class FormWithEmployees(Resource):
                 })
 
             return {"forms_employees": forms_data}, 200
-        elif decode_token["role"] in [roles.ROLES_EMPLOYER, roles.ROLES_HR]:
+        elif args["role"] in [roles.ROLES_EMPLOYER, roles.ROLES_HR]:
             employer_id = args["user"]
             offset_ = args["offset"]
             if offset_ is None or str(offset_) == "":
