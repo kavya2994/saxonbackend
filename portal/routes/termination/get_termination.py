@@ -43,7 +43,9 @@ response_model = ns.model('GetGetTermination', {
     "Status": fields.String,
     "PendingFrom": fields.String,
     "PhoneNumber": fields.String,
-    "Comment": fields.List(fields.Nested(comments_response))
+    "Comment": fields.List(fields.Nested(comments_response)),
+    "Signature": fields.String,
+    "SignatureType": fields.String
 })
 
 
@@ -62,12 +64,14 @@ class GetTermination(Resource):
         token_data = Token.query.filter_by(TokenID=TokenID).first()
         if token_data is not None and token_data.TokenStatus == status.STATUS_ACTIVE:
             if not token_data.PendingFrom == ROLES_MEMBER:
-                decode_token = token_verify_or_raise(token=args['Authorization'], ip=args['Ipaddress'], user=args['username'])
+                decode_token = token_verify_or_raise(token=args['Authorization'], ip=args['Ipaddress'],
+                                                     user=args['username'])
                 if not decode_token["role"] in [ROLES_EMPLOYER, ROLES_REVIEW_MANAGER]:
                     raise Unauthorized()
             termination_form = Terminationform.query.filter_by(FormID=token_data.FormID).first()
             comments = Comments.query.filter(Comments.FormID == token_data.FormID,
-                                             Comments.FormType == "Termination").order_by(Comments.CommentsID.desc()).all()
+                                             Comments.FormType == "Termination").order_by(
+                Comments.CommentsID.desc()).all()
             comments_list = []
             if termination_form is not None:
                 if comments is not None:
@@ -97,7 +101,9 @@ class GetTermination(Resource):
                     "Status": termination_form.Status,
                     "PendingFrom": termination_form.PendingFrom,
                     "PhoneNumber": termination_form.PhoneNumber,
-                    "Comment": comments_list
+                    "Comment": comments_list,
+                    "Signature": termination_form.Signature,
+                    "SignatureType": termination_form.SignatureType
                 }
         else:
             raise UnprocessableEntity('Invalid token')

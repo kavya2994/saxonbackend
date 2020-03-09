@@ -89,7 +89,7 @@ class InitiateContribution(Resource):
                 )
                 db.session.add(contribution)
                 db.session.commit()
-                if 'Comment' in args and args['Comment'] != '':
+                if 'Comment' in args and args['Comment'] != '' and args['Comment'] is not None:
                     comment = Comments(
                         FormID=contribution.FormID,
                         Name=employer_name,

@@ -508,7 +508,7 @@ class EnrollmentController(Resource):
     def _reject_post_update(self, token, form, args):
         token.FormStatus = status.STATUS_REJECT
         db.session.commit()
-        if 'RejectionReason' in args and args['RejectionReason'] != '':
+        if 'RejectionReason' in args and args['RejectionReason'] != '' and args['RejectionReason'] is not None:
             comment = Comments(
                 FormID=form.FormID,
                 Role=ROLES_REVIEW_MANAGER,

@@ -132,7 +132,7 @@ class ContributionController(Resource):
         if contribution is not None:
             if args["request_type"] == RequestType_SaveFormData:
                 if decode_token["role"] == roles.ROLES_EMPLOYER:
-                    if 'Comment' in args and args['Comment'] != '':
+                    if 'Comment' in args and args['Comment'] != '' and args['Comment'] is not None:
                         comment = Comments(
                             FormID=FormID,
                             Name=args['CommentName'],
@@ -176,7 +176,7 @@ class ContributionController(Resource):
                     contribution.EndDate = end_date
                     contribution.LastModifiedDate = initiation_date
                     db.session.commit()
-                    if 'Comment' in args and args['Comment'] != '':
+                    if 'Comment' in args and args['Comment'] != '' and args['Comment'] is not None:
                         comment = Comments(
                             FormID=FormID,
                             Name=args['CommentName'],
@@ -230,7 +230,7 @@ class ContributionController(Resource):
             elif args["request_type"] == RequestType_Reject:
                 if decode_token["role"] == roles.ROLES_REVIEW_MANAGER:
                     contribution.Status = status.STATUS_REJECT
-                    if 'Comment' in args and args['Comment'] != '':
+                    if 'Comment' in args and args['Comment'] != '' and args['Comment'] is not None:
                         comment = Comments(
                             FormID=FormID,
                             Name=args['CommentName'],
