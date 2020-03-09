@@ -97,12 +97,12 @@ class TerminationInitiationController(Resource):
                     form.PostalCode = args['PostalCode']
                     form.Country = args['Country']
                     form.EstimatedAnnualIncomeRange = args['EstimatedAnnualIncomeRange']
-                    form.Status = args['Status']
-                    form.PendingFrom = args['PendingFrom']
+                    # form.Status = args['Status']
+                    # form.PendingFrom = args['PendingFrom']
                     form.PhoneNumber = args["PhoneNumber"]
 
-                    token.FormStatus = status.STATUS_PENDING
-                    token.PendingFrom = args['PendingFrom']
+                    # token.FormStatus = status.STATUS_PENDING
+                    # token.PendingFrom = args['PendingFrom']
                     token.LastModifiedDate = datetime.utcnow()
                     db.session.commit()
                     if 'Comment' in args and args['Comment'] != '':
@@ -181,7 +181,7 @@ class TerminationInitiationController(Resource):
                         raise InternalServerError("Cannot send email at the moment")
 
                 elif request_type == RequestType_EmployerSubmission:
-                    if decode_token is not None and decode_token["role"] == roles.ROLES_EMPLOYER:
+                    if decode_token is not None and decode_token["role"] in [roles.ROLES_EMPLOYER, roles.ROLES_HR]:
                         form.EmailAddress = args['EmailAddress']
                         form.FinalDateOfEmployment = args['FinalDateOfEmployment']
                         form.ReasonforTermination = args['ReasonforTermination']

@@ -47,7 +47,7 @@ class ExportAccounts(Resource):
         token = args["Authorization"]
         ip = args['Ipaddress']
         decoded_token = token_verify_or_raise(token, username, ip)
-        if decoded_token["role"] not in [roles.ROLES_ADMIN, roles.ROLES_REVIEW_MANAGER, roles.ROLES_EMPLOYER]:
+        if decoded_token["role"] not in [roles.ROLES_ADMIN, roles.ROLES_REVIEW_MANAGER, roles.ROLES_EMPLOYER, roles.ROLES_HR]:
             raise Unauthorized()
         args_list = ["ID", "name", "user", "status", "email", "key", "employerusername"]
         args_dict = {}
@@ -73,7 +73,8 @@ class ExportAccounts(Resource):
                                                       MemberView.LNAME.like("%" + args_dict["name"] + "%")),
                                                   MemberView.EMAIL.like("%" + args_dict["email"] + "%"),
                                                   MemberView.PSTATUS.like("%" + args_dict["status"] + "%"),
-                                                  MemberView.EMPOYER.like("%" + employer_sname + "%")).all()
+                                                  MemberView.EMPOYER.like("%" + employer_sname + "%"),
+                                                  MemberView.EM_STATUS != "Terminated").all()
                 if members is not None:
                     for mem in members:
                         accounts_list.append({

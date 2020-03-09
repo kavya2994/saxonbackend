@@ -66,7 +66,8 @@ class Search(Resource):
         ip = args['Ipaddress']
         decoded_token = token_verify_or_raise(token, username, ip)
         offset_ = args["offset"]
-        if decoded_token["role"] not in [roles.ROLES_ADMIN, roles.ROLES_REVIEW_MANAGER, roles.ROLES_EMPLOYER]:
+        if decoded_token["role"] not in [roles.ROLES_ADMIN, roles.ROLES_REVIEW_MANAGER, roles.ROLES_EMPLOYER,
+                                         roles.ROLES_HR]:
             raise Unauthorized()
         args_list = ["ID", "name", "user", "status", "email", "key", "employerusername"]
         args_dict = {}
@@ -84,7 +85,7 @@ class Search(Resource):
             if not employer_username == "" and employer_username is not None:
                 employer_ = EmployerView.query.filter_by(ERNO=employer_username).first()
                 if employer_ is None:
-                    raise UnprocessableEntity("Invalid employer")
+                    return {"members": []}
                 employer_sname = employer_.SNAME
             try:
                 members = MemberView.query.filter(MemberView.MEMNO.like("%" + args_dict["ID"] + "%"),
@@ -92,24 +93,26 @@ class Search(Resource):
                                                       MemberView.LNAME.like("%" + args_dict["name"] + "%")),
                                                   MemberView.EMAIL.like("%" + args_dict["email"] + "%"),
                                                   MemberView.PSTATUS.like("%" + args_dict["status"] + "%"),
-                                                  MemberView.EMPOYER.like("%" + employer_sname + "%")) \
-                    .offset(offset_).limit(25).all()
-                if members is not None:
-                    member_list = []
-                    for mem in members:
-                        member_list.append({
-                            'MKEY': mem.MKEY,
-                            'MEMNO': mem.MEMNO,
-                            'FNAME': mem.FNAME,
-                            'LNAME': mem.LNAME,
-                            'EMAIL': mem.EMAIL,
-                            'PSTATUS': mem.PSTATUS,
-                            'EM_STATUS': mem.EM_STATUS
-                        })
+                                                  MemberView.EMPOYER.like("%" + employer_sname + "%"),
+                                                  MemberView.EM_STATUS != "Terminated") \
+                    .offset(offset_).limit(50).all()
+                if members is None:
+                    return {"members": []}
+                member_list = []
+                for mem in members:
+                    member_list.append({
+                        'MKEY': mem.MKEY,
+                        'MEMNO': mem.MEMNO,
+                        'FNAME': mem.FNAME,
+                        'LNAME': mem.LNAME,
+                        'EMAIL': mem.EMAIL,
+                        'PSTATUS': mem.PSTATUS,
+                        'EM_STATUS': mem.EM_STATUS
+                    })
                     # print(member_list)
                     return {"members": member_list}
-                else:
-                    return {"members": []}
+
+
             except Exception as e:
                 LOG.error(e)
                 raise InternalServerError("Can't retrieve members")
@@ -121,25 +124,24 @@ class Search(Resource):
                                                           EmployerView.ERNO.like(
                                                               "%" + args_dict["employerusername"] + "%"),
                                                           EmployerView.ENAME.like("%" + args_dict["name"] + "%")
-                                                          ).offset(offset_).limit(25).all()
+                                                          ).offset(offset_).limit(50).all()
                 else:
                     employers = EmployerView.query.filter(EmployerView.ERNO.like(
-                                                              "%" + args_dict["employerusername"] + "%"),
-                                                          EmployerView.ENAME.like("%" + args_dict["name"] + "%")
-                                                          ).offset(offset_).limit(25).all()
+                        "%" + args_dict["employerusername"] + "%"),
+                        EmployerView.ENAME.like("%" + args_dict["name"] + "%")
+                    ).offset(offset_).limit(50).all()
                 employer_list = []
-                if employers is not None:
-                    for emp in employers:
-                        employer_list.append({
-                            'ERKEY': emp.ERKEY,
-                            'ERNO': emp.ERNO,
-                            'ENAME': emp.ENAME,
-                            'SNAME': emp.SNAME,
-                            'EMAIL': emp.EMAIL
-                        })
-                    return {"employers": employer_list}, 200
-                else:
+                if employers is None:
                     return {"employers": []}, 200
+                for emp in employers:
+                    employer_list.append({
+                        'ERKEY': emp.ERKEY,
+                        'ERNO': emp.ERNO,
+                        'ENAME': emp.ENAME,
+                        'SNAME': emp.SNAME,
+                        'EMAIL': emp.EMAIL
+                    })
+                return {"employers": employer_list}, 200
             except Exception as e:
                 LOG.error(e)
                 raise InternalServerError("Can't retrieve employers")
