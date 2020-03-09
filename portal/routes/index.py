@@ -22,4 +22,6 @@ class Index(Resource):
 @api.doc(description='Get user\'s IP address')
 class MyIP(Resource):
     def get(self):
-        return { 'ip': request.environ['REMOTE_ADDR'] }
+        if 'X-Forwarded-For' in request.environ.keys():
+            return {'ip': request.environ['X-Forwarded-For']}
+        return {'ip': request.environ['REMOTE_ADDR']}
