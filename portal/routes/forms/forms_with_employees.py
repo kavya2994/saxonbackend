@@ -55,7 +55,7 @@ class FormWithEmployees(Resource):
         if decode_token["role"] not in [roles.ROLES_HR, roles.ROLES_EMPLOYER, roles.ROLES_REVIEW_MANAGER]:
             raise Unauthorized()
         if args["role"] == roles.ROLES_REVIEW_MANAGER:
-            if decode_token != roles.ROLES_REVIEW_MANAGER:
+            if decode_token["role"] != roles.ROLES_REVIEW_MANAGER:
                 raise Unauthorized()
             forms_data = []
             enrollment_form_data = db.session.query(Token, Enrollmentform).filter(
