@@ -49,6 +49,14 @@
         virtualenv_python: python3
         virtualenv_command: /usr/local/bin/virtualenv
 
+    - name: update uWsgi file
+      template:
+        src: uwsgi.ini.j2
+        dest: "{{ docroot }}/ops/uwsgi.ini"
+        mode: 0644
+        owner: www-data
+        group: www-data
+
     - name: Update Systemd Unit file
       template:
         src: backend.service.j2
