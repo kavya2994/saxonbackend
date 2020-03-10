@@ -64,6 +64,10 @@ class PasswordReset(Resource):
         if user is None:
             raise UnprocessableEntity('User not found')
 
+        if user.Email is None:
+            raise UnprocessableEntity("Please contact administrator for password reset "
+                                      "Since your EmailID is not available in the system")
+
         if args['request_type'] == 'SecurityQuestion':
             if 'Answer' not in args or user.SecurityAnswer != Encryption().encrypt(args['Answer']):
                 raise UnprocessableEntity('Invalid Answer')

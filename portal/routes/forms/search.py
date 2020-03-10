@@ -79,12 +79,12 @@ class SearchForms(Resource):
                     Token.FormID == Terminationform.FormID,
                     Token.FormType == TOKEN_FORMTYPE_TERMINATION,
                     Token.TokenStatus == status.STATUS_ACTIVE,
-                    Terminationform.EmployerName.like("%" + parameters_dict["Employer"] + "%"),
-                    Terminationform.MemberName.like("%" + parameters_dict["Member"] + "%"),
-                    Terminationform.PendingFrom.like("%" + parameters_dict["PendingFrom"] + "%"),
+                    Terminationform.EmployerName.ilike("%" + parameters_dict["Employer"] + "%"),
+                    Terminationform.MemberName.ilike("%" + parameters_dict["Member"] + "%"),
+                    Terminationform.PendingFrom.ilike("%" + parameters_dict["PendingFrom"] + "%"),
                     or_(Token.InitiatedDate <= submitted_to,
                         Token.InitiatedDate >= submitted_from),
-                    Token.FormStatus.like("%" + form_status + "%")).order_by(
+                    Token.FormStatus.ilike("%" + form_status + "%")).order_by(
                     Token.LastModifiedDate.desc()).all()
                 # still date criteria pending
                 for tokens_data, terminations in termination_form_data:
@@ -101,14 +101,14 @@ class SearchForms(Resource):
             if args["FormType"] == TOKEN_FORMTYPE_ENROLLMENT or parameters_dict["FormType"] == "":
                 enrollment_form_data = db.session.query(Token, Enrollmentform).filter(
                     Token.FormID == Enrollmentform.FormID,
-                    Enrollmentform.PendingFrom.like("%" + parameters_dict["PendingFrom"] + "%"),
-                    or_(Enrollmentform.FirstName.like("%" + parameters_dict["Member"] + "%"),
-                        Enrollmentform.LastName.like("%" + parameters_dict["Member"] + "%")),
-                    Token.EmployerID.like("%" + parameters_dict["Employer"] + "%"),
+                    Enrollmentform.PendingFrom.ilike("%" + parameters_dict["PendingFrom"] + "%"),
+                    or_(Enrollmentform.FirstName.ilike("%" + parameters_dict["Member"] + "%"),
+                        Enrollmentform.LastName.ilike("%" + parameters_dict["Member"] + "%")),
+                    Token.EmployerID.ilike("%" + parameters_dict["Employer"] + "%"),
                     Token.TokenStatus == status.STATUS_ACTIVE,
                     or_(Token.InitiatedDate <= submitted_to,
                         Token.InitiatedDate >= submitted_from),
-                    Token.FormStatus.like("%" + form_status + "%")
+                    Token.FormStatus.ilike("%" + form_status + "%")
 
                 ).order_by(Token.LastModifiedDate.desc()).all()
 

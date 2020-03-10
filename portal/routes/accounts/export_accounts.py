@@ -68,12 +68,12 @@ class ExportAccounts(Resource):
                     raise UnprocessableEntity("Invalid employer")
                 employer_sname = employer_.SNAME
             try:
-                members = MemberView.query.filter(MemberView.MEMNO.like("%" + args_dict["ID"] + "%"),
-                                                  or_(MemberView.FNAME.like("%" + args_dict["name"] + "%"),
-                                                      MemberView.LNAME.like("%" + args_dict["name"] + "%")),
-                                                  MemberView.EMAIL.like("%" + args_dict["email"] + "%"),
-                                                  MemberView.PSTATUS.like("%" + args_dict["status"] + "%"),
-                                                  MemberView.EMPOYER.like("%" + employer_sname + "%"),
+                members = MemberView.query.filter(MemberView.MEMNO.ilike("%" + args_dict["ID"] + "%"),
+                                                  or_(MemberView.FNAME.ilike("%" + args_dict["name"] + "%"),
+                                                      MemberView.LNAME.ilike("%" + args_dict["name"] + "%")),
+                                                  MemberView.EMAIL.ilike("%" + args_dict["email"] + "%"),
+                                                  MemberView.PSTATUS.ilike("%" + args_dict["status"] + "%"),
+                                                  MemberView.EMPOYER.ilike("%" + employer_sname + "%"),
                                                   MemberView.EM_STATUS != "Terminated").all()
                 if members is not None:
                     for mem in members:
@@ -93,15 +93,15 @@ class ExportAccounts(Resource):
             try:
                 employers = None
                 if args_dict["email"] != "" and args_dict["email"] is not None:
-                    employers = EmployerView.query.filter(EmployerView.EMAIL.like("%" + args_dict["email"] + "%"),
-                                                          EmployerView.ERNO.like(
+                    employers = EmployerView.query.filter(EmployerView.EMAIL.ilike("%" + args_dict["email"] + "%"),
+                                                          EmployerView.ERNO.ilike(
                                                               "%" + args_dict["employerusername"] + "%"),
-                                                          EmployerView.ENAME.like("%" + args_dict["name"] + "%")
+                                                          EmployerView.ENAME.ilike("%" + args_dict["name"] + "%")
                                                           ).all()
                 else:
-                    employers = EmployerView.query.filter(EmployerView.ERNO.like(
+                    employers = EmployerView.query.filter(EmployerView.ERNO.ilike(
                         "%" + args_dict["employerusername"] + "%"),
-                        EmployerView.ENAME.like("%" + args_dict["name"] + "%")
+                        EmployerView.ENAME.ilike("%" + args_dict["name"] + "%")
                     ).all()
                 if employers is not None:
                     for emp in employers:
