@@ -89,17 +89,6 @@ class InitiateContribution(Resource):
                 )
                 db.session.add(contribution)
                 db.session.commit()
-                if 'Comment' in args and args['Comment'] != '' and args['Comment'] is not None:
-                    comment = Comments(
-                        FormID=contribution.FormID,
-                        Name=employer_name,
-                        Role=decode_token['role'],
-                        Comment=args['Comment'],
-                        Date=initiation_date,
-                        FormType="Contribution"
-                    )
-                    db.session.add(comment)
-                    db.session.commit()
 
                 path = os.path.join(path, str(contribution.FormID))
                 if not os.path.exists(path):
@@ -117,4 +106,3 @@ class InitiateContribution(Resource):
             return {"error": "Bad request"}, 400
 
         return {"result": "Success"}, 200
-

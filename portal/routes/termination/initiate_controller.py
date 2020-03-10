@@ -106,17 +106,17 @@ class TerminationInitiationController(Resource):
         token_id = token.TokenID
         comments = ""
         if 'Comment' in args and args['Comment'] != '' and args['Comment'] is not None:
-            comment = Comments(
-                FormID=form.FormID,
-                Name=employer_name,
-                Role=auth['role'],
-                Comment=args['Comment'],
-                Date=initiation_date,
-                FormType="Termination"
-            )
+            # comment = Comments(
+            #     FormID=form.FormID,
+            #     Name=employer_name,
+            #     Role=auth['role'],
+            #     Comment=args['Comment'],
+            #     Date=initiation_date,
+            #     FormType="Termination"
+            # )
             comments = args["Comment"]
-            db.session.add(comment)
-            db.session.commit()
+            # db.session.add(comment)
+            # db.session.commit()
 
         try:
             subject = 'Please complete your Silver Thatch Pensions Employment Termination Form'

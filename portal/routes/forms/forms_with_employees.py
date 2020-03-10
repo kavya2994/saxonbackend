@@ -7,13 +7,12 @@ from ...helpers import token_verify_or_raise, RESPONSE_OK
 from ...models import db, status, roles
 from ...models.enrollmentform import Enrollmentform
 from ...models.terminationform import Terminationform
-from ...models.token import Token, TOKEN_FORMTYPE_TERMINATION
+from ...models.token import Token, TOKEN_FORMTYPE_TERMINATION, TOKEN_FORMTYPE_ENROLLMENT
 from ...models.comments import Comments
 from ...models.roles import *
 from ...services.mail import send_email
 from . import ns
 from ... import APP
-
 
 response_model_child = ns.model('GetFormWithEmployeesChild', {
     "Token": fields.String,
@@ -62,7 +61,8 @@ class FormWithEmployees(Resource):
                 Token.FormID == Enrollmentform.FormID,
                 Token.FormStatus == status.STATUS_PENDING,
                 Token.PendingFrom != roles.ROLES_REVIEW_MANAGER,
-                Token.TokenStatus == status.STATUS_ACTIVE) \
+                Token.TokenStatus == status.STATUS_ACTIVE,
+                Token.FormType == TOKEN_FORMTYPE_ENROLLMENT) \
                 .offset(offset_) \
                 .limit(25).all()
 
@@ -82,7 +82,8 @@ class FormWithEmployees(Resource):
                 Token.FormID == Terminationform.FormID,
                 Token.FormStatus == status.STATUS_PENDING,
                 Token.PendingFrom != roles.ROLES_REVIEW_MANAGER,
-                Token.TokenStatus == status.STATUS_ACTIVE)\
+                Token.TokenStatus == status.STATUS_ACTIVE,
+                Token.FormType == TOKEN_FORMTYPE_TERMINATION) \
                 .offset(offset_) \
                 .limit(25).all()
 
@@ -110,12 +111,12 @@ class FormWithEmployees(Resource):
                 Token.FormStatus == status.STATUS_PENDING,
                 Token.PendingFrom == roles.ROLES_MEMBER,
                 Token.TokenStatus == status.STATUS_ACTIVE,
-                Token.EmployerID == employer_id)\
+                Token.EmployerID == employer_id,
+                Token.FormType == TOKEN_FORMTYPE_ENROLLMENT) \
                 .offset(offset_) \
                 .limit(25).all()
 
             for tokens_data, enrollments in enrollment_form_data:
-
                 forms_data.append({
                     "Token": tokens_data.TokenID,
                     "EmployerID": tokens_data.EmployerID,
@@ -132,7 +133,8 @@ class FormWithEmployees(Resource):
                 Token.FormStatus == status.STATUS_PENDING,
                 Token.PendingFrom == roles.ROLES_MEMBER,
                 Token.TokenStatus == status.STATUS_ACTIVE,
-                Token.EmployerID == employer_id)\
+                Token.EmployerID == employer_id,
+                Token.FormType == TOKEN_FORMTYPE_TERMINATION) \
                 .offset(offset_) \
                 .limit(25).all()
 

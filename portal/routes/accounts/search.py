@@ -67,7 +67,7 @@ class Search(Resource):
         if decoded_token["role"] not in [roles.ROLES_ADMIN, roles.ROLES_REVIEW_MANAGER, roles.ROLES_EMPLOYER,
                                          roles.ROLES_HR]:
             raise Unauthorized()
-        args_list = ["ID", "name", "user", "status", "email", "key", "employerusername"]
+        args_list = ["ID", "name", "user", "status", "email", "employerusername"]
         args_dict = {}
         for arg in args_list:
             if args[arg] is None:
@@ -80,20 +80,31 @@ class Search(Resource):
         if search_role == roles.ROLES_MEMBER:
             employer_username = args_dict["employerusername"]
             employer_sname = ""
-            if not employer_username == "" and employer_username is not None:
+            if not (employer_username == "" and employer_username is not None):
                 employer_ = EmployerView.query.filter_by(ERNO=employer_username).first()
                 if employer_ is None:
                     return {"members": []}
                 employer_sname = employer_.SNAME
             try:
-                members = MemberView.query.filter(MemberView.MEMNO.ilike("%" + args_dict["ID"] + "%"),
-                                                  or_(MemberView.FNAME.ilike("%" + args_dict["name"] + "%"),
-                                                      MemberView.LNAME.ilike("%" + args_dict["name"] + "%")),
-                                                  MemberView.EMAIL.ilike("%" + args_dict["email"] + "%"),
-                                                  MemberView.PSTATUS.ilike("%" + args_dict["status"] + "%"),
-                                                  MemberView.EMPOYER.ilike("%" + employer_sname + "%"),
-                                                  MemberView.EM_STATUS != "Terminated") \
-                    .offset(offset_).limit(50).all()
+                members = None
+                if args_dict["email"] != "" and args_dict["email"] is not None:
+                    members = MemberView.query.filter(MemberView.MEMNO.ilike("%" + args_dict["ID"] + "%"),
+                                                      or_(MemberView.FNAME.ilike("%" + args_dict["name"] + "%"),
+                                                          MemberView.LNAME.ilike("%" + args_dict["name"] + "%")),
+                                                      MemberView.EMAIL.ilike("%" + args_dict["email"] + "%"),
+                                                      MemberView.PSTATUS.ilike("%" + args_dict["status"] + "%"),
+                                                      MemberView.EMPOYER.ilike("%" + employer_sname + "%"),
+                                                      MemberView.EM_STATUS != "Terminated") \
+                        .offset(offset_).limit(50).all()
+                else:
+                    members = MemberView.query.filter(MemberView.MEMNO.ilike("%" + args_dict["ID"] + "%"),
+                                                      or_(MemberView.FNAME.ilike("%" + args_dict["name"] + "%"),
+                                                          MemberView.LNAME.ilike("%" + args_dict["name"] + "%")),
+                                                      # MemberView.EMAIL.ilike("%" + args_dict["email"] + "%"),
+                                                      MemberView.PSTATUS.ilike("%" + args_dict["status"] + "%"),
+                                                      MemberView.EMPOYER.ilike("%" + employer_sname + "%"),
+                                                      MemberView.EM_STATUS != "Terminated") \
+                        .offset(offset_).limit(50).all()
                 if members is None:
                     return {"members": []}
                 member_list = []

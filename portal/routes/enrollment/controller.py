@@ -119,7 +119,9 @@ response_model = ns.model('GetEnrollmentController', {
     "spouse_name": fields.String,
     "spouse_dob": fields.String,
     "member_id": fields.String,
-    "filename": fields.String
+    "filename": fields.String,
+    "Signature": fields.String,
+    "SignatureType": fields.String
 })
 
 

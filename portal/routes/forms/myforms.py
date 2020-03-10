@@ -7,7 +7,7 @@ from ...helpers import token_verify_or_raise, RESPONSE_OK
 from ...models import db, status, roles
 from ...models.enrollmentform import Enrollmentform
 from ...models.terminationform import Terminationform
-from ...models.token import Token, TOKEN_FORMTYPE_TERMINATION
+from ...models.token import Token, TOKEN_FORMTYPE_TERMINATION, TOKEN_FORMTYPE_ENROLLMENT
 from ...models.contributionform import Contributionform
 from ...models.comments import Comments
 from ...models.roles import *
@@ -62,7 +62,8 @@ class MyForms(Resource):
             forms_data = []
             enrollment_form_data = db.session.query(Token, Enrollmentform).filter(
                 Token.FormID == Enrollmentform.FormID,
-                Token.TokenStatus == status.STATUS_ACTIVE).order_by(Token.LastModifiedDate.desc()) \
+                Token.TokenStatus == status.STATUS_ACTIVE,
+                Token.FormType == TOKEN_FORMTYPE_ENROLLMENT).order_by(Token.LastModifiedDate.desc()) \
                 .offset(offset) \
                 .limit(25).all()
 
@@ -80,7 +81,8 @@ class MyForms(Resource):
 
             termination_form_data = db.session.query(Token, Terminationform).filter(
                 Token.FormID == Terminationform.FormID,
-                Token.TokenStatus == status.STATUS_ACTIVE).order_by(Token.LastModifiedDate.desc()) \
+                Token.TokenStatus == status.STATUS_ACTIVE,
+                Token.FormType == TOKEN_FORMTYPE_TERMINATION).order_by(Token.LastModifiedDate.desc()) \
                 .offset(offset) \
                 .limit(25).all()
 
@@ -120,7 +122,8 @@ class MyForms(Resource):
                 Token.FormID == Enrollmentform.FormID,
                 Token.FormStatus == status.STATUS_PENDING,
                 Token.TokenStatus == status.STATUS_ACTIVE,
-                Token.EmployerID == employer_id).order_by(Token.LastModifiedDate.desc()) \
+                Token.EmployerID == employer_id,
+                Token.FormType == TOKEN_FORMTYPE_ENROLLMENT).order_by(Token.LastModifiedDate.desc()) \
                 .offset(offset) \
                 .limit(25).all()
 
@@ -140,7 +143,8 @@ class MyForms(Resource):
                 Token.FormID == Terminationform.FormID,
                 Token.FormStatus == status.STATUS_PENDING,
                 Token.TokenStatus == status.STATUS_ACTIVE,
-                Token.EmployerID == employer_id).order_by(Token.LastModifiedDate.desc()) \
+                Token.EmployerID == employer_id,
+                Token.FormType == TOKEN_FORMTYPE_TERMINATION).order_by(Token.LastModifiedDate.desc()) \
                 .offset(offset) \
                 .limit(25).all()
 

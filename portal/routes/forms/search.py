@@ -8,7 +8,7 @@ from ...helpers import token_verify_or_raise, RESPONSE_OK
 from ...models import db, status, roles
 from ...models.enrollmentform import Enrollmentform
 from ...models.terminationform import Terminationform
-from ...models.token import Token, TOKEN_FORMTYPE_TERMINATION, TOKEN_FORMTYPE_ENROLLMENT
+from ...models.token import Token, TOKEN_FORMTYPE_TERMINATION, TOKEN_FORMTYPE_ENROLLMENT, TOKEN_FORMTYPE_CONTRIBUTION
 from ...models.contributionform import Contributionform
 from ...models.comments import Comments
 from ...models.roles import *
@@ -55,6 +55,8 @@ class SearchForms(Resource):
     def post(self):
         args = parser.parse_args(strict=False)
         token = token_verify_or_raise(token=args["Authorization"], user=args["username"], ip=args["Ipaddress"])
+        if token["role"] not in [ROLES_REVIEW_MANAGER, ROLES_EMPLOYER]:
+            raise Unauthorized()
         forms_data = []
         parameters = ["FormType", "FormStatus", "Employer", "Member", "SubmittedFrom", "SubmittedTo", "PendingFrom",
                       "FormType"]
@@ -84,7 +86,8 @@ class SearchForms(Resource):
                     Terminationform.PendingFrom.ilike("%" + parameters_dict["PendingFrom"] + "%"),
                     or_(Token.InitiatedDate <= submitted_to,
                         Token.InitiatedDate >= submitted_from),
-                    Token.FormStatus.ilike("%" + form_status + "%")).order_by(
+                    Token.FormStatus.ilike("%" + form_status + "%"),
+                Token.FormStatus != status.STATUS_DELETE).order_by(
                     Token.LastModifiedDate.desc()).all()
                 # still date criteria pending
                 for tokens_data, terminations in termination_form_data:
@@ -97,7 +100,7 @@ class SearchForms(Resource):
                         "LastModifiedDate": tokens_data.LastModifiedDate,
                         "PendingFrom": tokens_data.PendingFrom
                     })
-                print(forms_data)
+                # print(forms_data)
             if args["FormType"] == TOKEN_FORMTYPE_ENROLLMENT or parameters_dict["FormType"] == "":
                 enrollment_form_data = db.session.query(Token, Enrollmentform).filter(
                     Token.FormID == Enrollmentform.FormID,
@@ -108,7 +111,8 @@ class SearchForms(Resource):
                     Token.TokenStatus == status.STATUS_ACTIVE,
                     or_(Token.InitiatedDate <= submitted_to,
                         Token.InitiatedDate >= submitted_from),
-                    Token.FormStatus.ilike("%" + form_status + "%")
+                    Token.FormStatus.ilike("%" + form_status + "%"),
+                    Token.FormStatus != status.STATUS_DELETE
 
                 ).order_by(Token.LastModifiedDate.desc()).all()
 
@@ -122,7 +126,27 @@ class SearchForms(Resource):
                         "LastModifiedDate": tokens_data.LastModifiedDate,
                         "PendingFrom": tokens_data.PendingFrom
                     })
-                print(forms_data)
+            if token["role"] == ROLES_REVIEW_MANAGER and \
+                    (args["FormType"] == TOKEN_FORMTYPE_CONTRIBUTION or parameters_dict["FormType"] == ""):
+                contribution_forms = Contributionform.query \
+                    .filter(Contributionform.PendingFrom.ilike("%" + parameters_dict["PendingFrom"] + "%"),
+                            Contributionform.Status.ilike("%" + form_status + "%"),
+                            Contributionform.EmployerID.ilike("%" + parameters_dict["Employer"] + "%"),
+                            or_(Contributionform.Date <= submitted_to,
+                                Contributionform.Date >= submitted_from),
+                            Contributionform.Status != status.STATUS_DELETE)\
+                    .order_by(Contributionform.LastModifiedDate.desc()).all()
+                for contributions in contribution_forms:
+                    forms_data.append({
+                        "FormID": contributions.FormID,
+                        "EmployerID": contributions.EmployerID,
+                        "FormType": "Contribution",
+                        "FormStatus": contributions.Status,
+                        "LastModifiedDate": contributions.LastModifiedDate,
+                        "FileName": str(contributions.FilePath).replace("/", "\\").split("\\")[
+                            len(str(contributions.FilePath).replace("/", "\\").split(
+                                "\\")) - 1] if contributions.FilePath is not None else ""
+                    })
             return {"forms": forms_data}, 200
         except Exception as e:
             LOG.error("Exception while adding employer to member", e)

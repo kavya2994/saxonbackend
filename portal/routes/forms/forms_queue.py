@@ -8,7 +8,7 @@ from ...models import db, status, roles
 from ...models.contributionform import Contributionform
 from ...models.enrollmentform import Enrollmentform
 from ...models.terminationform import Terminationform
-from ...models.token import Token, TOKEN_FORMTYPE_TERMINATION
+from ...models.token import Token, TOKEN_FORMTYPE_TERMINATION, TOKEN_FORMTYPE_ENROLLMENT
 from ...models.comments import Comments
 from ...models.status import *
 from ...models.roles import *
@@ -59,7 +59,8 @@ class FormQueue(Resource):
                 Token.FormID == Enrollmentform.FormID,
                 Token.FormStatus == status.STATUS_PENDING,
                 Token.PendingFrom == token["role"],
-                Token.TokenStatus == status.STATUS_ACTIVE).all()
+                Token.TokenStatus == status.STATUS_ACTIVE,
+                Token.FormType == TOKEN_FORMTYPE_ENROLLMENT).all()
 
             for tokens_data, enrollments in enrollment_form_data:
                 forms_data.append({
@@ -75,7 +76,8 @@ class FormQueue(Resource):
                 Token.FormID == Terminationform.FormID,
                 Token.FormStatus == status.STATUS_PENDING,
                 Token.PendingFrom == token["role"],
-                Token.TokenStatus == status.STATUS_ACTIVE).all()
+                Token.TokenStatus == status.STATUS_ACTIVE,
+                Token.FormType == TOKEN_FORMTYPE_TERMINATION).all()
 
             for tokens_data, terminations in termination_form_data:
                 forms_data.append({
@@ -109,7 +111,8 @@ class FormQueue(Resource):
                 Token.FormStatus == status.STATUS_PENDING,
                 Token.PendingFrom == token["role"],
                 Token.TokenStatus == status.STATUS_ACTIVE,
-                Token.EmployerID == employer_id).all()
+                Token.EmployerID == employer_id,
+                Token.FormType == TOKEN_FORMTYPE_ENROLLMENT).all()
 
             for tokens_data, enrollments in enrollment_form_data:
                 forms_data.append({
@@ -126,7 +129,8 @@ class FormQueue(Resource):
                 Token.FormStatus == status.STATUS_PENDING,
                 Token.PendingFrom == token["role"],
                 Token.TokenStatus == status.STATUS_ACTIVE,
-                Token.EmployerID == employer_id).all()
+                Token.EmployerID == employer_id,
+                Token.FormType == TOKEN_FORMTYPE_TERMINATION).all()
 
             for tokens_data, terminations in termination_form_data:
                 forms_data.append({

@@ -38,8 +38,10 @@ class FileExplorerOperation(Resource):
     def post(self):
         args = parser.parse_args(strict=False)
         decoded_token = token_verify_or_raise(token=args["Authorization"], user=args["username"], ip=args["Ipaddress"])
-        if decoded_token['role'] != ROLES_EMPLOYER:
+        if decoded_token['role'] not in [ROLES_EMPLOYER, ROLES_REVIEW_MANAGER]:
             raise Unauthorized()
+        if args["employerusername"] is None or args["employerusername"] == "":
+            raise BadRequest("Send a valid employer ID")
         if args["request_type"] == "upload":
             if 'file' in request.files:
                 print("hello")
@@ -51,7 +53,7 @@ class FileExplorerOperation(Resource):
                     path = os.path.join(path, foldername)
                     filename = secure_filename(file.filename)
                     print(filename)
-                    filename = str(datetime.today().strftime("%Y%m%d %H%M%S.%f") + filename)
+                    filename = args["employerusername"] + "_" + str(datetime.today().strftime("%Y%m%d %H%M%S.%f") + filename)
                     path = os.path.join(path, employer_id)
                     if not os.path.exists(path):
                         os.mkdir(path, mode=0o777)
