@@ -62,6 +62,7 @@ class FormController(Resource):
                 raise Unauthorized()
             form = Contributionform.query.get(TokenID)
             form.Status = STATUS_DELETE
+            db.session.commit()
             return RESPONSE_OK
         token = Token.query.get(TokenID)
         if token is None:

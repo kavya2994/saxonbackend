@@ -96,7 +96,8 @@ class MyForms(Resource):
                     "PendingFrom": tokens_data.PendingFrom
                 })
 
-            contribution_forms = Contributionform.query.order_by(Contributionform.LastModifiedDate.desc()).all()
+            contribution_forms = Contributionform.query.filter(Contributionform.Status != status.STATUS_DELETE)\
+                .order_by(Contributionform.LastModifiedDate.desc()).all()
             for contributions in contribution_forms:
                 forms_data.append({
                     "FormID": contributions.FormID,
