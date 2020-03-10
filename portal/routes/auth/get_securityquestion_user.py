@@ -37,7 +37,7 @@ class SecurityQuestionsForUser(Resource):
         args = parser.parse_args()
         username = args["username"]
         users, question = db.session.query(Users, SecurityQuestion).filter(Users.Username == username,
-                                                         Users.SecurityQuestionID == SecurityQuestion.SecurityQuestionID).first()
+                                                                           Users.SecurityQuestionID == SecurityQuestion.SecurityQuestionID).first()
 
         if question is None:
             raise UnprocessableEntity("Question realted to user not found")

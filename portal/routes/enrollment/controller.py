@@ -79,6 +79,8 @@ parser.add_argument('file', type=FileStorage, location='files', required=False)
 parser.add_argument('Comment', type=str, location='form', required=False)
 parser.add_argument('CommentName', type=str, location='form', required=False)
 parser.add_argument('CommentRole', type=str, location='form', required=False)
+parser.add_argument('Signature', type=str, location='form', required=False)
+parser.add_argument('SignatureType', type=str, location='form', required=False)
 
 comments_model = ns.model('Comments', {
     "Name": fields.String,
@@ -149,7 +151,7 @@ class EnrollmentController(Resource):
                 raise Unauthorized()
         try:
             enrollmentform = Enrollmentform.query.get(token.FormID)
-            comments = Comments.query.filter(Comments.FormID == token.FormID, Comments.FormType == "Enrollment")\
+            comments = Comments.query.filter(Comments.FormID == token.FormID, Comments.FormType == "Enrollment") \
                 .order_by(Comments.CommentsID.desc()).all()
         except Exception as e:
             LOG.warning('Unexpected error happened during handling enrollment: %s', e)
@@ -200,6 +202,8 @@ class EnrollmentController(Resource):
                    "filename": str(enrollmentform.FilePath).replace("/", "\\").split("\\")[
                        len(str(enrollmentform.FilePath).replace("/", "\\").split(
                            "\\")) - 1] if enrollmentform.FilePath is not None else "",
+                   "Signature": enrollmentform.Signature,
+                   "SignatureType": enrollmentform.SignatureType
                }, 200
 
     @ns.doc(description='Update Enrollment Data by TokenID',
@@ -353,7 +357,9 @@ class EnrollmentController(Resource):
         token.FormStatus = STATUS_SUBMIT
         token.TokenStatus = STATUS_INACTIVE
         token.LastModifiedDate = datetime.utcnow()
-
+        if form.Signature is None:
+            form.Signature = args["Signature"]
+            form.SignatureType = args["SignatureType"]
         form.PendingFrom = ROLES_EMPLOYER
         form.Status = STATUS_PENDING
         print("member submission")
@@ -382,9 +388,6 @@ class EnrollmentController(Resource):
             raise NotFound('Token was not Found or is not Active')
         print(form.FilePath)
 
-
-
-
     def _saveFormData_post_update(self, token, form, args):
         if 'file' in request.files and form.FilePath is None:
             path = APP.config['DATA_DIR']
@@ -406,6 +409,9 @@ class EnrollmentController(Resource):
             file.save(os.path.join(path, filename))
             form.FilePath = os.path.join(path, filename)
         form.Status = STATUS_PENDING
+        if form.Signature is None:
+            form.Signature = args["Signature"]
+            form.SignatureType = args["SignatureType"]
         token.LastModifiedDate = datetime.utcnow()
         if 'Comment' in args and args['Comment'] != '' and args['Comment'] is not None:
             comment = Comments(
