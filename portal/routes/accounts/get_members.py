@@ -19,7 +19,6 @@ parser.add_argument('offset', type=str, location='args', required=False)
 
 
 response_model_child = ns.model('GetGetMembersChild', {
-    'MKEY': fields.String,
     'MEMNO': fields.String,
     'FNAME': fields.String,
     'LNAME': fields.String,
@@ -62,7 +61,6 @@ class GetMembers(Resource):
         if members is not None:
             for mem in members:
                 member_list.append({
-                    'MKEY': mem.MKEY,
                     'MEMNO': mem.MEMNO,
                     'FNAME': mem.FNAME,
                     'LNAME': mem.LNAME,

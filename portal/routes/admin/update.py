@@ -7,6 +7,7 @@ from ...helpers import randomStringwithDigitsAndSymbols, token_verify_or_raise, 
 from ...encryption import Encryption
 from ...models import db, roles
 from ...models.users import Users
+from ...models.status import *
 from ...services.mail import send_email
 from . import ns
 from ... import APP, LOG
@@ -20,6 +21,7 @@ parser.add_argument('displayname', type=str, location='json', required=True)
 parser.add_argument('email', type=str, location='json', required=True)
 parser.add_argument('password', type=str, location='json', required=False)
 parser.add_argument('role', type=str, location='json', required=True)
+parser.add_argument('status', type=str, location='json', required=False)
 parser.add_argument('phonenumber', type=str, location='json', required=False)
 parser.add_argument('statuschange', type=bool, location='json', required=True)
 parser.add_argument('passwordchange', type=bool, location='json', required=True)
@@ -91,6 +93,8 @@ class UpdateUser(Resource):
                         user.Email = email
                         user.PhoneNumber = phone_number
                 else:
+                    if not str(args["status"]).upper() in [STATUS_ACTIVE, STATUS_INACTIVE, STATUS_DELETE]:
+                        raise BadRequest("Invalid status")
                     status = args["status"]
                     user.Status = str(status).upper()
 

@@ -19,7 +19,6 @@ parser.add_argument('offset', type=str, location='args', required=True)
 
 
 response_model_child = ns.model('GetGetEmployersChild', {
-    'ERKEY': fields.String,
     'ERNO': fields.String,
     'ENAME': fields.String,
     'SNAME': fields.String,

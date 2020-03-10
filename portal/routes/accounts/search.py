@@ -30,7 +30,6 @@ parser.add_argument('role', type=str, location='json', required=False)
 parser.add_argument('offset', type=int, location='json', required=True)
 
 response_model_members = ns.model('GetSearchMembers', {
-    'MKEY': fields.String,
     'MEMNO': fields.String,
     'FNAME': fields.String,
     'LNAME': fields.String,
@@ -41,7 +40,6 @@ response_model_members = ns.model('GetSearchMembers', {
 })
 
 response_model_employers = ns.model('GetSearchEmployers', {
-    'ERKEY': fields.String,
     'ERNO': fields.String,
     'ENAME': fields.String,
     'SNAME': fields.String,
@@ -101,7 +99,6 @@ class Search(Resource):
                 member_list = []
                 for mem in members:
                     member_list.append({
-                        'MKEY': mem.MKEY,
                         'MEMNO': mem.MEMNO,
                         'FNAME': mem.FNAME,
                         'LNAME': mem.LNAME,
@@ -111,7 +108,6 @@ class Search(Resource):
                     })
                     # print(member_list)
                     return {"members": member_list}
-
 
             except Exception as e:
                 LOG.error(e)
@@ -135,7 +131,6 @@ class Search(Resource):
                     return {"employers": []}, 200
                 for emp in employers:
                     employer_list.append({
-                        'ERKEY': emp.ERKEY,
                         'ERNO': emp.ERNO,
                         'ENAME': emp.ENAME,
                         'SNAME': emp.SNAME,
