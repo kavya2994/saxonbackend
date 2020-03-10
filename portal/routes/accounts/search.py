@@ -117,8 +117,8 @@ class Search(Resource):
                         'PSTATUS': mem.PSTATUS,
                         'EM_STATUS': mem.EM_STATUS
                     })
-                    # print(member_list)
-                    return {"members": member_list}
+
+                return {"members": member_list}
 
             except Exception as e:
                 LOG.error(e)
