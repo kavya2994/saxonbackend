@@ -27,7 +27,7 @@ parser.add_argument('Ipaddress', type=str, location='headers', required=True)
 parser.add_argument('request_type', type=str, location='form', required=True)
 parser.add_argument('file', type=FileStorage, location='files', required=True)
 parser.add_argument('foldername', type=str, location='form', required=True)
-parser.add_argument('employerusername', type=str, location='form', required=True)
+parser.add_argument('employerusername', type=str, location='form', required=False)
 
 
 @ns.route("/explorer/operation")
@@ -40,8 +40,8 @@ class FileExplorerOperation(Resource):
         decoded_token = token_verify_or_raise(token=args["Authorization"], user=args["username"], ip=args["Ipaddress"])
         if decoded_token['role'] not in [ROLES_EMPLOYER, ROLES_REVIEW_MANAGER]:
             raise Unauthorized()
-        if args["employerusername"] is None or args["employerusername"] == "":
-            raise BadRequest("Send a valid employer ID")
+        # if args["employerusername"] is None or args["employerusername"] == "":
+        #     raise BadRequest("Send a valid employer ID")
         if args["request_type"] == "upload":
             if 'file' in request.files:
                 print("hello")
@@ -53,10 +53,11 @@ class FileExplorerOperation(Resource):
                     path = os.path.join(path, foldername)
                     filename = secure_filename(file.filename)
                     print(filename)
-                    filename = args["employerusername"] + "_" + str(datetime.today().strftime("%Y%m%d %H%M%S.%f") + filename)
-                    path = os.path.join(path, employer_id)
-                    if not os.path.exists(path):
-                        os.mkdir(path, mode=0o777)
+                    if decoded_token["role"] == ROLES_EMPLOYER:
+                        filename = args["employerusername"] + "_" + str(datetime.today().strftime("%Y%m%d %H%M%S.%f") + filename)
+                        path = os.path.join(path, employer_id)
+                        if not os.path.exists(path):
+                            os.mkdir(path, mode=0o777)
                     file.save(os.path.join(path, filename))
                     return RESPONSE_OK
                 except Exception as e:

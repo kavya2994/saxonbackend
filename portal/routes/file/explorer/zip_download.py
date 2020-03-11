@@ -20,6 +20,7 @@ zipparser = reqparse.RequestParser()
 zipparser.add_argument('Authorization', type=str, location='headers', required=True)
 zipparser.add_argument('username', type=str, location='headers', required=True)
 zipparser.add_argument('Ipaddress', type=str, location='headers', required=True)
+zipparser.add_argument('requestfolder', type=str, location='json', required=True)
 
 
 @ns.route("/explorer/open/zip")

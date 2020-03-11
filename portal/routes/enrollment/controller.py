@@ -74,6 +74,7 @@ parser.add_argument('MemberID', type=str, location='form', required=False)
 parser.add_argument('SignersName', type=str, location='form', required=False)
 parser.add_argument('Signature', type=str, location='form', required=False)
 parser.add_argument('RejectionReason', type=str, location='form', required=False)
+parser.add_argument('MaidenName', type=str, location='form', required=False)
 parser.add_argument('isExistingMember', type=bool, location='form', required=False)
 parser.add_argument('file', type=FileStorage, location='files', required=False)
 parser.add_argument('Comment', type=str, location='form', required=False)
@@ -264,6 +265,7 @@ class EnrollmentController(Resource):
             form.SpouseDOB = args['SpouseDOB']
             form.AlreadyEnrolled = args["isExistingMember"]
             form.MemberID = args["MemberID"]
+            form.MaidenName = args["MaidenName"]
             # print(args["StartDateofContribution"], "StartDateofContribution")
             if args['RequestType'] != 'MemberSubmission':
                 if 'EmployerName' in args:
@@ -478,6 +480,7 @@ class EnrollmentController(Resource):
 
     def _approvalConfirmation_post_update(self, token, form, args):
         token.FormStatus = STATUS_APPROVE
+        form.Status = STATUS_APPROVE
         if 'Comment' in args and args['Comment'] != '' and args['Comment'] is not None:
             comment = Comments(
                 FormID=form.FormID,
@@ -515,6 +518,7 @@ class EnrollmentController(Resource):
 
     def _reject_post_update(self, token, form, args):
         token.FormStatus = status.STATUS_REJECT
+        form.Status = STATUS_REJECT
         db.session.commit()
         if 'RejectionReason' in args and args['RejectionReason'] != '' and args['RejectionReason'] is not None:
             comment = Comments(

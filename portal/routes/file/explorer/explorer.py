@@ -53,6 +53,7 @@ class FileExplorer(Resource):
         token_verify_or_raise(token=args["Authorization"], user=args["username"], ip=args["Ipaddress"])
 
         path = os.path.join(app.config['DATA_DIR'], request_folder)
+        print(path)
         folders = {}
         object_to_send = []
         id = 1

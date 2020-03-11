@@ -21,11 +21,7 @@ parser.add_argument('Authorization', type=str, location='headers', required=True
 parser.add_argument('username', type=str, location='headers', required=True)
 parser.add_argument('Ipaddress', type=str, location='headers', required=True)
 parser.add_argument('path', type=str, location='json', required=True)
-
-zipparser = reqparse.RequestParser()
-parser.add_argument('Authorization', type=str, location='headers', required=True)
-parser.add_argument('username', type=str, location='headers', required=True)
-parser.add_argument('Ipaddress', type=str, location='headers', required=True)
+parser.add_argument('requestfolder', type=str, location='json', required=True)
 
 
 @ns.route("/explorer/open")
@@ -36,8 +32,8 @@ class FileExplorerOpen(Resource):
     def post(self):
         args = parser.parse_args()
         token_verify_or_raise(token=args["Authorization"], user=args["username"], ip=args["Ipaddress"])
-        print(request.headers)
         path = args["path"]
+        requestfolder = args["requestfolder"]
         print(path)
-        return send_file(os.path.join(APP.config['DATA_DIR'], path))
+        return send_file(os.path.join(APP.config['DATA_DIR'], requestfolder, path))
 

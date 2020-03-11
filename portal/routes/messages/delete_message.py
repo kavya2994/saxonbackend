@@ -37,7 +37,7 @@ class DeleteMessage(Resource):
         if decoded_token["role"] == roles.ROLES_REVIEW_MANAGER:
             messages = Messages.query.filter_by(MessageID=message_id).first()
             if messages is not None:
-                messages.delete(messages)
+                db.session.delete(messages)
                 db.session.commit()
                 return {"result": "Success"}, 200
             else:

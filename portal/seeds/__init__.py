@@ -1,3 +1,5 @@
+import threading
+
 from ..models import db
 from ..helpers import isDev
 
@@ -15,5 +17,8 @@ def init_app(app):
 
         from .create_folder_structure import create_folders
         create_folders()
+
+        # from .create_users import scheduler
+        # threading.Thread(target=scheduler, args=(app,)).start()
 
     app.logger.info('Initialized seeding')

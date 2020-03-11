@@ -22,7 +22,10 @@ class DevelopmentSeeder(object):
                            Status=STATUS_ACTIVE,
                            TemporaryPassword=False,
                            Role=ROLES_ADMIN,
-                           SecurityQuestionID=1)
+                           SecurityQuestionID=1,
+                           DisplayName="Saxon Administrator",
+                           Email="aramos@saxon.ky"
+                           )
 
         employer_user = Users(UserID=2,
                               Username="saxonemployer",
@@ -30,7 +33,8 @@ class DevelopmentSeeder(object):
                               Status=STATUS_ACTIVE,
                               TemporaryPassword=False,
                               Role=ROLES_EMPLOYER,
-                              SecurityQuestionID=1)
+                              SecurityQuestionID=1,
+                              DisplayName="Saxon Employer")
 
         reviewmanager_user = Users(UserID=3,
                                    Username="saxonreviewmanager",
@@ -38,11 +42,90 @@ class DevelopmentSeeder(object):
                                    Status=STATUS_ACTIVE,
                                    TemporaryPassword=False,
                                    Role=ROLES_REVIEW_MANAGER,
-                                   SecurityQuestionID=1)
+                                   SecurityQuestionID=1,
+                                   DisplayName="Saxon Reviewer Manager",
+                                   Email="aramos@saxon.ky"
+                                   )
+
+        employer1 = Users(UserID=4,
+                          Username="001528",
+                          Password="6Q9usKHCRmlaNgufji0mJg==",
+                          Status=STATUS_ACTIVE,
+                          TemporaryPassword=False,
+                          Role=ROLES_EMPLOYER,
+                          SecurityQuestionID=1,
+                          DisplayName="Cayman Cricket",
+                          Email="mwright@saxon.ky"
+                          )
+        employer2 = Users(UserID=5,
+                          Username="000067",
+                          Password="6Q9usKHCRmlaNgufji0mJg==",
+                          Status=STATUS_ACTIVE,
+                          TemporaryPassword=False,
+                          Role=ROLES_EMPLOYER,
+                          SecurityQuestionID=1,
+                          DisplayName="Sta Mar Enterprises",
+                          Email="mwright@saxon.ky"
+                          )
+
+        member1 = Users(UserID=6,
+                        Username="328847",
+                        Password="6Q9usKHCRmlaNgufji0mJg==",
+                        Status=STATUS_ACTIVE,
+                        TemporaryPassword=False,
+                        Role=ROLES_MEMBER,
+                        SecurityQuestionID=1,
+                        DisplayName="Lawrence Smith",
+                        Email="mwright@saxon.ky"
+                        )
+        member2 = Users(UserID=7,
+                        Username="389546",
+                        Password="6Q9usKHCRmlaNgufji0mJg==",
+                        Status=STATUS_ACTIVE,
+                        TemporaryPassword=True,
+                        Role=ROLES_MEMBER,
+                        SecurityQuestionID=1,
+                        DisplayName="Paul Manning",
+                        )
+
+        member3 = Users(UserID=8,
+                        Username="360589",
+                        Password="6Q9usKHCRmlaNgufji0mJg==",
+                        Status=STATUS_ACTIVE,
+                        TemporaryPassword=True,
+                        Role=ROLES_MEMBER,
+                        SecurityQuestionID=1,
+                        DisplayName="Mellisa Morgan",
+                        )
+        member4 = Users(UserID=9,
+                        Username="384261",
+                        Password="6Q9usKHCRmlaNgufji0mJg==",
+                        Status=STATUS_ACTIVE,
+                        TemporaryPassword=False,
+                        Role=ROLES_MEMBER,
+                        SecurityQuestionID=1,
+                        DisplayName="Tracey Crowston",
+                        )
+        member5 = Users(UserID=10,
+                        Username="316718",
+                        Password="6Q9usKHCRmlaNgufji0mJg==",
+                        Status=STATUS_ACTIVE,
+                        TemporaryPassword=False,
+                        Role=ROLES_MEMBER,
+                        SecurityQuestionID=1,
+                        DisplayName="Ma Kristina Jacaban",
+                        )
 
         self.db.session.merge(admin_user)
         self.db.session.merge(employer_user)
         self.db.session.merge(reviewmanager_user)
+        self.db.session.merge(employer1)
+        self.db.session.merge(employer2)
+        self.db.session.merge(member1)
+        self.db.session.merge(member2)
+        self.db.session.merge(member3)
+        self.db.session.merge(member4)
+        self.db.session.merge(member5)
 
     def _add_employers(self):
         employer1 = Employer(
