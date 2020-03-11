@@ -16,7 +16,7 @@ def init_app(app):
     from .Subsidiaries import add_subsidiaries, delete_subsidiaries, get_subsidiary
     from .member import get_member_details, member_termination_details
     from .accounts import get_employers, get_members, search, get_members_for_employer, get_member_count, export_accounts
-    from .messages import get_messages
+    from .messages import get_messages, create_message, delete_message
     from .health import status
     from .forms import forms_with_employees, forms_queue, myforms, controller, search
     from .Contributions import get_contributions, initiate_controller, download_excel, controller

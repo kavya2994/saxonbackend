@@ -1,7 +1,6 @@
 import os
 import logging
 
-
 LOG_LEVEL = logging.INFO
 
 ROOT_DIR = os.path.abspath(os.path.join(os.path.abspath(__file__), '..', '..'))
@@ -23,10 +22,8 @@ DBAAS_WRITEONLY_CONNECTION_STRING = "oracle+cx_oracle://system:BL_H#iP3EzA9Nx#m@
 SERVER_ADDRESS = "0.0.0.0"
 SERVER_PORT = 90
 SERVER_WEB_URL = 'https://portal.silverthatch.org.ky/'
-FRONTEND_URL = 'https://portal-uat.silverthatch.org.ky/'
+FRONTEND_URL = 'http://portal-uat.silverthatch.org.ky/'
 MAIL_ENROLLMENT_URL = 'https://silverthatch.org.ky/?d=756'
-
-
 
 SECRET_KEY = 'f^I7q!(S(O]|"]%<+,Hz&vyQ^"exx9'
 JWT_SECRET = 'H7|=1fq[:`.;MtY02Me]w9_XPRqt^S'
