@@ -52,7 +52,7 @@ class GetProfileDetails(Resource):
                        "Timezone": users.Timezone
                    }, 200
         except UnprocessableEntity as e:
-            LOG.error("Exception while fetching profile details", e)
+            LOG.error("Invalid Username", e)
             raise UnprocessableEntity("Not a valid username")
         except Exception as e:
             LOG.error("Exception while fetching profile details", e)
