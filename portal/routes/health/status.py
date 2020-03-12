@@ -15,7 +15,7 @@ class HealthStatus(Resource):
         return response
 
 
-@ns.route("/headers")
+@ns.route("/_headers")
 class HealthStatus(Resource):
     def get(self):
         response = dict(request.headers)
