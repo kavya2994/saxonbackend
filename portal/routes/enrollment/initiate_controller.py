@@ -27,6 +27,7 @@ parser.add_argument('MemberEmail', type=str, location='json', required=True)
 parser.add_argument('MemberFirstName', type=str, location='json', required=True)
 parser.add_argument('Comment', type=str, location='json', required=False)
 parser.add_argument('user', type=str, location='json', required=True)
+parser.add_argument('EmployerName', type=str, location='json', required=True)
 
 response_model = ns.model('PostEnrollmentInitiationController', {
     'result': fields.String,
@@ -49,11 +50,7 @@ class EnrollmentInitiationController(Resource):
 
         try:
             employer_username = args['user']
-            employer_id = employer_username
             initiation_date = datetime.utcnow()
-
-            if str(employer_id)[-2:].__contains__("HR"):
-                employer_username = str(employer_username)[:-2]
 
             new_enrollment = Enrollmentform(
                 EmployerID=employer_username,
@@ -61,22 +58,14 @@ class EnrollmentInitiationController(Resource):
                 FirstName=args["MemberFirstName"],
                 EmailAddress=args["MemberEmail"],
                 PendingFrom=roles.ROLES_MEMBER,
-                Status=status.STATUS_PENDING
+                Status=status.STATUS_PENDING,
+                EmployerName=args["EmployerName"]
             )
 
             db.session.add(new_enrollment)
             db.session.commit()
 
             token_data = Token(
-
-                # FormID=new_enrollment.FormID,
-                # InitiatedBy=employer_username,
-                # InitiatedDate=initiation_date,
-                # FormStatus="Pending",
-                # FormType="Enrollment",
-                # PendingFrom='Member',
-                # TokenStatus='Active',
-                # EmployerID='',
 
                 FormID=new_enrollment.FormID,
                 InitiatedBy=args["username"],

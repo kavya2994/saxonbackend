@@ -274,12 +274,6 @@ class EnrollmentController(Resource):
                 if 'EmployerID' in args:
                     form.EmployerID = args['EmployerID']
 
-                if 'SignersName' in args:
-                    form.SignersName = args['SignersName']
-
-                if 'Signature' in args:
-                    form.Signature = args['Signature']
-
             db.session.commit()
         except Exception as e:
             LOG.warning('Unexpected error happened during updating enrollment: %s', e)
@@ -311,7 +305,8 @@ class EnrollmentController(Resource):
 
         if token.PendingFrom != ROLES_MEMBER or token.TokenStatus != STATUS_ACTIVE or token.FormStatus != STATUS_PENDING:
             raise NotFound('Token was not Found or is not Active')
-
+        if form.Signature is None and args["Signature"] is None:
+            raise BadRequest("Signature is needed for Submission")
         if 'file' in request.files and form.FilePath is None:
             path = APP.config['DATA_DIR']
             file = request.files['file']
@@ -366,7 +361,6 @@ class EnrollmentController(Resource):
             form.SignatureType = args["SignatureType"]
         form.PendingFrom = ROLES_EMPLOYER
         form.Status = STATUS_PENDING
-        print("member submission")
         db.session.commit()
         name = form.FirstName + " " + form.LastName
         subject = 'Your Enrollment has been submitted'
@@ -413,6 +407,9 @@ class EnrollmentController(Resource):
             file.save(os.path.join(path, filename))
             form.FilePath = os.path.join(path, filename)
         form.Status = STATUS_PENDING
+        print("-------------")
+        print(args["SignatureType"])
+        print("-------------")
         if form.Signature is None:
             form.Signature = args["Signature"]
             form.SignatureType = args["SignatureType"]

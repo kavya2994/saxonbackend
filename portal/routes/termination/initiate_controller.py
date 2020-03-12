@@ -68,7 +68,7 @@ class TerminationInitiationController(Resource):
         employer_id = args["employerusername"]
         employer_name = args["employername"]
         employernumber = employer_id
-        member_name = args['MemberNumber']
+        member_name = args['MemberName']
 
         # data["formCreatedDate"] = datetime.utcnow()
         if str(employer_id)[-2:].__contains__("HR"):

@@ -26,13 +26,13 @@ response_model = ns.model('GetGetProfileDetails', {
 })
 
 
-@ns.route("/profile/get")
+@ns.route("/profile/get/<Username>")
 class GetProfileDetails(Resource):
     @ns.doc(description='Get profile details',
             responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 500: 'Internal Server Error'})
     @ns.expect(parser, validate=True)
     @ns.marshal_with(response_model)
-    def get(self):
+    def get(self, Username):
         args = parser.parse_args(strict=False)
 
         username = args['username']
@@ -41,7 +41,9 @@ class GetProfileDetails(Resource):
 
         decoded_token = token_verify_or_raise(token, username, ip)
         try:
-            users = Users.query.filter_by(Username=username).first()
+            users = Users.query.filter_by(Username=Username).first()
+            if users is None:
+                raise UnprocessableEntity("Not a valid username")
             return {
                        "Username": users.Username,
                        "DisplayName": users.DisplayName,
@@ -49,6 +51,9 @@ class GetProfileDetails(Resource):
                        "Language": users.Language,
                        "Timezone": users.Timezone
                    }, 200
+        except UnprocessableEntity as e:
+            LOG.error("Exception while fetching profile details", e)
+            raise UnprocessableEntity("Not a valid username")
         except Exception as e:
             LOG.error("Exception while fetching profile details", e)
             raise InternalServerError("Can't fetch profile details")
