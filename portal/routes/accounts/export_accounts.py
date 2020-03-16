@@ -4,7 +4,7 @@ from threading import Thread
 
 import jwt
 import json
-from datetime import datetime
+from datetime import datetime, date
 
 import xlrd
 import xlsxwriter
@@ -181,7 +181,7 @@ class ExportAccounts(Resource):
                 if i == 0:
                     worksheet.write(0, keys.index(key), key, header_format)
                     continue
-                if isinstance(account[key], datetime.date):
+                if isinstance(account[key], date):
                     worksheet.write(i, keys.index(key), account[key], date_format)
                     continue
                 worksheet.write(i, keys.index(key), account[key], data_cell_format)
