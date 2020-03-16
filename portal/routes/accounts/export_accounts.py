@@ -47,7 +47,8 @@ class ExportAccounts(Resource):
         token = args["Authorization"]
         ip = args['Ipaddress']
         decoded_token = token_verify_or_raise(token, username, ip)
-        if decoded_token["role"] not in [roles.ROLES_ADMIN, roles.ROLES_REVIEW_MANAGER, roles.ROLES_EMPLOYER, roles.ROLES_HR]:
+        if decoded_token["role"] not in [roles.ROLES_ADMIN, roles.ROLES_REVIEW_MANAGER, roles.ROLES_EMPLOYER,
+                                         roles.ROLES_HR]:
             raise Unauthorized()
         args_list = ["ID", "name", "user", "status", "email", "key", "employerusername"]
         args_dict = {}
@@ -78,9 +79,27 @@ class ExportAccounts(Resource):
                 if members is not None:
                     for mem in members:
                         accounts_list.append({
-                            'Number': mem.MEMNO,
-                            'Name': mem.FNAME if mem.FNAME is not None else "" + " " + mem.LNAME if mem.LNAME is not None else "",
-                            'Email': mem.EMAIL
+                            # 'Number': mem.MEMNO,
+                            # 'Name': mem.FNAME if mem.FNAME is not None else "" + " " + mem.LNAME if mem.LNAME is not None else "",
+                            # 'Email': mem.EMAIL
+                            'MEMNO': mem.MEMNO,
+                            'FNAME': mem.FNAME,
+                            'LNAME': mem.LNAME,
+                            'EMAIL': mem.EMAIL,
+                            'PSTATUS': mem.PSTATUS,
+                            'EM_STATUS': mem.EM_STATUS,
+                            'BIRTH': mem.BIRTH,
+                            'ENTRY_DATE': mem.ENTRY_DATE,
+                            'NR_DATE': mem.NR_DATE,
+                            'HIRE': mem.HIRE,
+                            'EMPOYER': mem.EMPOYER,
+                            'STREET1': mem.STREET1,
+                            'STREET2': mem.STREET2,
+                            'CITY': mem.CITY,
+                            'POSTAL': mem.POSTAL,
+                            'COUNTRY': mem.COUNTRY,
+                            'BEN_NAMES': mem.BEN_NAMES,
+                            'RELNAME': mem.RELNAME
                         })
                 filepath = self.build_excel_accounts(accounts_list, search_role)
                 t = threading.Thread(target=delete_excel, args=(filepath,))
@@ -106,9 +125,16 @@ class ExportAccounts(Resource):
                 if employers is not None:
                     for emp in employers:
                         accounts_list.append({
-                            'Number': emp.ERNO,
-                            'Name': emp.ENAME,
-                            'Email': emp.EMAIL
+                            # 'Number': emp.ERNO,
+                            # 'Name': emp.ENAME,
+                            # 'Email': emp.EMAIL
+                            'ERKEY': emp.ERKEY,
+                            'ERNO': emp.ERNO,
+                            'ENAME': emp.ENAME,
+                            'SNAME': emp.SNAME,
+                            'EMAIL': emp.EMAIL,
+                            'ENTRY': emp.ENTRY,
+                            'TERMDATE': emp.TERMDATE
                         })
                 filepath = self.build_excel_accounts(accounts_list, search_role)
                 t = threading.Thread(target=delete_excel, args=(filepath,))
@@ -136,15 +162,29 @@ class ExportAccounts(Resource):
             'border': 1,
             'align': 'center',
             'valign': 'vcenter'})
-        worksheet.write(0, 0, "Number", header_format)
-        worksheet.write(0, 1, "Name", header_format)
-        worksheet.write(0, 2, "Email", header_format)
-        i = 1
+        date_format = workbook.add_format({
+            'bold': 1,
+            'border': 1,
+            'align': 'center',
+            'valign': 'vcenter',
+            'num_format': 'd mmmm yyyy'})
+
+        # keys = accounts
+        # worksheet.write(0, 0, "Number", header_format)
+        # worksheet.write(0, 1, "Name", header_format)
+        # worksheet.write(0, 2, "Email", header_format)
+        i = 0
 
         for account in accounts:
-            worksheet.write(i, 0, account["Number"], data_cell_format)
-            worksheet.write(i, 1, account["Name"], data_cell_format)
-            worksheet.write(i, 2, account["Email"], data_cell_format)
+            keys = list(account.keys())
+            for key in keys:
+                if i == 0:
+                    worksheet.write(0, keys.index(key), key, header_format)
+                    continue
+                if isinstance(account[key], datetime.date):
+                    worksheet.write(i, keys.index(key), account[key], date_format)
+                    continue
+                worksheet.write(i, keys.index(key), account[key], data_cell_format)
             i += 1
         workbook.close()
         return file_path

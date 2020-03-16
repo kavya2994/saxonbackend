@@ -54,11 +54,13 @@ class BuildExcel(Resource):
         employer_data = EmployerView.query.filter_by(ERNO=employer_username).first()
         if employer_data is None:
             raise UnprocessableEntity("Can't find employer", employer_username)
-        member_data = MemberView.query.filter_by(EMPOYER=employer_data.SNAME).all()
+        member_data = MemberView.query.filter(MemberView.EMPOYER == employer_data.SNAME,
+                                              MemberView.EM_STATUS != "Terminated").all()
         i = 16
         for doc in member_data:
             w_sheet.write(i, 0, doc.MEMNO)
-            w_sheet.write(i, 1, doc.FNAME + " " + doc.LNAME)
+            w_sheet.write(i, 1, doc.LNAME)
+            w_sheet.write(i, 2, doc.FNAME)
             i += 1
         filename = os.path.join(APP.config['EXCEL_TEMPLATE_DIR'],
                                 current_datetime.strftime("%d%m%Y %H%M%S") + 'Contribution.xls')

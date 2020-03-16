@@ -10,3 +10,5 @@ class EmployerView(db.Model):
     ENAME = db.Column(db.String(255))
     SNAME = db.Column(db.String(255))
     EMAIL = db.Column(db.String(255))
+    ENTRY = db.Column(db.DateTime)
+    TERMDATE = db.Column(db.DateTime)
