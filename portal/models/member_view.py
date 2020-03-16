@@ -22,5 +22,5 @@ class MemberView(db.Model):
     CITY = db.Column(db.String(255))
     POSTAL = db.Column(db.String(255))
     COUNTRY = db.Column(db.String(255))
-    BEN_NAMES = db.Column(db.String(255))
-    RELNAME = db.Column(db.String(255))
+    # BEN_NAMES = db.Column(db.String(255))
+    # RELNAME = db.Column(db.String(255))

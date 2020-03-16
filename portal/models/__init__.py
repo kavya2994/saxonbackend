@@ -39,6 +39,7 @@ def init_app(app):
         from .member_view import MemberView
         from .settings import Settings
         from .messages import Messages
+        from .beneficiary_read import BeneficiaryFromRead
 
         db.create_all(bind=['writeonly'])
         db.session.commit()

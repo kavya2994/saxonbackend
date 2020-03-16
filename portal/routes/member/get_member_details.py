@@ -54,6 +54,7 @@ class GetMemberDetails(Resource):
         print(user)
         decoded_token = token_verify_or_raise(token, username, ip)
         member = MemberView.query.filter_by(MEMNO=user).first()
+
         if member is not None:
             return {
                        'MKEY': member.MKEY,
@@ -71,8 +72,8 @@ class GetMemberDetails(Resource):
                        'EM_STATUS': member.EM_STATUS,
                        'CITY': member.CITY,
                        'COUNTRY': member.COUNTRY,
-                       'BEN_NAMES': member.BEN_NAMES,
-                       'RELNAME': member.RELNAME,
+                       # 'BEN_NAMES': member.BEN_NAMES,
+                       # 'RELNAME': member.RELNAME,
                        'ER_DATE': member.NR_DATE.replace(year=member.NR_DATE.year - 10)
                    }, 200
         else:
