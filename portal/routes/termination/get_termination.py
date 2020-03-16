@@ -57,10 +57,6 @@ class GetTermination(Resource):
     @ns.marshal_with(response_model)
     def get(self, TokenID):
         args = parser.parse_args()
-        print(TokenID)
-        # decode_token = token_verify_or_raise(token=args['Authorization'], ip=args['Ipaddress'], user=args['username'])
-        # if not decode_token["role"] in [ROLES_EMPLOYER, ROLES_REVIEW_MANAGER]:
-        #     raise Unauthorized()
         token_data = Token.query.filter_by(TokenID=TokenID).first()
         if token_data is not None and token_data.TokenStatus == status.STATUS_ACTIVE:
             if not token_data.PendingFrom == ROLES_MEMBER:

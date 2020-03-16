@@ -1,3 +1,4 @@
+import argparse
 import os
 import jwt
 import json
@@ -27,6 +28,18 @@ RequestType_SaveFormData = 'SaveFormData'
 RequestType_EmployerSubmission = 'EmployerSubmission'
 RequestType_ApprovalConfirmation = 'ApprovalConfirmation'
 RequestType_Reject = 'Rejected'
+
+
+def str2bool(v):
+    if isinstance(v, bool):
+        return v
+    if v.lower() in ('yes', 'true', 't', 'y', '1'):
+        return True
+    elif v.lower() in ('no', 'false', 'f', 'n', '0'):
+        return False
+    else:
+        raise argparse.ArgumentTypeError('Boolean value expected.')
+
 
 getParser = reqparse.RequestParser()
 getParser.add_argument('Authorization', type=str, location='headers', required=False)
@@ -75,7 +88,7 @@ parser.add_argument('SignersName', type=str, location='form', required=False)
 parser.add_argument('Signature', type=str, location='form', required=False)
 parser.add_argument('RejectionReason', type=str, location='form', required=False)
 parser.add_argument('MaidenName', type=str, location='form', required=False)
-parser.add_argument('isExistingMember', type=bool, location='form', required=False)
+parser.add_argument('isExistingMember', type=str2bool, location='form', required=False)
 parser.add_argument('file', type=FileStorage, location='files', required=False)
 parser.add_argument('Comment', type=str, location='form', required=False)
 parser.add_argument('CommentName', type=str, location='form', required=False)
@@ -220,7 +233,6 @@ class EnrollmentController(Resource):
     @ns.marshal_with(response_model)
     def post(self, TokenID):
         args = parser.parse_args(strict=True)
-
         token = Token.query.get(TokenID)
         if token is None:
             raise NotFound('Token Not Found')
@@ -228,7 +240,6 @@ class EnrollmentController(Resource):
         form = Enrollmentform.query.get(token.FormID)
         if form is None:
             raise NotFound('Form Not Found')
-        print(args["RequestType"])
         if args['RequestType'] == RequestType_MemberSubmission:
             self._memberSubmission_pre_update(token, form, args)
         elif args['RequestType'] == RequestType_SaveFormData:
@@ -266,7 +277,6 @@ class EnrollmentController(Resource):
             form.AlreadyEnrolled = args["isExistingMember"]
             form.MemberID = args["MemberID"]
             form.MaidenName = args["MaidenName"]
-            # print(args["StartDateofContribution"], "StartDateofContribution")
             if args['RequestType'] != 'MemberSubmission':
                 if 'EmployerName' in args:
                     form.EmployerName = args['EmployerName']
@@ -299,7 +309,6 @@ class EnrollmentController(Resource):
         return RESPONSE_OK
 
     def _memberSubmission_pre_update(self, token, form, args):
-        print(token)
         if token is None:
             raise NotFound('Token was not found')
 
@@ -311,7 +320,6 @@ class EnrollmentController(Resource):
             path = APP.config['DATA_DIR']
             file = request.files['file']
             filename = secure_filename(file.filename)
-            print(filename)
             path = os.path.join(path, "Employers")
             if not os.path.exists(path):
                 os.mkdir(path)
@@ -384,14 +392,12 @@ class EnrollmentController(Resource):
 
         if token.TokenStatus != STATUS_ACTIVE or token.FormStatus != STATUS_PENDING:
             raise NotFound('Token was not Found or is not Active')
-        print(form.FilePath)
 
     def _saveFormData_post_update(self, token, form, args):
         if 'file' in request.files and form.FilePath is None:
             path = APP.config['DATA_DIR']
             file = request.files['file']
             filename = secure_filename(file.filename)
-            print(filename)
             path = os.path.join(path, "Employers")
             if not os.path.exists(path):
                 os.mkdir(path)
@@ -407,9 +413,6 @@ class EnrollmentController(Resource):
             file.save(os.path.join(path, filename))
             form.FilePath = os.path.join(path, filename)
         form.Status = STATUS_PENDING
-        print("-------------")
-        print(args["SignatureType"])
-        print("-------------")
         if form.Signature is None:
             form.Signature = args["Signature"]
             form.SignatureType = args["SignatureType"]
@@ -474,6 +477,8 @@ class EnrollmentController(Resource):
 
         if token.PendingFrom != ROLES_REVIEW_MANAGER or token.TokenStatus != STATUS_ACTIVE or token.FormStatus != STATUS_PENDING:
             raise NotFound('Token was not Found or is not Active')
+        if args["MemberID"] is None or args["MemberID"] == "":
+            raise BadRequest("Please enter valid Member Number")
 
     def _approvalConfirmation_post_update(self, token, form, args):
         token.FormStatus = STATUS_APPROVE

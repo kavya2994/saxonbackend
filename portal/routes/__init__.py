@@ -9,7 +9,7 @@ def init_app(app):
     from .file import download, explorer
     from .file.explorer import open, explorer, operation, operations, zip_download
     from .user import new, user, security_question, update_profile_details, get_profile_details
-    from .enrollment import controller, simple_controller, initiate_controller
+    from .enrollment import controller, simple_controller, initiate_controller, get_file
     from .termination import initiate_controller, controller, get_termination
     from .beneficiary import controller
     from .admin import new, update, delete, add_employer_to_member, get_internal_users, get_settings, new_settings, get_employer_to_member, get_user_data, delete_employer_to_member

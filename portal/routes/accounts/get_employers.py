@@ -22,7 +22,8 @@ response_model_child = ns.model('GetGetEmployersChild', {
     'ERNO': fields.String,
     'ENAME': fields.String,
     'SNAME': fields.String,
-    'EMAIL': fields.String
+    'EMAIL': fields.String,
+    'Status': fields.String
 })
 
 response_model = ns.model('GetGetEmployers', {
@@ -65,11 +66,11 @@ class GetEmployers(Resource):
         if employers is not None:
             for emp in employers:
                 employer_list.append({
-                    'ERKEY': emp.ERKEY,
                     'ERNO': emp.ERNO,
                     'ENAME': emp.ENAME,
                     'SNAME': emp.SNAME,
-                    'EMAIL': emp.EMAIL
+                    'EMAIL': emp.EMAIL,
+                    'Status': status.STATUS_INACTIVE if emp.TERMDATE is not None and emp.TERMDATE < datetime.utcnow() else status.STATUS_ACTIVE
                 })
 
         return {"employers": employer_list}, 200
