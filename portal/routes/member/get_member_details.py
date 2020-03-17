@@ -7,6 +7,7 @@ from ...helpers import randomStringwithDigitsAndSymbols, token_verify, token_ver
 from ...encryption import Encryption
 from ...models import db, status, roles
 from ...models.member_view import MemberView
+from ...models.beneficiary_read import BeneficiaryFromRead
 from werkzeug.exceptions import Unauthorized, BadRequest, UnprocessableEntity, InternalServerError
 from . import ns
 from ... import APP, LOG
@@ -54,7 +55,7 @@ class GetMemberDetails(Resource):
         print(user)
         decoded_token = token_verify_or_raise(token, username, ip)
         member = MemberView.query.filter_by(MEMNO=user).first()
-
+        benef = BeneficiaryFromRead.query.filter_by(MKEY=member.MKEY).first()
         if member is not None:
             return {
                        'MKEY': member.MKEY,
@@ -72,8 +73,8 @@ class GetMemberDetails(Resource):
                        'EM_STATUS': member.EM_STATUS,
                        'CITY': member.CITY,
                        'COUNTRY': member.COUNTRY,
-                       # 'BEN_NAMES': member.BEN_NAMES,
-                       # 'RELNAME': member.RELNAME,
+                       'BEN_NAMES': benef.BEN_NAMES if benef is not None else "",
+                       'RELNAME': benef.RELNAME if benef is not None else "",
                        'ER_DATE': member.NR_DATE.replace(year=member.NR_DATE.year - 10)
                    }, 200
         else:

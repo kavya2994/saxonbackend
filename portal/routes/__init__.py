@@ -14,7 +14,7 @@ def init_app(app):
     from .beneficiary import controller
     from .admin import new, update, delete, add_employer_to_member, get_internal_users, get_settings, new_settings, get_employer_to_member, get_user_data, delete_employer_to_member
     from .Subsidiaries import add_subsidiaries, delete_subsidiaries, get_subsidiary
-    from .member import get_member_details, member_termination_details
+    from .member import get_member_details, member_termination_details, statements
     from .accounts import get_employers, get_members, search, get_members_for_employer, get_member_count, export_accounts
     from .messages import get_messages, create_message, delete_message
     from .health import status

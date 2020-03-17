@@ -40,6 +40,9 @@ def init_app(app):
         from .settings import Settings
         from .messages import Messages
         from .beneficiary_read import BeneficiaryFromRead
+        from .annual_statement import AnnualStatements
+        from .monthly_statements import MonthlyStatements
+        from .employer_dealing_day_rpt import EmployerDealingDayRPT
 
         db.create_all(bind=['writeonly'])
         db.session.commit()
