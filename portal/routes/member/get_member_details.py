@@ -19,7 +19,6 @@ parser.add_argument('Ipaddress', type=str, location='headers', required=True)
 parser.add_argument('membernumber', type=str, location='args', required=True)
 
 response_model = ns.model('GetGetMemberDetails', {
-    'MKEY': fields.String,
     'MEMNO': fields.String,
     'FNAME': fields.String,
     'LNAME': fields.String,
@@ -31,6 +30,8 @@ response_model = ns.model('GetGetMemberDetails', {
     'PSTATUS': fields.String,
     'EMPOYER': fields.String,
     'STREET1': fields.String,
+    'STREET2': fields.String,
+    'POSTAL': fields.String,
     'EM_STATUS': fields.String,
     'CITY': fields.String,
     'COUNTRY': fields.String,
@@ -58,7 +59,6 @@ class GetMemberDetails(Resource):
         benef = BeneficiaryFromRead.query.filter_by(MKEY=member.MKEY).first()
         if member is not None:
             return {
-                       'MKEY': member.MKEY,
                        'MEMNO': member.MEMNO,
                        'FNAME': member.FNAME,
                        'LNAME': member.LNAME,
@@ -70,6 +70,8 @@ class GetMemberDetails(Resource):
                        'PSTATUS': member.PSTATUS,
                        'EMPOYER': member.EMPOYER,
                        'STREET1': member.STREET1,
+                       'STREET2': member.STREET2,
+                       'POSTAL': member.POSTAL,
                        'EM_STATUS': member.EM_STATUS,
                        'CITY': member.CITY,
                        'COUNTRY': member.COUNTRY,
