@@ -1,7 +1,9 @@
+import base64
+
 import jwt
 import json
 from datetime import datetime
-from flask import Blueprint, jsonify, request, abort, current_app as app
+from flask import Blueprint, jsonify, request, abort, current_app as app, send_file
 from flask_restx import Resource, reqparse, fields
 from ...helpers import randomStringwithDigitsAndSymbols, token_verify, token_verify_or_raise
 from ...encryption import Encryption
@@ -37,7 +39,7 @@ response = ns.model("GetFilesList", {
 
 @ns.route("/statement/get")
 class GetStatements(Resource):
-    @ns.doc(description='Get profile details',
+    @ns.doc(description='Get Statements',
             responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 500: 'Internal Server Error'})
     @ns.expect(parser, validate=True)
     @ns.marshal_with(response)
@@ -61,7 +63,7 @@ class GetStatements(Resource):
                     "DateFrom": statement.DATE_FROM,
                     "DateTo": statement.DATE_TO,
                     "FileName": statement.FILENAME,
-                    "File": statement.FILEITEM
+                    "File": str(statement.FILEITEM).encode('utf-8')
                 })
                 LOG.info(statement.FILENAME, "Annual", member.MKEY)
 
@@ -72,9 +74,23 @@ class GetStatements(Resource):
                     "DateFrom": statement.DATE_FROM,
                     "DateTo": statement.DATE_TO,
                     "FileName": statement.FILENAME,
-                    "File": statement.FILEITEM
+                    "File": str(statement.FILEITEM).encode('utf-8')
                 })
                 LOG.info(statement.FILENAME, "Monthly", member.MKEY)
         else:
             raise BadRequest("Not a valid request")
         return {"Files": statements}, 200
+
+
+@ns.route("/statement/test/get")
+class GetStatements(Resource):
+    @ns.doc(description='Get Statements',
+            responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 500: 'Internal Server Error'})
+    @ns.expect(parser, validate=True)
+    @ns.marshal_with(response)
+    def get(self):
+        monthly_statements = MonthlyStatements.query.filter_by(
+            FILENAME="0001-286304-1-20190801-20190831.082910.PDF").first()
+        with open('C:\\Users\\Manomay\\Desktop\\test.pdf', 'wb') as test:
+            test.write(base64.b64decode(monthly_statements.FILEITEM))
+        return send_file('C:\\Users\\Manomay\\Desktop\\test.pdf')
