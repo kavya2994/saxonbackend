@@ -1,4 +1,5 @@
 import base64
+import os
 
 import jwt
 import json
@@ -29,7 +30,7 @@ response_model = ns.model('GetFiles', {
     "DateFrom": fields.String,
     "DateTo": fields.String,
     "FileName": fields.String,
-    "File": fields.String
+    "File": fields.Raw
 })
 
 response = ns.model("GetFilesList", {
@@ -63,7 +64,7 @@ class GetStatements(Resource):
                     "DateFrom": statement.DATE_FROM,
                     "DateTo": statement.DATE_TO,
                     "FileName": statement.FILENAME,
-                    "File": str(statement.FILEITEM).encode('utf-8')
+                    "File": statement.FILEITEM
                 })
                 LOG.info(statement.FILENAME, "Annual", member.MKEY)
 
@@ -74,7 +75,7 @@ class GetStatements(Resource):
                     "DateFrom": statement.DATE_FROM,
                     "DateTo": statement.DATE_TO,
                     "FileName": statement.FILENAME,
-                    "File": str(statement.FILEITEM).encode('utf-8')
+                    "File": statement.FILEITEM
                 })
                 LOG.info(statement.FILENAME, "Monthly", member.MKEY)
         else:
@@ -82,16 +83,22 @@ class GetStatements(Resource):
         return {"Files": statements}, 200
 
 
-@ns.route("/statement/test/get")
+@ns.route("/statement/test/get/<FileName>")
 class GetStatements(Resource):
     @ns.doc(description='Get Statements',
             responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 500: 'Internal Server Error'})
     # @ns.expect(parser, validate=True)
     # @ns.marshal_with(response)
-    def get(self):
+    def get(self, FileName):
         monthly_statements = MonthlyStatements.query.filter_by(
-            FILENAME="0001-286304-1-20190801-20190831.082910.PDF").first()
-        filepath = APP.config["EXCEL_TEMPLATE_DIR"] + datetime.today().strftime("%f")
-        with open(filepath + 'test.pdf', 'wb') as test:
-            test.write(base64.b64decode(monthly_statements.FILEITEM))
-        return send_file(filepath + 'test.pdf')
+            FILENAME=FileName).first()
+
+        # file_ = request.files['file']
+        filepath = os.path.join(APP.config["EXCEL_TEMPLATE_DIR"], FileName)
+        # with open(filepath + 'test.pdf', 'wb') as test:
+        #     test.write(base64.b64decode(monthly_statements.FILEITEM))
+        file = open(filepath, 'wb')
+        # print(file_.read())
+        file.write(monthly_statements.FILEITEM)
+        file.close()
+        return send_file(filepath)
