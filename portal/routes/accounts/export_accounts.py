@@ -79,27 +79,27 @@ class ExportAccounts(Resource):
                 if members is not None:
                     for mem in members:
                         accounts_list.append({
-                            # 'Number': mem.MEMNO,
-                            # 'Name': mem.FNAME if mem.FNAME is not None else "" + " " + mem.LNAME if mem.LNAME is not None else "",
-                            # 'Email': mem.EMAIL
-                            'MEMNO': mem.MEMNO,
-                            'FNAME': mem.FNAME,
-                            'LNAME': mem.LNAME,
-                            'EMAIL': mem.EMAIL,
-                            'PSTATUS': mem.PSTATUS,
-                            'EM_STATUS': mem.EM_STATUS,
-                            'BIRTH': mem.BIRTH,
-                            'ENTRY_DATE': mem.ENTRY_DATE,
-                            'NR_DATE': mem.NR_DATE,
-                            'HIRE': mem.HIRE,
-                            'EMPOYER': mem.EMPOYER,
-                            'STREET1': mem.STREET1,
-                            'STREET2': mem.STREET2,
-                            'CITY': mem.CITY,
-                            'POSTAL': mem.POSTAL,
-                            'COUNTRY': mem.COUNTRY,
-                            'BEN_NAMES': mem.BEN_NAMES,
-                            'RELNAME': mem.RELNAME
+                            'Number': mem.MEMNO,
+                            'Name': mem.FNAME if mem.FNAME is not None else "" + " " + mem.LNAME if mem.LNAME is not None else "",
+                            'Email': mem.EMAIL
+                            # 'MEMNO': mem.MEMNO,
+                            # 'FNAME': mem.FNAME,
+                            # 'LNAME': mem.LNAME,
+                            # 'EMAIL': mem.EMAIL,
+                            # 'PSTATUS': mem.PSTATUS,
+                            # 'EM_STATUS': mem.EM_STATUS,
+                            # 'BIRTH': mem.BIRTH,
+                            # 'ENTRY_DATE': mem.ENTRY_DATE,
+                            # 'NR_DATE': mem.NR_DATE,
+                            # 'HIRE': mem.HIRE,
+                            # 'EMPOYER': mem.EMPOYER,
+                            # 'STREET1': mem.STREET1,
+                            # 'STREET2': mem.STREET2,
+                            # 'CITY': mem.CITY,
+                            # 'POSTAL': mem.POSTAL,
+                            # 'COUNTRY': mem.COUNTRY,
+                            # 'BEN_NAMES': mem.BEN_NAMES,
+                            # 'RELNAME': mem.RELNAME
                         })
                 filepath = self.build_excel_accounts(accounts_list, search_role)
                 t = threading.Thread(target=delete_excel, args=(filepath,))
@@ -125,16 +125,16 @@ class ExportAccounts(Resource):
                 if employers is not None:
                     for emp in employers:
                         accounts_list.append({
-                            # 'Number': emp.ERNO,
-                            # 'Name': emp.ENAME,
-                            # 'Email': emp.EMAIL
-                            'ERKEY': emp.ERKEY,
-                            'ERNO': emp.ERNO,
-                            'ENAME': emp.ENAME,
-                            'SNAME': emp.SNAME,
-                            'EMAIL': emp.EMAIL,
-                            'ENTRY': emp.ENTRY,
-                            'TERMDATE': emp.TERMDATE
+                            'Number': emp.ERNO,
+                            'Name': emp.ENAME,
+                            'Email': emp.EMAIL
+                            # 'ERKEY': emp.ERKEY,
+                            # 'ERNO': emp.ERNO,
+                            # 'ENAME': emp.ENAME,
+                            # 'SNAME': emp.SNAME,
+                            # 'EMAIL': emp.EMAIL,
+                            # 'ENTRY': emp.ENTRY,
+                            # 'TERMDATE': emp.TERMDATE
                         })
                 filepath = self.build_excel_accounts(accounts_list, search_role)
                 t = threading.Thread(target=delete_excel, args=(filepath,))

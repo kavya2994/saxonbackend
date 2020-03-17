@@ -6,7 +6,7 @@ def init_app(app):
     from . import index
     from .auth import token_check, login, security_questions, get_securityquestion_user
     from .auth.password import reset, change
-    from .file import download, explorer
+    from .file import download, explorer, employer_dealingdayrpt
     from .file.explorer import open, explorer, operation, operations, zip_download
     from .user import new, user, security_question, update_profile_details, get_profile_details
     from .enrollment import controller, simple_controller, initiate_controller, get_file
