@@ -91,6 +91,7 @@ class GetStatements(Resource):
     def get(self):
         monthly_statements = MonthlyStatements.query.filter_by(
             FILENAME="0001-286304-1-20190801-20190831.082910.PDF").first()
-        with open('C:\\Users\\Manomay\\Desktop\\test.pdf', 'wb') as test:
+        filepath = APP.config["EXCEL_TEMPLATE_DIR"] + datetime.today().strftime("%f")
+        with open(filepath + 'test.pdf', 'wb') as test:
             test.write(base64.b64decode(monthly_statements.FILEITEM))
-        return send_file('C:\\Users\\Manomay\\Desktop\\test.pdf')
+        return send_file(filepath + 'test.pdf')
