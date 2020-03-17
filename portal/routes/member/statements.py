@@ -1,12 +1,12 @@
 import base64
 import os
-
+import threading
 import jwt
 import json
 from datetime import datetime
 from flask import Blueprint, jsonify, request, abort, current_app as app, send_file
 from flask_restx import Resource, reqparse, fields
-from ...helpers import randomStringwithDigitsAndSymbols, token_verify, token_verify_or_raise
+from ...helpers import randomStringwithDigitsAndSymbols, token_verify, token_verify_or_raise, delete_excel
 from ...encryption import Encryption
 from ...models import db, status
 from ...models.roles import *
@@ -29,8 +29,7 @@ parser.add_argument('user', type=str, location='args', required=True)
 response_model = ns.model('GetFiles', {
     "DateFrom": fields.String,
     "DateTo": fields.String,
-    "FileName": fields.String,
-    "File": fields.Raw
+    "FileName": fields.String
 })
 
 response = ns.model("GetFilesList", {
@@ -58,47 +57,65 @@ class GetStatements(Resource):
             raise UnprocessableEntity("Not a valid member")
         statements = []
         if args["statementtype"] == "Annual":
-            annual_statements = AnnualStatements.query.filter_by(MKEY=member.MKEY).all()
+            annual_statements = AnnualStatements.query.filter_by(MEMNO=user).all()
             for statement in annual_statements:
                 statements.append({
                     "DateFrom": statement.DATE_FROM,
                     "DateTo": statement.DATE_TO,
-                    "FileName": statement.FILENAME,
-                    "File": statement.FILEITEM
+                    "FileName": statement.FILENAME
                 })
-                LOG.info(statement.FILENAME, "Annual", member.MKEY)
-
         elif args["statementtype"] == "Monthly":
-            monthly_statements = MonthlyStatements.query.filter_by(MKEY=member.MKEY).all()
+            monthly_statements = MonthlyStatements.query.filter_by(MEMNO=user).all()
             for statement in monthly_statements:
                 statements.append({
                     "DateFrom": statement.DATE_FROM,
                     "DateTo": statement.DATE_TO,
-                    "FileName": statement.FILENAME,
-                    "File": statement.FILEITEM
+                    "FileName": statement.FILENAME
                 })
-                LOG.info(statement.FILENAME, "Monthly", member.MKEY)
+
         else:
             raise BadRequest("Not a valid request")
         return {"Files": statements}, 200
 
 
-@ns.route("/statement/test/get/<FileName>")
+@ns.route("/statement/get/<FileName>")
 class GetStatements(Resource):
     @ns.doc(description='Get Statements',
             responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 500: 'Internal Server Error'})
-    # @ns.expect(parser, validate=True)
-    # @ns.marshal_with(response)
+    @ns.expect(parser, validate=True)
     def get(self, FileName):
-        monthly_statements = MonthlyStatements.query.filter_by(
-            FILENAME=FileName).first()
-
-        # file_ = request.files['file']
-        filepath = os.path.join(APP.config["EXCEL_TEMPLATE_DIR"], FileName)
-        # with open(filepath + 'test.pdf', 'wb') as test:
-        #     test.write(base64.b64decode(monthly_statements.FILEITEM))
-        file = open(filepath, 'wb')
-        # print(file_.read())
-        file.write(monthly_statements.FILEITEM)
-        file.close()
-        return send_file(filepath)
+        args = parser.parse_args(strict=False)
+        username = args['username']
+        token = args["Authorization"]
+        ip = args['Ipaddress']
+        user = args['user']
+        decoded_token = token_verify_or_raise(token, username, ip)
+        if decoded_token['role'] not in [ROLES_MEMBER, ROLES_REVIEW_MANAGER]:
+            raise Unauthorized()
+        statemnt_type = args["statementtype"]
+        if statemnt_type == "Monthly":
+            monthly_statements = MonthlyStatements.query.filter_by(
+                FILENAME=FileName, MEMNO=user).first()
+            if monthly_statements is None:
+                raise UnprocessableEntity("Not a valid file")
+            filepath = os.path.join(APP.config["EXCEL_TEMPLATE_DIR"], FileName)
+            file = open(filepath, 'wb')
+            file.write(monthly_statements.FILEITEM)
+            file.close()
+            t = threading.Thread(target=delete_excel, args=(filepath,))
+            t.start()
+            return send_file(filepath)
+        elif statemnt_type == "Annual":
+            annual_statements = AnnualStatements.query.filter_by(
+                FILENAME=FileName, MEMNO=user).first()
+            if annual_statements is None:
+                raise UnprocessableEntity("Not a valid file")
+            filepath = os.path.join(APP.config["EXCEL_TEMPLATE_DIR"], FileName)
+            file = open(filepath, 'wb')
+            file.write(annual_statements.FILEITEM)
+            file.close()
+            t = threading.Thread(target=delete_excel, args=(filepath,))
+            t.start()
+            return send_file(filepath)
+        else:
+            raise BadRequest()
