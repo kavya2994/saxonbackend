@@ -86,8 +86,8 @@ class GetStatements(Resource):
 class GetStatements(Resource):
     @ns.doc(description='Get Statements',
             responses={200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 500: 'Internal Server Error'})
-    @ns.expect(parser, validate=True)
-    @ns.marshal_with(response)
+    # @ns.expect(parser, validate=True)
+    # @ns.marshal_with(response)
     def get(self):
         monthly_statements = MonthlyStatements.query.filter_by(
             FILENAME="0001-286304-1-20190801-20190831.082910.PDF").first()
