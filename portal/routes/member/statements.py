@@ -63,6 +63,7 @@ class GetStatements(Resource):
                     "FileName": statement.FILENAME,
                     "File": statement.FILEITEM
                 })
+                LOG.info(statement.FILENAME, "Annual", member.MKEY)
 
         elif args["statementtype"] == "Monthly":
             monthly_statements = MonthlyStatements.query.filter_by(MKEY=member.MKEY).all()
@@ -73,6 +74,7 @@ class GetStatements(Resource):
                     "FileName": statement.FILENAME,
                     "File": statement.FILEITEM
                 })
+                LOG.info(statement.FILENAME, "Monthly", member.MKEY)
         else:
             raise BadRequest("Not a valid request")
         return {"Files": statements}, 200
