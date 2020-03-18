@@ -16,7 +16,7 @@ class DevelopmentSeeder(object):
         self.db.session.commit()
 
     def _add_users(self):
-        admin_user = Users(UserID=1,
+        admin_user = Users(UserID="INTERNAL1",
                            Username="saxon",
                            Password="6Q9usKHCRmlaNgufji0mJg==",
                            Status=STATUS_ACTIVE,
@@ -27,7 +27,7 @@ class DevelopmentSeeder(object):
                            Email="aramos@saxon.ky"
                            )
 
-        employer_user = Users(UserID=2,
+        employer_user = Users(UserID="INTERNAL2",
                               Username="saxonemployer",
                               Password="6Q9usKHCRmlaNgufji0mJg==",
                               Status=STATUS_ACTIVE,
@@ -36,7 +36,7 @@ class DevelopmentSeeder(object):
                               SecurityQuestionID=1,
                               DisplayName="Saxon Employer")
 
-        reviewmanager_user = Users(UserID=3,
+        reviewmanager_user = Users(UserID="INTERNAL3",
                                    Username="saxonreviewmanager",
                                    Password="6Q9usKHCRmlaNgufji0mJg==",
                                    Status=STATUS_ACTIVE,
@@ -47,7 +47,7 @@ class DevelopmentSeeder(object):
                                    Email="aramos@saxon.ky"
                                    )
 
-        employer1 = Users(UserID=4,
+        employer1 = Users(UserID="INTERNAL4",
                           Username="001528",
                           Password="6Q9usKHCRmlaNgufji0mJg==",
                           Status=STATUS_ACTIVE,
@@ -57,7 +57,7 @@ class DevelopmentSeeder(object):
                           DisplayName="Cayman Cricket",
                           Email="mwright@saxon.ky"
                           )
-        employer2 = Users(UserID=5,
+        employer2 = Users(UserID="INTERNAL5",
                           Username="000067",
                           Password="6Q9usKHCRmlaNgufji0mJg==",
                           Status=STATUS_ACTIVE,
@@ -68,7 +68,7 @@ class DevelopmentSeeder(object):
                           Email="mwright@saxon.ky"
                           )
 
-        member1 = Users(UserID=6,
+        member1 = Users(UserID="INTERNAL6",
                         Username="328847",
                         Password="6Q9usKHCRmlaNgufji0mJg==",
                         Status=STATUS_ACTIVE,
@@ -78,7 +78,7 @@ class DevelopmentSeeder(object):
                         DisplayName="Lawrence Smith",
                         Email="mwright@saxon.ky"
                         )
-        member2 = Users(UserID=7,
+        member2 = Users(UserID="INTERNAL7",
                         Username="389546",
                         Password="6Q9usKHCRmlaNgufji0mJg==",
                         Status=STATUS_ACTIVE,
@@ -88,7 +88,7 @@ class DevelopmentSeeder(object):
                         DisplayName="Paul Manning",
                         )
 
-        member3 = Users(UserID=8,
+        member3 = Users(UserID="INTERNAL8",
                         Username="360589",
                         Password="6Q9usKHCRmlaNgufji0mJg==",
                         Status=STATUS_ACTIVE,
@@ -97,7 +97,7 @@ class DevelopmentSeeder(object):
                         SecurityQuestionID=1,
                         DisplayName="Mellisa Morgan",
                         )
-        member4 = Users(UserID=9,
+        member4 = Users(UserID="INTERNAL9",
                         Username="384261",
                         Password="6Q9usKHCRmlaNgufji0mJg==",
                         Status=STATUS_ACTIVE,
@@ -106,7 +106,7 @@ class DevelopmentSeeder(object):
                         SecurityQuestionID=1,
                         DisplayName="Tracey Crowston",
                         )
-        member5 = Users(UserID=10,
+        member5 = Users(UserID="INTERNAL10",
                         Username="316718",
                         Password="6Q9usKHCRmlaNgufji0mJg==",
                         Status=STATUS_ACTIVE,
@@ -116,7 +116,7 @@ class DevelopmentSeeder(object):
                         DisplayName="Ma Kristina Jacaban",
                         )
 
-        self.db.session.merge(admin_user)
+        h = self.db.session.merge(admin_user)
         self.db.session.merge(employer_user)
         self.db.session.merge(reviewmanager_user)
         self.db.session.merge(employer1)

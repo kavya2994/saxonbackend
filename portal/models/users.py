@@ -5,7 +5,7 @@ from sqlalchemy import Sequence
 class Users(db.Model):
     __bind_key__ = 'writeonly'
 
-    UserID = db.Column(db.Integer, Sequence('user_id_seq'), primary_key=True, nullable=False)
+    UserID = db.Column(db.String(255), Sequence(name='user_id_seq', start="INTERNAL"), primary_key=True, nullable=False)
     Username = db.Column(db.String(255), unique=True, nullable=False)
 
     SecurityQuestionID = db.Column(db.Integer, db.ForeignKey('security_question.SecurityQuestionID'))
@@ -25,3 +25,4 @@ class Users(db.Model):
     Language = db.Column(db.String(255))
     Last5Passwords = db.Column(db.String(255))
     PassLastUpdatedDate = db.Column(db.DateTime)
+    CreatedBy = db.Column(db.String(255))

@@ -53,14 +53,17 @@ class AddUser(Resource):
                                      TemporaryPassword=True,
                                      DisplayName=displayname,
                                      SessionDuration="30",
-                                     UserCreatedTime=datetime.utcnow())
+                                     UserCreatedTime=datetime.utcnow(),
+                                     CreatedBy=args["username"])
                     db.session.add(new_user)
                     db.session.commit()
                     msg_text = f'<p>Dear {displayname}</p>' + \
                                f'<p>Your account is created</p>' + \
                                f'<p>Username is {username}</p>' + \
                                f'<p> please use this password <b>{password}</b> to log in</p>' + \
-                               f'<p> Please ensure that you are not copying any extra spaces</p>'
+                               f'<p> Please ensure that you are not copying any extra spaces</p>' \
+                               f'<p>Please use below link to login</p>' \
+                               f'<p>{APP.config["FRONTEND_URL"]}/login</p>'
 
                     send_email(email, "Welcome to Pension Management portal", body=msg_text)
                     return {"result": "Success"}, 200
@@ -79,8 +82,9 @@ class AddUser(Resource):
                                f'<p>Your account has been reactivated</p>' + \
                                f'<p>Username is {username}</p>' + \
                                f'<p> please use this password {password} to log in</p>' + \
-                               f'<p> Please ensure that you are not copying any extra spaces</p>'
-
+                               f'<p> Please ensure that you are not copying any extra spaces</p>' \
+                               f'<p>Please use below link to login</p>' \
+                               f'<p>{APP.config["FRONTEND_URL"]}/login</p>'
                     send_email(email, "Welcome to Pension Management portal", body=msg_text)
 
                     return {"result": "Success"}, 200

@@ -10,6 +10,7 @@ class Enrollmentform(db.Model):
     EmployerName = db.Column(db.String(255))
     EmployerID = db.Column(db.String(255), nullable=True)
     MemberID = db.Column(db.String(255), nullable=True)
+    OldMemberID = db.Column(db.String(255), nullable=True)
     InitiatedDate = db.Column(db.DateTime, nullable=True)
     AlreadyEnrolled = db.Column(db.Boolean, default=False, nullable=True)
     Status = db.Column(db.String(255), nullable=True)

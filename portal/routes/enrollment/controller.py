@@ -84,6 +84,7 @@ parser.add_argument('SpouseDOB', type=inputs.date_from_iso8601, location='form',
 parser.add_argument('EmployerName', type=str, location='form', required=False)
 parser.add_argument('EmployerID', type=str, location='form', required=False)
 parser.add_argument('MemberID', type=str, location='form', required=False)
+parser.add_argument('NewMemberID', type=str, location='form', required=False)
 parser.add_argument('SignersName', type=str, location='form', required=False)
 parser.add_argument('Signature', type=str, location='form', required=False)
 parser.add_argument('RejectionReason', type=str, location='form', required=False)
@@ -275,8 +276,9 @@ class EnrollmentController(Resource):
             form.SpouseName = args['SpouseName']
             form.SpouseDOB = args['SpouseDOB']
             form.AlreadyEnrolled = args["isExistingMember"]
-            form.MemberID = args["MemberID"]
+            form.OldMemberID = args["MemberID"]
             form.MaidenName = args["MaidenName"]
+            form.MemberID = args["NewMemberID"]
             if args['RequestType'] != 'MemberSubmission':
                 if 'EmployerName' in args:
                     form.EmployerName = args['EmployerName']
@@ -477,7 +479,7 @@ class EnrollmentController(Resource):
 
         if token.PendingFrom != ROLES_REVIEW_MANAGER or token.TokenStatus != STATUS_ACTIVE or token.FormStatus != STATUS_PENDING:
             raise NotFound('Token was not Found or is not Active')
-        if args["MemberID"] is None or args["MemberID"] == "":
+        if args["NewMemberID"] is None or args["NewMemberID"] == "":
             raise BadRequest("Please enter valid Member Number")
 
     def _approvalConfirmation_post_update(self, token, form, args):
