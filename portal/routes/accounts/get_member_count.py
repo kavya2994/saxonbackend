@@ -46,7 +46,8 @@ class GetMembersForEmployer(Resource):
         employer_sname = employer_.SNAME
         try:
             members_count = MemberView.query\
-                .filter(MemberView.EMPOYER == employer_sname, MemberView.EM_STATUS.ilike("%FULL%")).count()
+                .filter(MemberView.EMPOYER == employer_sname, MemberView.EM_STATUS.ilike("%FULL%"),
+                        MemberView.PSTATUS.ilike("%active%")).count()
             return {"members": members_count}, 200
         except Exception as e:
             LOG.error(e)

@@ -67,7 +67,8 @@ class GetMembersForEmployer(Resource):
             employer_sname = employer_.SNAME
             members = MemberView.query.filter(or_(MemberView.EMPOYER == employer_sname,
                                                   MemberView.MEMNO.in_(tuple(member_list_write_db))),
-                                              MemberView.EM_STATUS.ilike("%FULL%")).order_by(MemberView.MEMNO.desc()) \
+                                              MemberView.EM_STATUS.ilike("%FULL%"),
+                                              MemberView.PSTATUS.ilike("%active%")).order_by(MemberView.MEMNO.desc()) \
                 .offset(offset).limit(50).all()
             member_list = []
             # member_list_read_db = []

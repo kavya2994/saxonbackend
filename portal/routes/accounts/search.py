@@ -86,28 +86,19 @@ class Search(Resource):
                     return {"members": []}
                 employer_sname = employer_.SNAME
             try:
-                members = None
+                members = MemberView.query.filter(MemberView.MEMNO.ilike("%" + args_dict["ID"] + "%"),
+                                                  or_(MemberView.FNAME.ilike("%" + args_dict["name"] + "%"),
+                                                      MemberView.LNAME.ilike("%" + args_dict["name"] + "%")),
+                                                  MemberView.EMPOYER.ilike("%" + employer_sname + "%"),
+                                                  MemberView.EM_STATUS.ilike("%Full%"),
+                                                  MemberView.PSTATUS.ilike("%active%"))
                 if args_dict["email"] != "" and args_dict["email"] is not None:
-                    members = MemberView.query.filter(MemberView.MEMNO.ilike("%" + args_dict["ID"] + "%"),
-                                                      or_(MemberView.FNAME.ilike("%" + args_dict["name"] + "%"),
-                                                          MemberView.LNAME.ilike("%" + args_dict["name"] + "%")),
-                                                      MemberView.EMAIL.ilike("%" + args_dict["email"] + "%"),
-                                                      MemberView.PSTATUS.ilike("%" + args_dict["status"] + "%"),
-                                                      MemberView.EMPOYER.ilike("%" + employer_sname + "%"),
-                                                      MemberView.EM_STATUS != "Terminated") \
-                        .offset(offset_).limit(50).all()
-                else:
-                    members = MemberView.query.filter(MemberView.MEMNO.ilike("%" + args_dict["ID"] + "%"),
-                                                      or_(MemberView.FNAME.ilike("%" + args_dict["name"] + "%"),
-                                                          MemberView.LNAME.ilike("%" + args_dict["name"] + "%")),
-                                                      # MemberView.EMAIL.ilike("%" + args_dict["email"] + "%"),
-                                                      MemberView.PSTATUS.ilike("%" + args_dict["status"] + "%"),
-                                                      MemberView.EMPOYER.ilike("%" + employer_sname + "%"),
-                                                      MemberView.EM_STATUS != "Terminated") \
-                        .offset(offset_).limit(50).all()
+                    members = members.filter(MemberView.EMAIL.ilike("%" + args_dict["email"] + "%"))
+
                 if members is None:
                     return {"members": []}
                 member_list = []
+                members = members.offset(offset_).limit(50).all()
                 for mem in members:
                     member_list.append({
                         'MEMNO': mem.MEMNO,
@@ -125,27 +116,33 @@ class Search(Resource):
                 raise InternalServerError("Can't retrieve members")
         elif search_role == roles.ROLES_EMPLOYER:
             try:
-                employers = None
-                if args_dict["email"] != "" and args_dict["email"] is not None:
-                    employers = EmployerView.query.filter(EmployerView.EMAIL.ilike("%" + args_dict["email"] + "%"),
-                                                          EmployerView.ERNO.ilike(
-                                                              "%" + args_dict["employerusername"] + "%"),
-                                                          EmployerView.ENAME.ilike("%" + args_dict["name"] + "%")
-                                                          ).offset(offset_).limit(50).all()
-                else:
-                    employers = EmployerView.query.filter(EmployerView.ERNO.ilike(
+                employers = EmployerView.query \
+                    .filter(EmployerView.ERNO.ilike(
                         "%" + args_dict["employerusername"] + "%"),
-                        EmployerView.ENAME.ilike("%" + args_dict["name"] + "%")
-                    ).offset(offset_).limit(50).all()
+                        EmployerView.ENAME.ilike("%" + args_dict["name"] + "%"))
+                if args_dict["email"] != "" and args_dict["email"] is not None:
+                    employers = employers.filter(EmployerView.EMAIL.ilike("%" + args_dict["email"] + "%"))
+                if args_dict["status"] != "" and args_dict["status"] is not None:
+                    if str(args_dict["status"]).upper() == status.STATUS_INACTIVE:
+                        employers = employers \
+                            .filter(EmployerView.TERMDATE < datetime.utcnow(),
+                                    EmployerView.TERMDATE.isnot(None))
+                    elif str(args_dict["status"]).upper() == status.STATUS_ACTIVE:
+                        employers = employers \
+                            .filter(or_(EmployerView.TERMDATE > datetime.utcnow(),
+                                        EmployerView.TERMDATE.is_(None)))
+
                 employer_list = []
                 if employers is None:
                     return {"employers": []}, 200
+                employers = employers.offset(offset_).limit(50).all()
                 for emp in employers:
                     employer_list.append({
                         'ERNO': emp.ERNO,
                         'ENAME': emp.ENAME,
                         'SNAME': emp.SNAME,
-                        'EMAIL': emp.EMAIL
+                        'EMAIL': emp.EMAIL,
+                        'Status': status.STATUS_INACTIVE if emp.TERMDATE is not None and emp.TERMDATE < datetime.utcnow() else status.STATUS_ACTIVE
                     })
                 return {"employers": employer_list}, 200
             except Exception as e:

@@ -21,3 +21,9 @@ def _add_jobs(scheduler, app):
     # from .dummy_job import dummy_job
     # scheduler.add_job(func=dummy_job, trigger="interval", minutes=1)
     # LOG.info('Initialized dummy_job background job')
+
+    # from .create_accounts import create_accounts
+    # print("creating accounts")
+    # create_accounts(app)
+    # scheduler.add_job(func=create_accounts, args=(app,), trigger="interval", days=1)
+    # LOG.info('Initialized create accounts background job')

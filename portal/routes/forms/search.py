@@ -38,7 +38,9 @@ response_model_child = ns.model('PostSearchFormsChild', {
     "FormType": fields.String,
     "FormStatus": fields.String,
     "LastModifiedDate": fields.DateTime,
-    "FilePath": fields.String
+    "FilePath": fields.String,
+    "PendingFrom": fields.String,
+    "EmailID": fields.String
 })
 
 response_model = ns.model('PostSearchForms', {
@@ -98,6 +100,7 @@ class SearchForms(Resource):
                         "FormType": tokens_data.FormType,
                         "FormStatus": tokens_data.FormStatus,
                         "LastModifiedDate": tokens_data.LastModifiedDate,
+                        "EmailID": terminations.EmailAddress,
                         "PendingFrom": tokens_data.PendingFrom
                     })
                 # print(forms_data)
@@ -124,6 +127,7 @@ class SearchForms(Resource):
                         "FormType": tokens_data.FormType,
                         "FormStatus": tokens_data.FormStatus,
                         "LastModifiedDate": tokens_data.LastModifiedDate,
+                        "EmailID": enrollments.EmailAddress,
                         "PendingFrom": tokens_data.PendingFrom
                     })
             if token["role"] == ROLES_REVIEW_MANAGER and \
