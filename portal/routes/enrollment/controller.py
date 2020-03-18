@@ -215,12 +215,13 @@ class EnrollmentController(Resource):
                    "startdate": enrollmentform.StartDateofContribution,
                    "spouse_name": enrollmentform.SpouseName,
                    "spouse_dob": enrollmentform.SpouseDOB,
-                   "member_id": enrollmentform.MemberID,
+                   "member_id": enrollmentform.OldMemberID,
                    "filename": str(enrollmentform.FilePath).replace("/", "\\").split("\\")[
                        len(str(enrollmentform.FilePath).replace("/", "\\").split(
                            "\\")) - 1] if enrollmentform.FilePath is not None else "",
                    "Signature": enrollmentform.Signature,
-                   "SignatureType": enrollmentform.SignatureType
+                   "SignatureType": enrollmentform.SignatureType,
+                   "NewMemberID": enrollmentform.MemberID
                }, 200
 
     @ns.doc(description='Update Enrollment Data by TokenID',
