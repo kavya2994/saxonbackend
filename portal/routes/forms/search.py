@@ -86,8 +86,10 @@ class SearchForms(Resource):
                     Terminationform.EmployerName.ilike("%" + parameters_dict["Employer"] + "%"),
                     Terminationform.MemberName.ilike("%" + parameters_dict["Member"] + "%"),
                     Terminationform.PendingFrom.ilike("%" + parameters_dict["PendingFrom"] + "%"),
-                    Token.InitiatedDate <= submitted_to,
-                    Token.InitiatedDate >= submitted_from,
+                    or_(Token.InitiatedDate < submitted_to,
+                        Token.InitiatedDate == submitted_to),
+                    or_(Token.InitiatedDate > submitted_from,
+                        Token.InitiatedDate == submitted_from),
                     Token.FormStatus.ilike("%" + form_status + "%"),
                     Token.FormStatus != status.STATUS_DELETE).order_by(
                     Token.LastModifiedDate.desc()).all()
@@ -112,8 +114,9 @@ class SearchForms(Resource):
                         Enrollmentform.LastName.ilike("%" + parameters_dict["Member"] + "%")),
                     Token.EmployerID.ilike("%" + parameters_dict["Employer"] + "%"),
                     Token.TokenStatus == status.STATUS_ACTIVE,
-                    Token.InitiatedDate <= submitted_to,
-                    Token.InitiatedDate >= submitted_from,
+                    or_(Token.InitiatedDate < submitted_to,
+                        Token.InitiatedDate == submitted_to),
+                    or_(Token.InitiatedDate > submitted_from, Token.InitiatedDate == submitted_from),
                     Token.FormStatus.ilike("%" + form_status + "%"),
                     Token.FormStatus != status.STATUS_DELETE
 
@@ -138,8 +141,10 @@ class SearchForms(Resource):
                     .filter(Contributionform.PendingFrom.ilike("%" + parameters_dict["PendingFrom"] + "%"),
                             Contributionform.Status.ilike("%" + form_status + "%"),
                             Contributionform.EmployerID.ilike("%" + parameters_dict["Employer"] + "%"),
-                            Contributionform.Date <= submitted_to,
-                            Contributionform.Date >= submitted_from,
+                            or_(Contributionform.Date < submitted_to,
+                                Contributionform.Date == submitted_to),
+                            or_(Contributionform.Date > submitted_from,
+                                Contributionform.Date == submitted_from),
                             Contributionform.Status != status.STATUS_DELETE) \
                     .order_by(Contributionform.LastModifiedDate.desc()).all()
                 for contributions in contribution_forms:

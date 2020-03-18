@@ -120,6 +120,15 @@ class DevelopmentSeeder(object):
                         SecurityQuestionID=1,
                         DisplayName="Ma Kristina Jacaban",
                         )
+        member6 = Users(UserID="295643",
+                        Username="28634",
+                        Password="6Q9usKHCRmlaNgufji0mJg==",
+                        Status=STATUS_ACTIVE,
+                        TemporaryPassword=False,
+                        Role=ROLES_MEMBER,
+                        SecurityQuestionID=1,
+                        DisplayName="Alice Ramos Test",
+                        )
 
         self.db.session.merge(admin_user)
         self.db.session.merge(employer_user)
@@ -131,6 +140,7 @@ class DevelopmentSeeder(object):
         self.db.session.merge(member3)
         self.db.session.merge(member4)
         self.db.session.merge(member5)
+        self.db.session.merge(member6)
 
     def _add_employers(self):
         employer1 = Employer(
