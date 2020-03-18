@@ -86,10 +86,10 @@ class SearchForms(Resource):
                     Terminationform.EmployerName.ilike("%" + parameters_dict["Employer"] + "%"),
                     Terminationform.MemberName.ilike("%" + parameters_dict["Member"] + "%"),
                     Terminationform.PendingFrom.ilike("%" + parameters_dict["PendingFrom"] + "%"),
-                    or_(Token.InitiatedDate <= submitted_to,
-                        Token.InitiatedDate >= submitted_from),
+                    Token.InitiatedDate <= submitted_to,
+                    Token.InitiatedDate >= submitted_from,
                     Token.FormStatus.ilike("%" + form_status + "%"),
-                Token.FormStatus != status.STATUS_DELETE).order_by(
+                    Token.FormStatus != status.STATUS_DELETE).order_by(
                     Token.LastModifiedDate.desc()).all()
                 # still date criteria pending
                 for tokens_data, terminations in termination_form_data:
@@ -112,8 +112,8 @@ class SearchForms(Resource):
                         Enrollmentform.LastName.ilike("%" + parameters_dict["Member"] + "%")),
                     Token.EmployerID.ilike("%" + parameters_dict["Employer"] + "%"),
                     Token.TokenStatus == status.STATUS_ACTIVE,
-                    or_(Token.InitiatedDate <= submitted_to,
-                        Token.InitiatedDate >= submitted_from),
+                    Token.InitiatedDate <= submitted_to,
+                    Token.InitiatedDate >= submitted_from,
                     Token.FormStatus.ilike("%" + form_status + "%"),
                     Token.FormStatus != status.STATUS_DELETE
 
@@ -123,7 +123,9 @@ class SearchForms(Resource):
                     forms_data.append({
                         "Token": tokens_data.TokenID,
                         "EmployerID": tokens_data.EmployerID,
-                        "MemberName": str(enrollments.FirstName if enrollments.FirstName is not None else "") + " " + str(enrollments.MiddleName if enrollments.MiddleName is not None else "") + " " + str(enrollments.LastName if enrollments.LastName is not None else ""),
+                        "MemberName": str(
+                            enrollments.FirstName if enrollments.FirstName is not None else "") + " " + str(
+                            enrollments.LastName if enrollments.LastName is not None else ""),
                         "FormType": tokens_data.FormType,
                         "FormStatus": tokens_data.FormStatus,
                         "LastModifiedDate": tokens_data.LastModifiedDate,
@@ -136,9 +138,9 @@ class SearchForms(Resource):
                     .filter(Contributionform.PendingFrom.ilike("%" + parameters_dict["PendingFrom"] + "%"),
                             Contributionform.Status.ilike("%" + form_status + "%"),
                             Contributionform.EmployerID.ilike("%" + parameters_dict["Employer"] + "%"),
-                            or_(Contributionform.Date <= submitted_to,
-                                Contributionform.Date >= submitted_from),
-                            Contributionform.Status != status.STATUS_DELETE)\
+                            Contributionform.Date <= submitted_to,
+                            Contributionform.Date >= submitted_from,
+                            Contributionform.Status != status.STATUS_DELETE) \
                     .order_by(Contributionform.LastModifiedDate.desc()).all()
                 for contributions in contribution_forms:
                     forms_data.append({

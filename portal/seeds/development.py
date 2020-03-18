@@ -1,8 +1,10 @@
+from portal import LOG
 from portal.models.users import Users
 from portal.models.roles import *
 from portal.models.employer import Employer
 from portal.models.status import *
 from portal.models.member import Member
+
 
 
 class DevelopmentSeeder(object):
@@ -13,7 +15,10 @@ class DevelopmentSeeder(object):
         self._add_users()
         self._add_employers()
         self._add_members()
-        self.db.session.commit()
+        try:
+            self.db.session.commit()
+        except Exception as e:
+            LOG.error(e)
 
     def _add_users(self):
         admin_user = Users(UserID="INTERNAL1",
@@ -68,7 +73,7 @@ class DevelopmentSeeder(object):
                           Email="mwright@saxon.ky"
                           )
 
-        member1 = Users(UserID="INTERNAL6",
+        member1 = Users(UserID="328847",
                         Username="328847",
                         Password="6Q9usKHCRmlaNgufji0mJg==",
                         Status=STATUS_ACTIVE,
@@ -78,7 +83,7 @@ class DevelopmentSeeder(object):
                         DisplayName="Lawrence Smith",
                         Email="mwright@saxon.ky"
                         )
-        member2 = Users(UserID="INTERNAL7",
+        member2 = Users(UserID="389546",
                         Username="389546",
                         Password="6Q9usKHCRmlaNgufji0mJg==",
                         Status=STATUS_ACTIVE,
@@ -88,7 +93,7 @@ class DevelopmentSeeder(object):
                         DisplayName="Paul Manning",
                         )
 
-        member3 = Users(UserID="INTERNAL8",
+        member3 = Users(UserID="360589",
                         Username="360589",
                         Password="6Q9usKHCRmlaNgufji0mJg==",
                         Status=STATUS_ACTIVE,
@@ -97,7 +102,7 @@ class DevelopmentSeeder(object):
                         SecurityQuestionID=1,
                         DisplayName="Mellisa Morgan",
                         )
-        member4 = Users(UserID="INTERNAL9",
+        member4 = Users(UserID="384261",
                         Username="384261",
                         Password="6Q9usKHCRmlaNgufji0mJg==",
                         Status=STATUS_ACTIVE,
@@ -106,7 +111,7 @@ class DevelopmentSeeder(object):
                         SecurityQuestionID=1,
                         DisplayName="Tracey Crowston",
                         )
-        member5 = Users(UserID="INTERNAL10",
+        member5 = Users(UserID="316718",
                         Username="316718",
                         Password="6Q9usKHCRmlaNgufji0mJg==",
                         Status=STATUS_ACTIVE,
@@ -121,11 +126,11 @@ class DevelopmentSeeder(object):
         self.db.session.merge(reviewmanager_user)
         # self.db.session.merge(employer1)
         # self.db.session.merge(employer2)
-        # self.db.session.merge(member1)
-        # self.db.session.merge(member2)
-        # self.db.session.merge(member3)
-        # self.db.session.merge(member4)
-        # self.db.session.merge(member5)
+        self.db.session.merge(member1)
+        self.db.session.merge(member2)
+        self.db.session.merge(member3)
+        self.db.session.merge(member4)
+        self.db.session.merge(member5)
 
     def _add_employers(self):
         employer1 = Employer(

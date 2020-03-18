@@ -113,7 +113,7 @@ class FormController(Resource):
         email_id = args["EmailID"]
         if token.FormType == "Enrollment":
             form = Enrollmentform.query.get(token.FormID)
-            name = form.FirstName if form.FirstName is not None else "" + " " + form.LastName if form.LastName is not None else ""
+            name = str(form.FirstName if form.FirstName is not None else "") + " " + str(form.LastName if form.LastName is not None else "")
             subject = "Your Silver Thatch Pensions Enrollment Form needs to be completed"
             msgtext = f'<p>**This is an auto-generated e-mail message.' + \
                       f' Please do not reply to this message. **</p>' + \

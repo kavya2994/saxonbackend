@@ -64,20 +64,24 @@ def create_accounts(app):
         count = MemberView.query.count()
         count = int(count / 100) + 1
         for i in range(count):
-            members = MemberView.query.offset(offset_).limit(100).all()
-
-            for member in members:
-                try:
-                    user = Users(UserID=member.MKEY,
-                                 Username=member.MEMNO,
-                                 Email=member.EMAIL,
-                                 DisplayName=member.FNAME if member.FNAME is not None else "" + " " + member.LNAME if member.LNAME is not None else "",
-                                 Role=ROLES_MEMBER,
-                                 Status=STATUS_ACTIVE)
-                    db.session.merge(user)
-                    db.session.commit()
-                except Exception as e:
-                    LOG.error(e)
-                    continue
-            Thread(target=send_temporary_passwords, args=(app,)).start()
-            offset_ += 99
+            try:
+                members = MemberView.query.offset(offset_).limit(100).all()
+                LOG.info("Members created upto", offset_)
+                for member in members:
+                    try:
+                        user = Users(UserID=member.MKEY,
+                                     Username=member.MEMNO,
+                                     Email=member.EMAIL,
+                                     DisplayName=member.FNAME if member.FNAME is not None else "" + " " + member.LNAME if member.LNAME is not None else "",
+                                     Role=ROLES_MEMBER,
+                                     Status=STATUS_ACTIVE)
+                        db.session.merge(user)
+                        db.session.commit()
+                    except Exception as e:
+                        LOG.error(e)
+                        continue
+                Thread(target=send_temporary_passwords, args=(app,)).start()
+            except Exception as e:
+                LOG.error(e)
+                offset_ += 99
+                continue

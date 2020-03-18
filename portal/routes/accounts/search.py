@@ -98,7 +98,7 @@ class Search(Resource):
                 if members is None:
                     return {"members": []}
                 member_list = []
-                members = members.offset(offset_).limit(50).all()
+                members = members.order_by(MemberView.MEMNO.desc()).offset(offset_).limit(50).all()
                 for mem in members:
                     member_list.append({
                         'MEMNO': mem.MEMNO,
@@ -135,7 +135,7 @@ class Search(Resource):
                 employer_list = []
                 if employers is None:
                     return {"employers": []}, 200
-                employers = employers.offset(offset_).limit(50).all()
+                employers = employers.order_by(EmployerView.ERNO.desc()).offset(offset_).limit(50).all()
                 for emp in employers:
                     employer_list.append({
                         'ERNO': emp.ERNO,
