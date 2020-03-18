@@ -66,7 +66,7 @@ class FormQueue(Resource):
                 forms_data.append({
                     "Token": tokens_data.TokenID,
                     "EmployerID": tokens_data.EmployerID,
-                    "MemberName": enrollments.FirstName if enrollments.FirstName is not None else "" + " " + enrollments.MiddleName if enrollments.MiddleName is not None else "" + " " + enrollments.LastName if enrollments.LastName is not None else "",
+                    "MemberName": str(enrollments.FirstName if enrollments.FirstName is not None else "") + " " + str(enrollments.MiddleName if enrollments.MiddleName is not None else "") + " " + str(enrollments.LastName if enrollments.LastName is not None else ""),
                     "FormType": tokens_data.FormType,
                     "FormStatus": tokens_data.FormStatus,
                     "LastModifiedDate": tokens_data.LastModifiedDate
@@ -118,7 +118,7 @@ class FormQueue(Resource):
                 forms_data.append({
                     "Token": tokens_data.TokenID,
                     "EmployerID": tokens_data.EmployerID,
-                    "MemberName": enrollments.FirstName if enrollments.FirstName is not None else "" + " " + enrollments.MiddleName if enrollments.MiddleName is not None else "" + " " + enrollments.LastName if enrollments.LastName is not None else "",
+                    "MemberName": str(enrollments.FirstName if enrollments.FirstName is not None else "") + " " + str(enrollments.MiddleName if enrollments.MiddleName is not None else "") + " " + str(enrollments.LastName if enrollments.LastName is not None else ""),
                     "FormType": tokens_data.FormType,
                     "FormStatus": tokens_data.FormStatus,
                     "LastModifiedDate": tokens_data.LastModifiedDate

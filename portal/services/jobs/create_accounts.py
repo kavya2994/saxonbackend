@@ -26,6 +26,7 @@ def send_temporary_passwords(app):
                 db.session.commit()
             except Exception as e:
                 LOG.error(e)
+                continue
             # msg_text = f'<p>Dear {user.DisplayName}</p>' + \
             #            f'<p>Your account has been created</p>' + \
             #            f'<p>Username is {user.Username}</p>' + \
@@ -41,9 +42,9 @@ def create_accounts(app):
     with app.app_context():
         # users = Users.query.filter(Users.Password.is_(None)).all()
         # print(users)
-        send_temporary_passwords()
+        # send_temporary_passwords()
         employers = EmployerView.query.all()
-
+        LOG.info("Started creating employer accounts")
         for employer in employers:
             try:
                 user = Users(UserID=employer.ERKEY,
@@ -58,6 +59,7 @@ def create_accounts(app):
                 LOG.error(e)
                 continue
         Thread(target=send_temporary_passwords, args=(app,)).start()
+        LOG.info("Started creating member accounts")
         offset_ = 0
         count = MemberView.query.count()
         count = int(count / 100) + 1
@@ -78,4 +80,4 @@ def create_accounts(app):
                     LOG.error(e)
                     continue
             Thread(target=send_temporary_passwords, args=(app,)).start()
-            i += 99
+            offset_ += 99
