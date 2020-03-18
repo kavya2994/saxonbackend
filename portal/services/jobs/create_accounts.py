@@ -15,12 +15,15 @@ from ...helpers import randomStringwithDigitsAndSymbols
 def send_temporary_passwords():
     users = Users.query.filter(Users.Password.is_(None)).all()
     for user in users:
-        random_password = randomStringwithDigitsAndSymbols()
-        enc_random_pass = Encryption().encrypt("test")
-        user.Password = enc_random_pass
-        user.TemporaryPassword = True
-        user.UserCreatedTime = datetime.utcnow()
-        db.session.commit()
+        try:
+            random_password = randomStringwithDigitsAndSymbols()
+            enc_random_pass = Encryption().encrypt("test")
+            user.Password = enc_random_pass
+            user.TemporaryPassword = True
+            user.UserCreatedTime = datetime.utcnow()
+            db.session.commit()
+        except Exception as e:
+            LOG.error(e)
         # msg_text = f'<p>Dear {user.DisplayName}</p>' + \
         #            f'<p>Your account has been created</p>' + \
         #            f'<p>Username is {user.Username}</p>' + \
@@ -32,17 +35,15 @@ def send_temporary_passwords():
         #     send_email(user.Email, "Welcome to Pension Management portal", body=msg_text)
 
 
-
-
 def create_accounts(app):
     with app.app_context():
         # users = Users.query.filter(Users.Password.is_(None)).all()
         # print(users)
         send_temporary_passwords()
+        employers = EmployerView.query.all()
 
-        try:
-            employers = EmployerView.query.all()
-            for employer in employers:
+        for employer in employers:
+            try:
                 user = Users(UserID=employer.ERKEY,
                              Username=employer.ERNO,
                              Email=employer.EMAIL,
@@ -51,12 +52,13 @@ def create_accounts(app):
                              Status=STATUS_INACTIVE if employer.TERMDATE is not None and employer.TERMDATE < datetime.utcnow() else STATUS_ACTIVE)
                 db.session.merge(user)
                 db.session.commit()
-        except Exception as e:
-            LOG.error(e)
+            except Exception as e:
+                LOG.error(e)
 
-        try:
-            members = MemberView.query.all()
-            for member in members:
+        members = MemberView.query.all()
+
+        for member in members:
+            try:
                 user = Users(UserID=member.ERKEY,
                              Username=member.ERNO,
                              Email=member.EMAIL,
@@ -65,5 +67,6 @@ def create_accounts(app):
                              Status=STATUS_ACTIVE)
                 db.session.merge(user)
                 db.session.commit()
-        except Exception as e:
-            LOG.error(e)
+            except Exception as e:
+                LOG.error(e)
+        send_temporary_passwords()

@@ -116,16 +116,16 @@ class DevelopmentSeeder(object):
                         DisplayName="Ma Kristina Jacaban",
                         )
 
-        h = self.db.session.merge(admin_user)
+        self.db.session.merge(admin_user)
         self.db.session.merge(employer_user)
         self.db.session.merge(reviewmanager_user)
-        self.db.session.merge(employer1)
-        self.db.session.merge(employer2)
-        self.db.session.merge(member1)
-        self.db.session.merge(member2)
-        self.db.session.merge(member3)
-        self.db.session.merge(member4)
-        self.db.session.merge(member5)
+        # self.db.session.merge(employer1)
+        # self.db.session.merge(employer2)
+        # self.db.session.merge(member1)
+        # self.db.session.merge(member2)
+        # self.db.session.merge(member3)
+        # self.db.session.merge(member4)
+        # self.db.session.merge(member5)
 
     def _add_employers(self):
         employer1 = Employer(
