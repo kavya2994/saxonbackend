@@ -75,7 +75,7 @@ def send_form_reminder(app):
             Token.PendingFrom == ROLES_MEMBER,
             Token.TokenStatus == STATUS_ACTIVE).all()
         for tokens, termination in termination_form_data:
-            if termination.LastModifiedDate is None:
+            if termination.LastNotifiedDate is None:
                 if tokens.InitiatedDate is not None and (datetime.utcnow() - tokens.InitiatedDate).days == 3:
                     subject = "Please complete your Silver Thatch Pensions Employment Termination Form"
                     msg_text = f'<p>**This is an auto-generated e-mail message.' \

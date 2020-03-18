@@ -49,7 +49,7 @@ putParser.add_argument('username', type=str, location='headers', required=False)
 putParser.add_argument('Ipaddress', type=str, location='headers', required=False)
 putParser.add_argument('FirstName', type=str, location='json', required=True)
 putParser.add_argument('LastName', type=str, location='json', required=True)
-putParser.add_argument('DOB', type=inputs.date_from_iso8601, location='json', required=True,
+putParser.add_argument('DOB', type=inputs.date_from_iso8601, location='json', required=False,
                        help='iso8601 format. eg: 2012-11-25')
 putParser.add_argument('Relationship', type=str, location='json', required=True)
 putParser.add_argument('Percentage', type=float, location='json', required=True)
@@ -143,8 +143,9 @@ class BeneficiaryFormController(Resource):
                 raise BadRequest("Invalid Percentage")
 
         for benef in beneficiary_list:
-            print(type(benef['DOB']))
-            dob_date = datetime.strptime(benef['DOB'], "%Y-%m-%d")
+            dob_date = None
+            if 'DOB' in list(benef.keys()) and benef['DOB'] != "":
+                dob_date = datetime.strptime(benef['DOB'], "%Y-%m-%d")
             if 'BeneficiaryID' not in benef.keys():
                 beneficiary = Beneficiary(
                     EnrollmentformID=FormID,
@@ -226,8 +227,6 @@ class BeneficiaryFormController(Resource):
             beneficiary = Beneficiary.query.get(args['BeneficiaryID'])
             if beneficiary is None:
                 raise NotFound('Beneficiary Not Found')
-            # dob_date = datetime.strptime(args['DOB'], "%Y-%m-%d")
-            print(type(args["DOB"]))
             beneficiary.FirstName = args["FirstName"]
             beneficiary.LastName = args["LastName"]
             beneficiary.Relationship = args["Relationship"]

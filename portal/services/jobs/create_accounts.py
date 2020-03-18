@@ -54,6 +54,7 @@ def create_accounts(app):
                 db.session.commit()
             except Exception as e:
                 LOG.error(e)
+                continue
 
         members = MemberView.query.all()
 
@@ -69,4 +70,5 @@ def create_accounts(app):
                 db.session.commit()
             except Exception as e:
                 LOG.error(e)
+                continue
         send_temporary_passwords()
