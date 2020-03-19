@@ -8,5 +8,5 @@ class BeneficiaryFromRead(db.Model):
     __tablename__ = 'CV$IF_BENEFICIARY'
 
     MKEY = db.Column(db.String(255), primary_key=True, nullable=False)
-    BEN_NAME = db.Column(db.String(255))
-    RELNAME = db.Column(db.String(255))
+    BEN_NAME = db.Column(db.String(255), primary_key=True)
+    RELNAME = db.Column(db.String(255), primary_key=True)

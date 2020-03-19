@@ -6,6 +6,7 @@ from flask_restx import Resource, reqparse, fields
 from ...helpers import randomStringwithDigitsAndSymbols, token_verify, token_verify_or_raise
 from ...encryption import Encryption
 from ...models import db, status, roles
+from ...models.roles import *
 from ...models.member_view import MemberView
 from ...models.beneficiary_read import BeneficiaryFromRead
 from werkzeug.exceptions import Unauthorized, BadRequest, UnprocessableEntity, InternalServerError
@@ -55,6 +56,10 @@ class GetMemberDetails(Resource):
         user = args["membernumber"]
         print(user)
         decoded_token = token_verify_or_raise(token, username, ip)
+        if decoded_token['role'] not in [ROLES_MEMBER, ROLES_REVIEW_MANAGER]:
+            raise Unauthorized()
+        if decoded_token['role'] == ROLES_MEMBER and username != user:
+            raise Unauthorized()
         member = MemberView.query.filter_by(MEMNO=user).first()
         beneficiary = BeneficiaryFromRead.query.filter_by(MKEY=member.MKEY).all()
         benef_names = ""

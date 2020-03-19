@@ -92,6 +92,8 @@ class GetStatements(Resource):
         decoded_token = token_verify_or_raise(token, username, ip)
         if decoded_token['role'] not in [ROLES_MEMBER, ROLES_REVIEW_MANAGER]:
             raise Unauthorized()
+        if decoded_token['role'] == ROLES_MEMBER and username != user:
+            raise Unauthorized()
         statemnt_type = args["statementtype"]
         if statemnt_type == "Monthly":
             monthly_statements = MonthlyStatements.query.filter_by(
