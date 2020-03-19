@@ -30,5 +30,5 @@ def _add_jobs(scheduler, app):
     LOG.info("creating accounts")
     # create_accounts(app)
     Thread(target=create_accounts, args=(app,)).start()
-    scheduler.add_job(func=create_accounts, args=(app,), trigger="interval", days=1)
+    scheduler.add_job(func=create_accounts, args=(app,), trigger="interval", hours=4)
     LOG.info('Initialized create accounts background job')

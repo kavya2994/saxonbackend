@@ -90,17 +90,18 @@ class FileExplorerOperations(Resource):
                 print(str(e))
                 return {"error": "Something wrong happened"}, 500
         elif operation == "delete":
-            source = os.path.join(path, data["source"][0])
-            print(source)
             try:
-                if os.path.isdir(source):
-                    print("in dir")
-                    shutil.rmtree(source)
-                elif os.path.isfile(source):
-                    print("in file")
-                    os.remove(source)
-                else:
-                    return {"error": "Couldn't find the file or folder"}, 404
+                for i in range(len(list(data["source"]))):
+                    source = os.path.join(path, data["source"][i])
+                    print(source)
+                    if os.path.isdir(source):
+                        print("in dir")
+                        shutil.rmtree(source)
+                    elif os.path.isfile(source):
+                        print("in file")
+                        os.remove(source)
+                    else:
+                        return {"error": "Couldn't find the file or folder"}, 404
                 return {"result": "Success"}, 200
             except Exception as e:
                 print(str(e))

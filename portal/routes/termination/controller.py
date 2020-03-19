@@ -184,7 +184,7 @@ class TerminationInitiationController(Resource):
                             '<p>**This is an auto-generated e-mail message.'
                             ' Please do not reply to this message. **</p>'
                             f'<p>Dear {member_name}</p>'
-                            f'<p>Your termination was submitted on {datetime.utcnow().strftime("%Y-%m-%d")}. '
+                            f'<p>Your termination was submitted on {datetime.utcnow().strftime("%m-%d-%Y")}. '
                             'You will receive notification once your form has been processed</p>'
                         )
 

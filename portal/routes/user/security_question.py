@@ -26,7 +26,7 @@ postParser.add_argument('username', type=str, location='headers', required=True)
 
 postParser.add_argument('SecurityQuestionID', type=int, location='json', required=True)
 postParser.add_argument('SecurityAnswer', type=str, location='json', required=True)
-postParser.add_argument('Email', type=str, location='json', required=True)
+# postParser.add_argument('Email', type=str, location='json', required=True)
 postParser.add_argument('PhoneNumber', type=str, location='json', required=False)
 
 get_response_model = ns.model('GetSecurityQuestion', {
@@ -37,6 +37,7 @@ get_response_model = ns.model('GetSecurityQuestion', {
 post_response_model = ns.model('PostSecurityQuestion', {
     'result': fields.String,
 })
+
 
 @ns.route("/security-question")
 class SecurityQuestion(Resource):
@@ -78,7 +79,7 @@ class SecurityQuestion(Resource):
         try:
             user.SecurityQuestionID = args["SecurityQuestionID"]
             user.SecurityAnswer = Encryption().encrypt(args["SecurityAnswer"])
-            user.Email = args["Email"]
+            # user.Email = args["Email"]
 
             db.session.commit()
             return RESPONSE_OK

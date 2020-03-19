@@ -377,7 +377,7 @@ class EnrollmentController(Resource):
         subject = 'Your Enrollment has been submitted'
         body = f'<p>**This is an auto-generated e-mail message. Please do not reply to this message. **</p>' + \
                f'<p>Dear {name}</p>' + \
-               f'<p>Your Enrollment was submitted on {datetime.utcnow().strftime("%Y-%m-%d")} ' + \
+               f'<p>Your Enrollment was submitted on {datetime.utcnow().strftime("%m-%d-%Y")} ' + \
                f'You will receive notification once your form has been processed.</p>'
         send_email(to_address=form.EmailAddress, subject=subject, body=body)
 
@@ -500,9 +500,10 @@ class EnrollmentController(Resource):
         db.session.commit()
         name = form.FirstName + " " + form.LastName
         subject = 'Your Enrollment has been approved'
-        body = '<p>**This is an auto-generated e-mail message. Please do not reply to this message. **</p>' + \
-               '<p>Dear ' + name + '</p>' + \
-               '<p>Your Enrollment has been processed</p>'
+        body = f'<p>**This is an auto-generated e-mail message. Please do not reply to this message. **</p>' + \
+               f'<p>Dear {name} </p>' + \
+               f'<p>Your Enrollment has been processed</p>' \
+               f'<p>Please find your Member Number : {args["NewMemberID"]}</p>'
         send_email(to_address=form.EmailAddress, subject=subject,
                    body=body)
 
