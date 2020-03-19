@@ -82,8 +82,8 @@ class GetMemberDetails(Resource):
                        'EM_STATUS': member.EM_STATUS,
                        'CITY': member.CITY,
                        'COUNTRY': member.COUNTRY,
-                       'BEN_NAMES': benef.BEN_NAME if benef is not None else "",
-                       'RELNAME': benef.RELNAME if benef is not None else "",
+                       'BEN_NAMES': benef_names,
+                       'RELNAME': rel_names,
                        'ER_DATE': member.NR_DATE.replace(year=member.NR_DATE.year - 10)
                    }, 200
         else:
