@@ -377,7 +377,7 @@ class EnrollmentController(Resource):
         subject = 'Your Enrollment has been submitted'
         body = f'<p>**This is an auto-generated e-mail message. Please do not reply to this message. **</p>' + \
                f'<p>Dear {name}</p>' + \
-               f'<p>Your Enrollment was submitted on {datetime.utcnow().strftime("%m-%d-%Y")} ' + \
+               f'<p>Your Enrollment was submitted on {datetime.utcnow().strftime("%m/%d/%Y")} ' + \
                f'You will receive notification once your form has been processed.</p>'
         send_email(to_address=form.EmailAddress, subject=subject, body=body)
 
