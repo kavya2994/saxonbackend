@@ -56,14 +56,17 @@ class GetMemberDetails(Resource):
         print(user)
         decoded_token = token_verify_or_raise(token, username, ip)
         member = MemberView.query.filter_by(MEMNO=user).first()
-        benef = BeneficiaryFromRead.query.filter_by(MKEY=member.MKEY).all()
+        beneficiary = BeneficiaryFromRead.query.filter_by(MKEY=member.MKEY).all()
         benef_names = ""
         rel_names = ""
 
-        if benef is not None:
-            for ben in benef:
+        if beneficiary is not None:
+            for ben in beneficiary:
+                LOG.info(ben.BEN_NAME)
                 benef_names += ben.BEN_NAME + ","
                 rel_names += ben.RELNAME + ","
+            benef_names = benef_names[:-1]
+            rel_names = benef_names[:-1]
         if member is not None:
             return {
                        'MEMNO': member.MEMNO,
