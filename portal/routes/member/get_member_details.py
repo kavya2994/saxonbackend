@@ -71,7 +71,7 @@ class GetMemberDetails(Resource):
                 benef_names += ben.BEN_NAME + ","
                 rel_names += ben.RELNAME + ","
             benef_names = benef_names[:-1]
-            rel_names = benef_names[:-1]
+            rel_names = rel_names[:-1]
         if member is not None:
             return {
                        'MEMNO': member.MEMNO,
