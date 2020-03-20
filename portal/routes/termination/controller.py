@@ -157,7 +157,7 @@ class TerminationInitiationController(Resource):
                     new_token = Token(FormID=form.FormID,
                                       EmployerID=token.EmployerID,
                                       InitiatedBy=token.InitiatedBy,
-                                      InitiatedDate=initiation_date,
+                                      InitiatedDate=token.InitiatedDate,
                                       FormStatus=status.STATUS_PENDING,
                                       FormType=TOKEN_FORMTYPE_TERMINATION,
                                       PendingFrom=roles.ROLES_EMPLOYER,

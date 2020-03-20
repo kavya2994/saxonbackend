@@ -343,7 +343,7 @@ class EnrollmentController(Resource):
             FormID=token.FormID,
             FormType=token.FormType,
             InitiatedBy=token.InitiatedBy,
-            InitiatedDate=datetime.utcnow(),
+            InitiatedDate=token.InitiatedDate,
             FormStatus=STATUS_PENDING,
             PendingFrom=ROLES_EMPLOYER,
             TokenStatus=STATUS_ACTIVE,
