@@ -1,8 +1,8 @@
 import json
-from datetime import datetime
+from datetime import datetime, timedelta
 from flask import Blueprint, jsonify, request
 from flask_restx import Resource, reqparse, inputs, fields
-from sqlalchemy import or_
+from sqlalchemy import or_, and_
 from werkzeug.exceptions import NotFound, BadRequest, Unauthorized, UnprocessableEntity, InternalServerError
 from ...helpers import token_verify_or_raise, RESPONSE_OK
 from ...models import db, status, roles
@@ -71,13 +71,14 @@ class SearchForms(Resource):
         try:
             if parameters_dict["SubmittedFrom"] == "":
                 parameters_dict["SubmittedFrom"] = datetime(year=1, month=1, day=1)
+            if parameters_dict["SubmittedTo"] == "":
                 parameters_dict["SubmittedTo"] = datetime(year=9999, month=1, day=1)
             form_status = parameters_dict["FormStatus"]
             submitted_from = parameters_dict["SubmittedFrom"]
             submitted_to = parameters_dict["SubmittedTo"]
             print(submitted_from)
             print(parameters_dict)
-            if args["FormType"] == TOKEN_FORMTYPE_TERMINATION or parameters_dict["FormType"] == "":
+            if parameters_dict["FormType"] == TOKEN_FORMTYPE_TERMINATION or parameters_dict["FormType"] == "":
 
                 termination_form_data = db.session.query(Token, Terminationform).filter(
                     Token.FormID == Terminationform.FormID,
@@ -86,11 +87,18 @@ class SearchForms(Resource):
                     Terminationform.EmployerName.ilike("%" + parameters_dict["Employer"] + "%"),
                     Terminationform.MemberName.ilike("%" + parameters_dict["Member"] + "%"),
                     Terminationform.PendingFrom.ilike("%" + parameters_dict["PendingFrom"] + "%"),
-                    Token.InitiatedDate.between(submitted_to, submitted_from),
                     Token.FormStatus.ilike("%" + form_status + "%"),
-                    Token.FormStatus != status.STATUS_DELETE).order_by(
-                    Token.LastModifiedDate.desc()).all()
-                # still date criteria pending
+                    Token.FormStatus != status.STATUS_DELETE)
+                if submitted_from == submitted_to:
+                    termination_form_data = termination_form_data.filter(Token.InitiatedDate >= submitted_to,
+                                                                         Token.InitiatedDate < submitted_to + timedelta(
+                                                                             days=1))
+                else:
+                    termination_form_data = termination_form_data.filter(Token.InitiatedDate <= submitted_to,
+                                                                         Token.InitiatedDate >= submitted_from)
+                print(str(termination_form_data))
+                termination_form_data = termination_form_data.order_by(Token.LastModifiedDate.desc()).all()
+                # print(termination_form_data)
                 for tokens_data, terminations in termination_form_data:
                     forms_data.append({
                         "Token": tokens_data.TokenID,
@@ -102,8 +110,9 @@ class SearchForms(Resource):
                         "EmailID": terminations.EmailAddress,
                         "PendingFrom": tokens_data.PendingFrom
                     })
+                    print(type(tokens_data.InitiatedDate))
                 # print(forms_data)
-            if args["FormType"] == TOKEN_FORMTYPE_ENROLLMENT or parameters_dict["FormType"] == "":
+            if parameters_dict["FormType"] == TOKEN_FORMTYPE_ENROLLMENT or parameters_dict["FormType"] == "":
                 enrollment_form_data = db.session.query(Token, Enrollmentform).filter(
                     Token.FormID == Enrollmentform.FormID,
                     Enrollmentform.PendingFrom.ilike("%" + parameters_dict["PendingFrom"] + "%"),
@@ -111,12 +120,19 @@ class SearchForms(Resource):
                         Enrollmentform.LastName.ilike("%" + parameters_dict["Member"] + "%")),
                     Token.EmployerID.ilike("%" + parameters_dict["Employer"] + "%"),
                     Token.TokenStatus == status.STATUS_ACTIVE,
-                    Token.InitiatedDate.between(submitted_to, submitted_from),
                     Token.FormStatus.ilike("%" + form_status + "%"),
                     Token.FormStatus != status.STATUS_DELETE
 
-                ).order_by(Token.LastModifiedDate.desc()).all()
-
+                )
+                if submitted_from == submitted_to:
+                    enrollment_form_data = enrollment_form_data.filter(Token.InitiatedDate >= submitted_to,
+                                                                       Token.InitiatedDate < submitted_to + timedelta(
+                                                                           days=1)
+                                                                       )
+                else:
+                    enrollment_form_data = enrollment_form_data.filter(Token.InitiatedDate <= submitted_to,
+                                                                       Token.InitiatedDate >= submitted_from)
+                enrollment_form_data = enrollment_form_data.order_by(Token.LastModifiedDate.desc()).all()
                 for tokens_data, enrollments in enrollment_form_data:
                     forms_data.append({
                         "Token": tokens_data.TokenID,
@@ -131,17 +147,21 @@ class SearchForms(Resource):
                         "PendingFrom": tokens_data.PendingFrom
                     })
             if token["role"] == ROLES_REVIEW_MANAGER and \
-                    (args["FormType"] == TOKEN_FORMTYPE_CONTRIBUTION or parameters_dict["FormType"] == ""):
+                    (parameters_dict["FormType"] == TOKEN_FORMTYPE_CONTRIBUTION or parameters_dict["FormType"] == ""):
                 contribution_forms = Contributionform.query \
                     .filter(Contributionform.PendingFrom.ilike("%" + parameters_dict["PendingFrom"] + "%"),
                             Contributionform.Status.ilike("%" + form_status + "%"),
                             Contributionform.EmployerID.ilike("%" + parameters_dict["Employer"] + "%"),
-                            Contributionform.Date.between(submitted_to, submitted_from),
-                            # Contributionform.Date > submitted_from,
-                            # or_(Contributionform.Date == submitted_to,
-                            #     Contributionform.Date == submitted_from),
-                            Contributionform.Status != status.STATUS_DELETE) \
-                    .order_by(Contributionform.LastModifiedDate.desc()).all()
+                            Contributionform.Status != status.STATUS_DELETE)
+                if submitted_from == submitted_to:
+                    contribution_forms = contribution_forms.filter(Contributionform.Date >= submitted_to,
+                                                                   Contributionform.Date < submitted_to + timedelta(
+                                                                       days=1)
+                                                                   )
+                else:
+                    contribution_forms = contribution_forms.filter(Contributionform.Date <= submitted_to,
+                                                                   Contributionform.Date >= submitted_from)
+                    contribution_forms = contribution_forms.order_by(Contributionform.LastModifiedDate.desc()).all()
                 for contributions in contribution_forms:
                     forms_data.append({
                         "FormID": contributions.FormID,
@@ -156,4 +176,4 @@ class SearchForms(Resource):
             return {"forms": forms_data}, 200
         except Exception as e:
             LOG.error("Exception while adding employer to member", e)
-            raise InternalServerError("Can't add employer to user")
+            raise InternalServerError("Search failed")

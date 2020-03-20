@@ -105,11 +105,13 @@ class FormQueue(Resource):
             return {"forms_queue": forms_data}, 200
         elif args["role"] == roles.ROLES_EMPLOYER:
             employer_id = args["user"]
+            # if token["role"] == ROLES_EMPLOYER and token["username"] != args["user"]:
+            #     raise Unauthorized
             forms_data = []
             enrollment_form_data = db.session.query(Token, Enrollmentform).filter(
                 Token.FormID == Enrollmentform.FormID,
                 Token.FormStatus == status.STATUS_PENDING,
-                Token.PendingFrom == token["role"],
+                Token.PendingFrom == args["role"],
                 Token.TokenStatus == status.STATUS_ACTIVE,
                 Token.EmployerID == employer_id,
                 Token.FormType == TOKEN_FORMTYPE_ENROLLMENT).all()
@@ -127,7 +129,7 @@ class FormQueue(Resource):
             termination_form_data = db.session.query(Token, Terminationform).filter(
                 Token.FormID == Terminationform.FormID,
                 Token.FormStatus == status.STATUS_PENDING,
-                Token.PendingFrom == token["role"],
+                Token.PendingFrom == args["role"],
                 Token.TokenStatus == status.STATUS_ACTIVE,
                 Token.EmployerID == employer_id,
                 Token.FormType == TOKEN_FORMTYPE_TERMINATION).all()

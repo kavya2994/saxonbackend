@@ -76,7 +76,7 @@ def send_form_reminder(app):
             Token.TokenStatus == STATUS_ACTIVE).all()
         for tokens, termination in termination_form_data:
             if termination.LastNotifiedDate is None:
-                if tokens.InitiatedDate is not None and (datetime.utcnow() - tokens.InitiatedDate).days == 3:
+                if tokens.InitiatedDate is not None and (datetime.utcnow().date() - tokens.InitiatedDate).days == 3:
                     subject = "Please complete your Silver Thatch Pensions Employment Termination Form"
                     msg_text = f'<p>**This is an auto-generated e-mail message.' \
                                f' Please do not reply to this message. **</p>' \
@@ -96,7 +96,7 @@ def send_form_reminder(app):
                     except Exception as e:
                         LOG.error(e)
             else:
-                if (datetime.utcnow() - enrollments.LastNotifiedDate).days == 3:
+                if (datetime.utcnow().date() - enrollments.LastNotifiedDate).days == 3:
                     subject = "Please complete your Silver Thatch Pensions Employment Termination Form"
                     msg_text = f'<p>**This is an auto-generated e-mail message.' \
                                f' Please do not reply to this message. **</p>' \
