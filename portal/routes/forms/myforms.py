@@ -120,7 +120,6 @@ class MyForms(Resource):
             forms_data = []
             enrollment_form_data = db.session.query(Token, Enrollmentform).filter(
                 Token.FormID == Enrollmentform.FormID,
-                Token.FormStatus == status.STATUS_PENDING,
                 Token.TokenStatus == status.STATUS_ACTIVE,
                 Token.EmployerID == employer_id,
                 Token.FormType == TOKEN_FORMTYPE_ENROLLMENT).order_by(Token.LastModifiedDate.desc()) \
@@ -141,7 +140,6 @@ class MyForms(Resource):
 
             termination_form_data = db.session.query(Token, Terminationform).filter(
                 Token.FormID == Terminationform.FormID,
-                Token.FormStatus == status.STATUS_PENDING,
                 Token.TokenStatus == status.STATUS_ACTIVE,
                 Token.EmployerID == employer_id,
                 Token.FormType == TOKEN_FORMTYPE_TERMINATION).order_by(Token.LastModifiedDate.desc()) \
