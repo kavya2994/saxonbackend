@@ -58,7 +58,8 @@ def create_accounts(app):
                 db.session.merge(user)
                 db.session.commit()
             except Exception as e:
-                LOG.error(e)
+                db.session.rollback()
+                LOG.warning(e)
                 continue
 
         Thread(target=send_temporary_passwords, args=(app,)).start()
@@ -73,19 +74,27 @@ def create_accounts(app):
                 LOG.debug("%s members fetched successfully from offset %s", len(members), offset_)
                 for member in members:
                     try:
+                        userExists = Users.query.filter_by(Username=member.MEMNO).scalar()
+                        if userExists is not None:
+                            LOG.debug("Member with username '%s' exists. Skip adding...", member.MEMNO)
+                            continue
+
+                        LOG.debug("Member with username '%s' does not exist. Inserting...", member.MEMNO)
                         user = Users(UserID=member.MKEY,
                                      Username=member.MEMNO,
                                      Email=member.EMAIL,
                                      DisplayName=member.FNAME if member.FNAME is not None else "" + " " + member.LNAME if member.LNAME is not None else "",
                                      Role=ROLES_MEMBER,
                                      Status=STATUS_ACTIVE)
-                        db.session.merge(user)
+                        db.session.add(user)
                         db.session.commit()
                     except Exception as e:
-                        LOG.error("There was an unexpected error while creating new user from MembersView. %s", e)
-                        continue
-                Thread(target=send_temporary_passwords, args=(app,)).start()
-            except Exception as e:
-                LOG.error("There was an unexpected error while processing MembersView items. %s",e)
+                        db.session.rollback()
+                        LOG.warning("There was an unexpected error while creating new user from MembersView. %s", e)
 
-            offset_ += 99
+            except Exception as e:
+                LOG.warning("There was an unexpected error while processing MembersView items. %s",e)
+            finally:
+                offset_ += 99
+
+        Thread(target=send_temporary_passwords, args=(app,)).start()
