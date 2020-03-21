@@ -1,7 +1,7 @@
 import os
 import logging
 
-LOG_LEVEL = logging.INFO
+LOG_LEVEL = logging.DEBUG
 
 ROOT_DIR = os.path.abspath(os.path.join(os.path.abspath(__file__), '..', '..'))
 DATA_DIR = os.path.join(ROOT_DIR, 'data')
