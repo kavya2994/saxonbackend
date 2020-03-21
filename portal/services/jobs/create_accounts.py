@@ -39,12 +39,14 @@ def send_temporary_passwords(app):
 
 
 def create_accounts(app):
+    LOG.info("Started creating accounts background job")
     with app.app_context():
         # users = Users.query.filter(Users.Password.is_(None)).all()
         # print(users)
         # send_temporary_passwords()
+        LOG.debug("Starting creating employers accounts")
         employers = EmployerView.query.all()
-        LOG.info("Started creating employer accounts")
+        LOG.debug("Employers fetched: %s", len(employers))
         for employer in employers:
             try:
                 user = Users(UserID=employer.ERKEY,
@@ -58,15 +60,17 @@ def create_accounts(app):
             except Exception as e:
                 LOG.error(e)
                 continue
+
         Thread(target=send_temporary_passwords, args=(app,)).start()
-        LOG.info("Started creating member accounts")
+        LOG.debug("Starting creating member accounts")
         offset_ = 0
         count = MemberView.query.count()
         count = int(count / 100) + 1
         for i in range(count):
             try:
+                LOG.debug("Going to fetch %s members from offset %s", count, offset_)
                 members = MemberView.query.offset(offset_).limit(100).all()
-                LOG.info("Members created upto", offset_)
+                LOG.debug("%s members fetched successfully from offset %s", len(members), offset_)
                 for member in members:
                     try:
                         user = Users(UserID=member.MKEY,
@@ -78,10 +82,10 @@ def create_accounts(app):
                         db.session.merge(user)
                         db.session.commit()
                     except Exception as e:
-                        LOG.error(e)
+                        LOG.error("There was an unexpected error while creating new user from MembersView. %s", e)
                         continue
                 Thread(target=send_temporary_passwords, args=(app,)).start()
             except Exception as e:
-                LOG.error(e)
-                offset_ += 99
-                continue
+                LOG.error("There was an unexpected error while processing MembersView items. %s",e)
+
+            offset_ += 99
