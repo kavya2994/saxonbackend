@@ -84,7 +84,9 @@ class SearchForms(Resource):
                     Token.FormID == Terminationform.FormID,
                     Token.FormType == TOKEN_FORMTYPE_TERMINATION,
                     Token.TokenStatus == status.STATUS_ACTIVE,
-                    Terminationform.EmployerName.ilike("%" + parameters_dict["Employer"] + "%"),
+                    or_(
+                        Token.EmployerID.ilike("%" + parameters_dict["Employer"] + "%"),
+                        Terminationform.EmployerName.ilike("%" + parameters_dict["Employer"] + "%")),
                     Terminationform.MemberName.ilike("%" + parameters_dict["Member"] + "%"),
                     Terminationform.PendingFrom.ilike("%" + parameters_dict["PendingFrom"] + "%"),
                     Token.FormStatus.ilike("%" + form_status + "%"),
@@ -118,7 +120,8 @@ class SearchForms(Resource):
                     Enrollmentform.PendingFrom.ilike("%" + parameters_dict["PendingFrom"] + "%"),
                     or_(Enrollmentform.FirstName.ilike("%" + parameters_dict["Member"] + "%"),
                         Enrollmentform.LastName.ilike("%" + parameters_dict["Member"] + "%")),
-                    Token.EmployerID.ilike("%" + parameters_dict["Employer"] + "%"),
+                    or_(Token.EmployerID.ilike("%" + parameters_dict["Employer"] + "%"),
+                        Enrollmentform.EmployerName.ilike("%" + parameters_dict["Employer"] + "%")),
                     Token.TokenStatus == status.STATUS_ACTIVE,
                     Token.FormStatus.ilike("%" + form_status + "%"),
                     Token.FormStatus != status.STATUS_DELETE
@@ -151,7 +154,8 @@ class SearchForms(Resource):
                 contribution_forms = Contributionform.query \
                     .filter(Contributionform.PendingFrom.ilike("%" + parameters_dict["PendingFrom"] + "%"),
                             Contributionform.Status.ilike("%" + form_status + "%"),
-                            Contributionform.EmployerID.ilike("%" + parameters_dict["Employer"] + "%"),
+                            or_(Contributionform.EmployerID.ilike("%" + parameters_dict["Employer"] + "%"),
+                            Contributionform.EmployerName.ilike("%" + parameters_dict["Employer"] + "%")),
                             Contributionform.Status != status.STATUS_DELETE)
                 if submitted_from == submitted_to:
                     contribution_forms = contribution_forms.filter(Contributionform.Date >= submitted_to,

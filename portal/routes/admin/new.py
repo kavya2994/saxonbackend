@@ -3,6 +3,8 @@ import json
 from datetime import datetime
 from flask import Blueprint, jsonify, request, abort, current_app as app
 from flask_restx import Resource, reqparse, fields
+from sqlalchemy import select, Sequence, create_engine
+
 from ...helpers import randomStringwithDigitsAndSymbols, token_verify, token_verify_or_raise
 from ...encryption import Encryption
 from ...models import db, status, roles
@@ -43,9 +45,14 @@ class AddUser(Resource):
             password = randomStringwithDigitsAndSymbols(10)
             enc_pass = Encryption().encrypt(password)
             userexist = Users.query.filter_by(Username=username).first()
+            engine = create_engine(APP.config["DBAAS_WRITEONLY_CONNECTION_STRING"])
+            conn = engine.connect()
+            c = conn.execute("SELECT user_id_seq.nextval from Users")
+            seq_id = list(c)[0][0]
             try:
                 if userexist is None:
                     new_user = Users(Username=username,
+                                     UserID="INTERNAL" + str(seq_id),
                                      Email=email,
                                      Password=enc_pass,
                                      Role=data["role"],
@@ -90,6 +97,8 @@ class AddUser(Resource):
                     return {"result": "Success"}, 200
                 else:
                     raise UnprocessableEntity('Duplicate user cannot be created')
+            except UnprocessableEntity:
+                raise UnprocessableEntity('Duplicate user cannot be created')
             except Exception as e:
                 LOG.error("Exception while adding new user", e)
                 raise InternalServerError("Can't add user")
