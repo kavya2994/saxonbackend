@@ -117,6 +117,7 @@ class SearchForms(Resource):
             if parameters_dict["FormType"] == TOKEN_FORMTYPE_ENROLLMENT or parameters_dict["FormType"] == "":
                 enrollment_form_data = db.session.query(Token, Enrollmentform).filter(
                     Token.FormID == Enrollmentform.FormID,
+                    Token.FormType == TOKEN_FORMTYPE_ENROLLMENT,
                     Enrollmentform.PendingFrom.ilike("%" + parameters_dict["PendingFrom"] + "%"),
                     or_(Enrollmentform.FirstName.ilike("%" + parameters_dict["Member"] + "%"),
                         Enrollmentform.LastName.ilike("%" + parameters_dict["Member"] + "%")),
