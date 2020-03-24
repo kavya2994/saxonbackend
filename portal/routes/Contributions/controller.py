@@ -220,6 +220,17 @@ class ContributionController(Resource):
                                 os.mkdir(path)
                             file.save(os.path.join(path, filename))
                             contribution.FilePath = os.path.join(path, filename)
+                    if 'Comment' in args and args['Comment'] != '' and args['Comment'] is not None:
+                        comment = Comments(
+                            FormID=FormID,
+                            Name=args['CommentName'],
+                            Role=roles.ROLES_REVIEW_MANAGER,
+                            Comment=args['Comment'],
+                            Date=initiation_date,
+                            FormType="Contribution"
+                        )
+                        db.session.add(comment)
+                        db.session.commit()
                     contribution.StartDate = start_date
                     contribution.EndDate = end_date
                     contribution.LastModifiedDate = initiation_date

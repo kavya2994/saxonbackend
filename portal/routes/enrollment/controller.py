@@ -136,7 +136,8 @@ response_model = ns.model('GetEnrollmentController', {
     "member_id": fields.String,
     "filename": fields.String,
     "Signature": fields.String,
-    "SignatureType": fields.String
+    "SignatureType": fields.String,
+    "NewMemberID": fields.String
 })
 
 
