@@ -55,7 +55,7 @@ class EnrollmentInitiationController(Resource):
             new_enrollment = Enrollmentform(
                 EmployerID=employer_username,
                 InitiatedDate=initiation_date,
-                # FirstName=args["MemberFirstName"],
+                FirstName=args["MemberFirstName"],
                 EmailAddress=args["MemberEmail"],
                 PendingFrom=roles.ROLES_MEMBER,
                 Status=status.STATUS_PENDING,
