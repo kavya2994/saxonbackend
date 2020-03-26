@@ -20,6 +20,7 @@ response_model_child = ns.model('GetFormQueueChild', {
     "Token": fields.String,
     "FormID": fields.String,
     "EmployerID": fields.String,
+    "EmployerName": fields.String,
     "MemberName": fields.String,
     "FormType": fields.String,
     "FormStatus": fields.String,
@@ -66,6 +67,7 @@ class FormQueue(Resource):
                 forms_data.append({
                     "Token": tokens_data.TokenID,
                     "EmployerID": tokens_data.EmployerID,
+                    "EmployerName": enrollments.EmployerName,
                     "MemberName": str(enrollments.FirstName if enrollments.FirstName is not None else "") + " " + str(enrollments.LastName if enrollments.LastName is not None else ""),
                     "FormType": tokens_data.FormType,
                     "FormStatus": tokens_data.FormStatus,
@@ -84,6 +86,7 @@ class FormQueue(Resource):
                     "Token": tokens_data.TokenID,
                     "EmployerID": tokens_data.EmployerID,
                     "MemberName": terminations.MemberName,
+                    "EmployerName": terminations.EmployerName,
                     "FormType": tokens_data.FormType,
                     "FormStatus": tokens_data.FormStatus,
                     "LastModifiedDate": tokens_data.LastModifiedDate
@@ -95,6 +98,7 @@ class FormQueue(Resource):
                 forms_data.append({
                     "FormID": contributions.FormID,
                     "EmployerID": contributions.EmployerID,
+                    "EmployerName": contributions.EmployerName,
                     "FormType": "Contribution",
                     "FormStatus": contributions.Status,
                     "LastModifiedDate": contributions.LastModifiedDate,
@@ -120,6 +124,7 @@ class FormQueue(Resource):
                 forms_data.append({
                     "Token": tokens_data.TokenID,
                     "EmployerID": tokens_data.EmployerID,
+                    "EmployerName": enrollments.EmployerName,
                     "MemberName": str(enrollments.FirstName if enrollments.FirstName is not None else "") + " " + str(enrollments.LastName if enrollments.LastName is not None else ""),
                     "FormType": tokens_data.FormType,
                     "FormStatus": tokens_data.FormStatus,
@@ -138,6 +143,7 @@ class FormQueue(Resource):
                 forms_data.append({
                     "Token": tokens_data.TokenID,
                     "EmployerID": tokens_data.EmployerID,
+                    "EmployerName": terminations.EmployerName,
                     "MemberName": terminations.MemberName,
                     "FormType": tokens_data.FormType,
                     "FormStatus": tokens_data.FormStatus,

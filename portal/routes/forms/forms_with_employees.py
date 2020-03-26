@@ -18,6 +18,7 @@ response_model_child = ns.model('GetFormWithEmployeesChild', {
     "Token": fields.String,
     "EmployerID": fields.String,
     "MemberName": fields.String,
+    "EmployerName": fields.String,
     "FormType": fields.String,
     "FormStatus": fields.String,
     "LastModifiedDate": fields.DateTime,
@@ -70,7 +71,9 @@ class FormWithEmployees(Resource):
                 forms_data.append({
                     "Token": tokens_data.TokenID,
                     "EmployerID": tokens_data.EmployerID,
-                    "MemberName": str(enrollments.FirstName if enrollments.FirstName is not None else "") + " " + str(enrollments.LastName if enrollments.LastName is not None else ""),
+                    "EmployerName": enrollments.EmployerName,
+                    "MemberName": str(enrollments.FirstName if enrollments.FirstName is not None else "") + " " + str(
+                        enrollments.LastName if enrollments.LastName is not None else ""),
                     "FormType": tokens_data.FormType,
                     "FormStatus": tokens_data.FormStatus,
                     "LastModifiedDate": tokens_data.LastModifiedDate,
@@ -92,6 +95,7 @@ class FormWithEmployees(Resource):
                     "Token": tokens_data.TokenID,
                     "EmployerID": tokens_data.EmployerID,
                     "MemberName": terminations.MemberName,
+                    "EmployerName": terminations.EmployerName,
                     "FormType": tokens_data.FormType,
                     "FormStatus": tokens_data.FormStatus,
                     "LastModifiedDate": tokens_data.LastModifiedDate,
@@ -120,7 +124,9 @@ class FormWithEmployees(Resource):
                 forms_data.append({
                     "Token": tokens_data.TokenID,
                     "EmployerID": tokens_data.EmployerID,
-                    "MemberName": str(enrollments.FirstName if enrollments.FirstName is not None else "") + " " + str(enrollments.LastName if enrollments.LastName is not None else ""),
+                    "EmployerName": enrollments.EmployerName,
+                    "MemberName": str(enrollments.FirstName if enrollments.FirstName is not None else "") + " " + str(
+                        enrollments.LastName if enrollments.LastName is not None else ""),
                     "FormType": tokens_data.FormType,
                     "FormStatus": tokens_data.FormStatus,
                     "LastModifiedDate": tokens_data.LastModifiedDate,
@@ -143,6 +149,7 @@ class FormWithEmployees(Resource):
                     "Token": tokens_data.TokenID,
                     "EmployerID": tokens_data.EmployerID,
                     "MemberName": terminations.MemberName,
+                    "EmployerName": terminations.EmployerName,
                     "FormType": tokens_data.FormType,
                     "FormStatus": tokens_data.FormStatus,
                     "LastModifiedDate": tokens_data.LastModifiedDate,

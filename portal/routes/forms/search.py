@@ -35,6 +35,7 @@ response_model_child = ns.model('PostSearchFormsChild', {
     "FormID": fields.String,
     "EmployerID": fields.String,
     "MemberName": fields.String,
+    "EmployerName": fields.String,
     "FormType": fields.String,
     "FormStatus": fields.String,
     "LastModifiedDate": fields.DateTime,
@@ -105,6 +106,7 @@ class SearchForms(Resource):
                     forms_data.append({
                         "Token": tokens_data.TokenID,
                         "EmployerID": tokens_data.EmployerID,
+                        "EmployerName": terminations.EmployerName,
                         "MemberName": terminations.MemberName,
                         "FormType": tokens_data.FormType,
                         "FormStatus": tokens_data.FormStatus,
@@ -141,6 +143,7 @@ class SearchForms(Resource):
                     forms_data.append({
                         "Token": tokens_data.TokenID,
                         "EmployerID": tokens_data.EmployerID,
+                        "EmployerName": enrollments.EmployerName,
                         "MemberName": str(
                             enrollments.FirstName if enrollments.FirstName is not None else "") + " " + str(
                             enrollments.LastName if enrollments.LastName is not None else ""),
@@ -171,6 +174,7 @@ class SearchForms(Resource):
                     forms_data.append({
                         "FormID": contributions.FormID,
                         "EmployerID": contributions.EmployerID,
+                        "EmployerName": contributions.EmployerName,
                         "FormType": "Contribution",
                         "FormStatus": contributions.Status,
                         "LastModifiedDate": contributions.LastModifiedDate,
