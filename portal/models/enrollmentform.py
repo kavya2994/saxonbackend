@@ -36,7 +36,7 @@ class Enrollmentform(db.Model):
     PendingFrom = db.Column(db.String(255), nullable=True)
     SpouseName = db.Column(db.String(255), nullable=True)
     SpouseDOB = db.Column(db.Date, nullable=True)
-    LastNotifiedDate = db.Column(db.Date, nullable=True)
+    LastNotifiedDate = db.Column(db.DateTime, nullable=True)
     FilePath = db.Column(db.String(255), nullable=True)
     Signature = db.Column(db.Text, nullable=True)
     SignatureType = db.Column(db.String(255), nullable=True)

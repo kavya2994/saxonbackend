@@ -17,7 +17,7 @@ class Token(db.Model):
     FormStatus = db.Column(db.String(255))
     FormType = db.Column(db.String(255))
     InitiatedBy = db.Column(db.String(255))
-    InitiatedDate = db.Column(db.Date)
+    InitiatedDate = db.Column(db.DateTime)
     PendingFrom = db.Column(db.String(255))
     TokenStatus = db.Column(db.String(255))
     EmployerID = db.Column(db.String(255))
