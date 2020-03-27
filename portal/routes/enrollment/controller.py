@@ -233,13 +233,13 @@ class EnrollmentController(Resource):
                 500: 'Internal Server Error'
             })
     @ns.expect(parser, validate=True)
-    @ns.marshal_with(response_model)
+    # @ns.marshal_with(response_model)
     def post(self, TokenID):
         args = parser.parse_args(strict=True)
         token = Token.query.get(TokenID)
         if token is None:
             raise NotFound('Token Not Found')
-
+        print(token.FormID)
         form = Enrollmentform.query.get(token.FormID)
         if form is None:
             raise NotFound('Form Not Found')
@@ -290,6 +290,7 @@ class EnrollmentController(Resource):
 
             db.session.commit()
         except Exception as e:
+            print(e)
             LOG.warning('Unexpected error happened during updating enrollment: %s', e)
             raise InternalServerError()
 
@@ -300,7 +301,6 @@ class EnrollmentController(Resource):
             self._saveFormData_post_update(token, form, args)
         elif args['RequestType'] == RequestType_EmployerSubmission:
             self._employerSubmission_post_update(token, form, args)
-            return RESPONSE_OK
         elif args['RequestType'] == RequestType_ApprovalConfirmation:
             self._approvalConfirmation_post_update(token, form, args)
             return RESPONSE_OK
@@ -394,7 +394,7 @@ class EnrollmentController(Resource):
         if not decoded_token["role"] in [ROLES_HR, ROLES_EMPLOYER, ROLES_REVIEW_MANAGER]:
             raise Unauthorized()
 
-        if token.TokenStatus != STATUS_ACTIVE or token.FormStatus != STATUS_PENDING:
+        if token.TokenStatus != STATUS_ACTIVE:
             raise NotFound('Token was not Found or is not Active')
 
     def _saveFormData_post_update(self, token, form, args):
@@ -454,7 +454,11 @@ class EnrollmentController(Resource):
         form.PendingFrom = ROLES_REVIEW_MANAGER
         token.PendingFrom = ROLES_REVIEW_MANAGER
         token.LastModifiedDate = datetime.utcnow()
+        # form.StartDateofEmployment = datetime.utcnow()
+        # form.StartDateofContribution = datetime.utcnow()
+        db.session.commit()
         if 'Comment' in args and args['Comment'] != '' and args['Comment'] is not None:
+            print(args['CommentRole'])
             comment = Comments(
                 FormID=form.FormID,
                 Name=args['CommentName'],
@@ -465,7 +469,9 @@ class EnrollmentController(Resource):
             )
             db.session.add(comment)
             db.session.commit()
+
         db.session.commit()
+        pass
 
     def _approvalConfirmation_pre_update(self, token, form, args):
         if 'Authorization' not in args or 'Ipaddress' not in args or 'username' not in args:

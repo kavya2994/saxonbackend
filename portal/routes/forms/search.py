@@ -39,7 +39,7 @@ response_model_child = ns.model('PostSearchFormsChild', {
     "FormType": fields.String,
     "FormStatus": fields.String,
     "LastModifiedDate": fields.DateTime,
-    "FilePath": fields.String,
+    "FileName": fields.String,
     "PendingFrom": fields.String,
     "EmailID": fields.String
 })
