@@ -10,6 +10,20 @@ from werkzeug.middleware.proxy_fix import ProxyFix
 
 APP = None
 LOG = logging
+WORKER_ID = 0
+
+
+def uwsgi_friendly_setup(app):
+    global WORKER_ID
+
+    try:
+        import uwsgi
+        WORKER_ID = uwsgi.worker_id()
+    except ImportError:
+        # During development on local machine, we may use `flask run` command
+        # in this case, uwsgi package won't be available and it will throw error
+        pass
+
 
 def get_config_file_path():
     env = os.getenv("BACKEND_ENV", default="development")
@@ -23,15 +37,16 @@ def init_logger(app):
     log_file = os.path.join(app.config['LOG_DIR'], 'backend.log')
 
     log_level =  app.config['LOG_LEVEL']
-    log_format = Formatter("[%(asctime)s] [%(levelname)-7s] %(message)s")
+    log_format = Formatter(f"[%(asctime)s][worker-{WORKER_ID}][%(levelname)s] %(message)s")
 
-    file_handler = RotatingFileHandler(filename=log_file, maxBytes=10000, backupCount=1)
+    TWO_MEGABYTE = 2_000_000
+    file_handler = RotatingFileHandler(filename=log_file, maxBytes=TWO_MEGABYTE, backupCount=3)
     file_handler.setLevel(log_level)
     file_handler.setFormatter(log_format)
     app.logger.addHandler(file_handler)
 
     LOG = app.logger
-    LOG.info('Initialized logger with level %s', log_level)
+    LOG.info('Initialized logger with level %s for worker %s', log_level, WORKER_ID)
 
 
 def init_cors(app):
@@ -47,6 +62,8 @@ def create_app():
 
     APP = Flask(__name__, static_url_path='/static')
     APP.debug = True
+
+    uwsgi_friendly_setup(APP)
     APP.wsgi_app = ProxyFix(APP.wsgi_app, x_for=2)
 
     config_file_path = get_config_file_path()
@@ -66,7 +83,7 @@ def create_app():
         seeds.init_app(APP)
         init_cors(APP)
     except Exception as e:
-        LOG.warning('An error happened during initilizing app components: %s', e)
+        LOG.warning('An error happened during initializing app components: %s', e)
         raise
 
     APP.logger.info('App Initialization is finished successfully')
