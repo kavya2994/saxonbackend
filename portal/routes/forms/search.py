@@ -177,6 +177,7 @@ class SearchForms(Resource):
                         "EmployerName": contributions.EmployerName,
                         "FormType": "Contribution",
                         "FormStatus": contributions.Status,
+                        "PendingFrom": contributions.PendingFrom,
                         "LastModifiedDate": contributions.LastModifiedDate,
                         "FileName": str(contributions.FilePath).replace("/", "\\").split("\\")[
                             len(str(contributions.FilePath).replace("/", "\\").split(
