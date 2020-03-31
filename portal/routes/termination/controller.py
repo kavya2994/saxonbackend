@@ -148,6 +148,7 @@ class TerminationInitiationController(Resource):
 
                     token.FormStatus = status.STATUS_PENDING
                     token.LastModifiedDate = datetime.utcnow()
+                    form.LastNotifiedDate = datetime.utcnow()
                     token.PendingFrom = roles.ROLES_EMPLOYER
                     token.TokenStatus = status.STATUS_INACTIVE
                     if form.Signature is None:

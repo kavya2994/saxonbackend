@@ -368,6 +368,7 @@ class EnrollmentController(Resource):
         token.FormStatus = STATUS_SUBMIT
         token.TokenStatus = STATUS_INACTIVE
         token.LastModifiedDate = datetime.utcnow()
+        form.LastNotifiedDate = datetime.utcnow()
         if form.Signature is None:
             form.Signature = args["Signature"]
             form.SignatureType = args["SignatureType"]

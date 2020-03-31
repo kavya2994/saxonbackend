@@ -1,3 +1,4 @@
+import smtplib
 import time
 from datetime import datetime
 
@@ -9,6 +10,7 @@ from ...models.token import Token
 from ...models.status import *
 from ...models.roles import *
 from ... import APP
+from ...models.users import Users
 from ...services.mail import send_email
 
 
@@ -93,8 +95,13 @@ def send_form_reminder(app):
                         send_email(to_address=termination.EmailAddress, subject=subject, body=msg_text)
                         enrollments.LastNotifiedDate = datetime.utcnow()
                         db.session.commit()
+                    except smtplib.SMTPException as e:
+                        LOG.error(e)
+                        continue
                     except Exception as e:
                         LOG.error(e)
+                        continue
+
             else:
                 if (datetime.utcnow() - enrollments.LastNotifiedDate).days == 3:
                     subject = "Please complete your Silver Thatch Pensions Employment Termination Form"
@@ -113,6 +120,83 @@ def send_form_reminder(app):
                         send_email(to_address=termination.EmailAddress, subject=subject, body=msg_text)
                         enrollments.LastNotifiedDate = datetime.utcnow()
                         db.session.commit()
+                    except smtplib.SMTPException as e:
+                        LOG.error(e)
+                        continue
                     except Exception as e:
                         LOG.error(e)
+                        continue
+        #     For Reminding the employer
+        enrollment_form_data_employer = db.session.query(Token, Enrollmentform).filter(
+            Token.FormID == Enrollmentform.FormID,
+            Token.FormStatus == STATUS_PENDING,
+            Token.PendingFrom == ROLES_EMPLOYER,
+            Token.TokenStatus == STATUS_ACTIVE).all()
+
+        for tokens, enrollments in enrollment_form_data_employer:
+            if enrollments.LastNotifiedDate is not None:
+                employer = Users.query.filter(Users.Username == enrollments.EmployerName,
+                                              Users.Role == ROLES_EMPLOYER,
+                                              Users.Email.isnot(None)).first()
+                if (datetime.utcnow() - enrollments.LastNotifiedDate).days == 3:
+                    subject = "Your Silver Thatch Pensions Enrollment Form needs to be completed"
+                    msg_text = f'<p>**This is an auto-generated e-mail message.' \
+                               f' Please do not reply to this message. **</p>' \
+                               f'<p>Dear {enrollments.EmployerName}</p>' \
+                               f'<p>Please click <a href="{APP.config["FRONTEND_URL"]}/enrollment-form/{tokens.TokenID}">' \
+                               f'here</a>. Otherwise, ' + \
+                               f'cut and paste the link below into a browser, fill in the ' \
+                               f'required information, and when you are done' \
+                               f' hit the submit button to start your enrollment ' \
+                               f'into the plan.</p>' \
+                               f'<p>-----------------------------------------</p>' \
+                               f'<p>{APP.config["FRONTEND_URL"]}/enrollment-form/{tokens.TokenID}</p>' \
+                               f'<p>To learn more about the Silver Thatch Pension Plan,' \
+                               f' click <a href="{APP.config["MAIL_ENROLLMENT_URL"]}">here</a>' \
+                               f' to review our members handbook. </p>'
+                    try:
+                        if employer.Email == "":
+                            continue
+                        send_email(to_address=employer.Email, subject=subject, body=msg_text)
+                        enrollments.LastNotifiedDate = datetime.utcnow()
+                        db.session.commit()
+                    except smtplib.SMTPException as e:
+                        LOG.error(e)
+                        continue
+                    except Exception as e:
+                        LOG.error(e)
+                        continue
+
+        termination_form_data_employer = db.session.query(Token, Terminationform).filter(
+            Token.FormID == Terminationform.FormID,
+            Token.FormStatus == STATUS_PENDING,
+            Token.PendingFrom == ROLES_MEMBER,
+            Token.TokenStatus == STATUS_ACTIVE).all()
+        for tokens, termination in termination_form_data_employer:
+            employer = Users.query.filter(Users.Username == enrollments.EmployerName,
+                                          Users.Role == ROLES_EMPLOYER,
+                                          Users.Email.isnot(None)).first()
+            if termination.LastNotifiedDate is not None:
+                if (datetime.utcnow() - termination.LastNotifiedDate).days == 3:
+                    subject = "Please complete your Silver Thatch Pensions Employment Termination Form"
+                    msg_text = f'<p>**This is an auto-generated e-mail message.' \
+                               f' Please do not reply to this message. **</p>' \
+                               f'<p>Dear {termination.EmployerName}</p>' \
+                               f'<p>please click here or copy the link below into a browser to complete' \
+                               f' the termination of one of your employee. </p> ' \
+                               f'<p>-----------------------------------------</p>' \
+                               f'<p>{APP.config["FRONTEND_URL"]}/terminationform/{tokens.TokenID}</p>'
+                    try:
+                        if employer.Email == "":
+                            continue
+                        send_email(to_address=employer.Email, subject=subject, body=msg_text)
+                        enrollments.LastNotifiedDate = datetime.utcnow()
+                        db.session.commit()
+                    except smtplib.SMTPException as e:
+                        LOG.error(e)
+                        continue
+                    except Exception as e:
+                        LOG.error(e)
+                        continue
+
         LOG.info("Scheduler Job done for today")
