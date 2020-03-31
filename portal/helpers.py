@@ -34,10 +34,11 @@ def token_verify_or_raise(token, user, ip):
     decoded_token = token_verify(token, user, ip)
     if decoded_token is None:
         raise Unauthorized()
-    with app.app_context():
-        tokens = JWTTokenBlacklist.query.filter_by(JWTToken=token).scalar()
-        if tokens is not None:
-            raise Unauthorized()
+
+    tokens = JWTTokenBlacklist.query.filter_by(JWTToken=token).scalar()
+    if tokens is not None:
+        raise Unauthorized()
+
     return decoded_token
 
 
