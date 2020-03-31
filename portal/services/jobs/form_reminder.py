@@ -21,24 +21,25 @@ def send_form_reminder(app):
             Token.FormID == Enrollmentform.FormID,
             Token.FormStatus == STATUS_PENDING,
             Token.PendingFrom == ROLES_MEMBER,
-            Token.TokenStatus == STATUS_ACTIVE).all()
+            Token.TokenStatus == STATUS_ACTIVE,
+            Token.FormType == "Enrollment").all()
 
         for tokens, enrollments in enrollment_form_data:
             if enrollments.LastNotifiedDate is None:
                 print("initated", tokens.InitiatedDate)
                 if tokens.InitiatedDate is not None and (datetime.utcnow() - tokens.InitiatedDate).days == 3:
                     subject = "Your Silver Thatch Pensions Enrollment Form needs to be completed"
-                    msg_text = f'<p>**This is an auto-generated e-mail message.'  \
-                               f' Please do not reply to this message. **</p>'  \
-                               f'<p>Dear {enrollments.FirstName + " " + enrollments.LastName}</p>'  \
+                    msg_text = f'<p>**This is an auto-generated e-mail message.' \
+                               f' Please do not reply to this message. **</p>' \
+                               f'<p>Dear {enrollments.FirstName + " " + enrollments.LastName}</p>' \
                                f'<p>Please click <a href="{APP.config["FRONTEND_URL"]}/enrollment-form/{tokens.TokenID}">' \
                                f'here</a>. Otherwise, ' + \
-                               f'cut and paste the link below into a browser, fill in the '  \
-                               f'required information, and when you are done'  \
+                               f'cut and paste the link below into a browser, fill in the ' \
+                               f'required information, and when you are done' \
                                f' hit the submit button to start your enrollment ' \
-                               f'into the plan.</p>'  \
-                               f'<p>-----------------------------------------</p>'  \
-                               f'<p>{APP.config["FRONTEND_URL"]}/enrollment-form/{tokens.TokenID}</p>'  \
+                               f'into the plan.</p>' \
+                               f'<p>-----------------------------------------</p>' \
+                               f'<p>{APP.config["FRONTEND_URL"]}/enrollment-form/{tokens.TokenID}</p>' \
                                f'<p>To learn more about the Silver Thatch Pension Plan,' \
                                f' click <a href="{APP.config["MAIL_ENROLLMENT_URL"]}">here</a>' \
                                f' to review our members handbook. </p>'
@@ -75,7 +76,8 @@ def send_form_reminder(app):
             Token.FormID == Terminationform.FormID,
             Token.FormStatus == STATUS_PENDING,
             Token.PendingFrom == ROLES_MEMBER,
-            Token.TokenStatus == STATUS_ACTIVE).all()
+            Token.TokenStatus == STATUS_ACTIVE,
+            Token.FormType == "Termination").all()
         for tokens, termination in termination_form_data:
             if termination.LastNotifiedDate is None:
                 if tokens.InitiatedDate is not None and (datetime.utcnow() - tokens.InitiatedDate).days == 3:
@@ -131,11 +133,12 @@ def send_form_reminder(app):
             Token.FormID == Enrollmentform.FormID,
             Token.FormStatus == STATUS_PENDING,
             Token.PendingFrom == ROLES_EMPLOYER,
-            Token.TokenStatus == STATUS_ACTIVE).all()
+            Token.TokenStatus == STATUS_ACTIVE,
+            Token.FormType == "Enrollment").all()
 
         for tokens, enrollments in enrollment_form_data_employer:
             if enrollments.LastNotifiedDate is not None:
-                employer = Users.query.filter(Users.Username == enrollments.EmployerName,
+                employer = Users.query.filter(Users.Username == enrollments.EmployerID,
                                               Users.Role == ROLES_EMPLOYER,
                                               Users.Email.isnot(None)).first()
                 if (datetime.utcnow() - enrollments.LastNotifiedDate).days == 3:
@@ -171,9 +174,10 @@ def send_form_reminder(app):
             Token.FormID == Terminationform.FormID,
             Token.FormStatus == STATUS_PENDING,
             Token.PendingFrom == ROLES_MEMBER,
-            Token.TokenStatus == STATUS_ACTIVE).all()
+            Token.TokenStatus == STATUS_ACTIVE,
+            Token.FormType == "Termination").all()
         for tokens, termination in termination_form_data_employer:
-            employer = Users.query.filter(Users.Username == enrollments.EmployerName,
+            employer = Users.query.filter(Users.Username == termination.EmployerID,
                                           Users.Role == ROLES_EMPLOYER,
                                           Users.Email.isnot(None)).first()
             if termination.LastNotifiedDate is not None:

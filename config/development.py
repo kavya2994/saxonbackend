@@ -47,6 +47,8 @@ CORS_ORIGIN_WHITELIST = [
     "http://localhost:4200",
     "https://localhost:4200",
     "http://192.168.2.132:812",
+    "http://132.145.107.163",
+    "https://132.145.107.163",
     "http://portal-uat.silverthatch.org.ky",
     "https://portal-uat.silverthatch.org.ky"
 ]
