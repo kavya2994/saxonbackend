@@ -17,7 +17,7 @@ DIRECTORIES = [
 ]
 
 DBAAS_READONLY_CONNECTION_STRING = "oracle+cx_oracle://SAXON_PORTAL:SAxon0123$$$@10.147.0.2:1521/?service_name=dtq.app.saxon.oraclevcn.com"
-DBAAS_WRITEONLY_CONNECTION_STRING = "oracle+cx_oracle://system:BL_H#iP3EzA9Nx#m@portal-db-test.app.primary.oraclevcn.com:1521/?service_name=test.app.primary.oraclevcn.com"
+DBAAS_WRITEONLY_CONNECTION_STRING = "oracle+cx_oracle://system:p89o#KirI7#xCuZ8@portal-db-test.app.primary.oraclevcn.com:1521/?service_name=test.app.primary.oraclevcn.com"
 
 SERVER_ADDRESS = "0.0.0.0"
 SERVER_PORT = 90
