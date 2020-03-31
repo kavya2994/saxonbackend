@@ -83,7 +83,7 @@ def create_app():
         seeds.init_app(APP)
         init_cors(APP)
     except Exception as e:
-        LOG.warning('An error happened during initializing app components: %s', e)
+        LOG.error('An error happened during initializing app components: %s', e)
         raise
 
     APP.logger.info('App Initialization is finished successfully')

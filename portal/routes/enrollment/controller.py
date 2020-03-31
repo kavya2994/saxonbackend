@@ -254,7 +254,7 @@ class EnrollmentController(Resource):
         elif args['RequestType'] == RequestType_Reject:
             self._reject_pre_update(token, form, args)
         else:
-            raise BadRequest('Unkown RequestType')
+            raise BadRequest('Unknown RequestType')
 
         try:
             form.FirstName = args['FirstName']
@@ -308,7 +308,7 @@ class EnrollmentController(Resource):
             self._reject_post_update(token, form, args)
             return RESPONSE_OK
         else:
-            raise BadRequest('Unkown RequestType')
+            raise BadRequest('Unknown RequestType')
 
         return RESPONSE_OK
 
