@@ -68,7 +68,7 @@ class FileExplorerOperations(Resource):
                         shutil.copy(source, destination)
                     else:
                         return {"error": "Something wrong happened"}, 500
-                    return {"result": "Success"}, 200
+                return {"result": "Success"}, 200
             except OSError as e:
                 if isinstance(e, WindowsError) and e.winerror == 183:
                     return {"error": "Cannot create a file when that file already exists"}, 500

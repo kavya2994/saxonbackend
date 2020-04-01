@@ -239,7 +239,6 @@ class EnrollmentController(Resource):
         token = Token.query.get(TokenID)
         if token is None:
             raise NotFound('Token Not Found')
-        print(token.FormID)
         form = Enrollmentform.query.get(token.FormID)
         if form is None:
             raise NotFound('Form Not Found')
@@ -417,7 +416,8 @@ class EnrollmentController(Resource):
                 os.mkdir(path)
             file.save(os.path.join(path, filename))
             form.FilePath = os.path.join(path, filename)
-        form.Status = STATUS_PENDING
+        # if form.Status == STATUS_ACTIVE and form.Status is not None:
+        #     form.Status = STATUS_ACTIVE
         if form.Signature is None:
             form.Signature = args["Signature"]
             form.SignatureType = args["SignatureType"]
