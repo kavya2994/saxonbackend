@@ -66,6 +66,7 @@ parser.add_argument('DOB', type=inputs.date_from_iso8601, location='form', requi
 parser.add_argument('Title', type=str, location='form', required=False)
 parser.add_argument('MaritalStatus', type=str, location='form', required=False)
 parser.add_argument('MailingAddress', type=str, location='form', required=False)
+parser.add_argument('InitiatedDate', type=inputs.date_from_iso8601, location='form', required=False)
 parser.add_argument('AddressLine2', type=str, location='form', required=False)
 parser.add_argument('District', type=str, location='form', required=False)
 parser.add_argument('PostalCode', type=str, location='form', required=False)
@@ -294,6 +295,7 @@ class EnrollmentController(Resource):
             raise InternalServerError()
 
         if args['RequestType'] == RequestType_MemberSubmission:
+            # print(args['InitiatedDate'])
             self._memberSubmission_post_update(token, form, args)
             return RESPONSE_OK
         elif args['RequestType'] == RequestType_SaveFormData:
@@ -314,7 +316,6 @@ class EnrollmentController(Resource):
     def _memberSubmission_pre_update(self, token, form, args):
         if token is None:
             raise NotFound('Token was not found')
-
         if token.PendingFrom != ROLES_MEMBER or token.TokenStatus != STATUS_ACTIVE or token.FormStatus != STATUS_PENDING:
             raise NotFound('Token was not Found or is not Active')
         if form.Signature is None and args["Signature"] is None:
@@ -367,12 +368,15 @@ class EnrollmentController(Resource):
         token.FormStatus = STATUS_SUBMIT
         token.TokenStatus = STATUS_INACTIVE
         token.LastModifiedDate = datetime.utcnow()
-        form.LastNotifiedDate = datetime.utcnow()
+        # commented out to update date sent from user
+        # form.LastNotifiedDate = datetime.utcnow()
         if form.Signature is None:
             form.Signature = args["Signature"]
             form.SignatureType = args["SignatureType"]
         form.PendingFrom = ROLES_EMPLOYER
         form.Status = STATUS_PENDING
+        if args['InitiatedDate'] is not None and args['InitiatedDate'] != "":
+            form.InitiatedDate = args['InitiatedDate']
         db.session.commit()
         name = form.FirstName + " " + form.LastName
         subject = 'Your Enrollment has been submitted'
