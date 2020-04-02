@@ -422,6 +422,8 @@ class EnrollmentController(Resource):
             form.FilePath = os.path.join(path, filename)
         # if form.Status == STATUS_ACTIVE and form.Status is not None:
         #     form.Status = STATUS_ACTIVE
+        if args['InitiatedDate'] is not None and args['InitiatedDate'] != "":
+            form.InitiatedDate = args['InitiatedDate']
         if form.Signature is None:
             form.Signature = args["Signature"]
             form.SignatureType = args["SignatureType"]
@@ -547,7 +549,6 @@ class EnrollmentController(Resource):
                 Date=datetime.utcnow(),
                 FormType="Enrollment"
             )
-
             db.session.add(comment)
             db.session.commit()
         name = form.FirstName + " " + form.LastName
