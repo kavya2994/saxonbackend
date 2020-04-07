@@ -64,8 +64,9 @@ class FormWithEmployees(Resource):
                 Token.PendingFrom != roles.ROLES_REVIEW_MANAGER,
                 Token.TokenStatus == status.STATUS_ACTIVE,
                 Token.FormType == TOKEN_FORMTYPE_ENROLLMENT) \
-                .offset(offset_) \
-                .limit(25).all()
+                .all()
+                # .offset(offset_) \
+                # .limit(25)\
 
             for tokens_data, enrollments in enrollment_form_data:
                 forms_data.append({
@@ -87,8 +88,9 @@ class FormWithEmployees(Resource):
                 Token.PendingFrom != roles.ROLES_REVIEW_MANAGER,
                 Token.TokenStatus == status.STATUS_ACTIVE,
                 Token.FormType == TOKEN_FORMTYPE_TERMINATION) \
-                .offset(offset_) \
-                .limit(25).all()
+                .all()
+                # .offset(offset_) \
+                # .limit(25)\
 
             for tokens_data, terminations in termination_form_data:
                 forms_data.append({

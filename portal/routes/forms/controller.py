@@ -145,18 +145,20 @@ class FormController(Resource):
             form = Terminationform.query.get(token.FormID)
             name = form.MemberName
             subject = "Your Silver Thatch Pensions Enrollment Form needs to be completed"
-            msgtext = '<p>**This is an auto-generated e-mail message.' + \
-                      ' Please do not reply to this message. **</p>' + \
-                      '<p>Dear ' + name + '</p>' + \
-                      '<p>In an effort to keep you connected with your Silver Thatch Pension ' + \
-                      'after you leave your current position, please click here or copy the link ' + \
-                      'below into a browser to complete the termination of employment form. This ' + \
-                      'form notifies us that you are no longer employed with your current ' + \
-                      'employer and allows Silver Thatch Pensions to stay in touch with you in ' + \
-                      'regards to your pension. </p> ' + \
-                      '<p>Have you had a chance to look at this yet?</p>' + \
-                      '<p>-----------------------------------------</p>' + \
-                      '<p>' + APP.config["FRONTEND_URL"] + '/terminationform/' + TokenID + '</p>'
+            msgtext = f'<p>**This is an auto-generated e-mail message.' + \
+                      f' Please do not reply to this message. **</p>' + \
+                      f'<p>Dear ' + name + '</p>' + \
+                      f'<p>In an effort to keep you connected with your Silver Thatch Pension ' + \
+                      f'after you leave your current position, please click ' \
+                      f'<a href="{APP.config["FRONTEND_URL"]}/enrollment-form/{TokenID}">here</a>' \
+                      f' or copy the link ' + \
+                      f'below into a browser to complete the termination of employment form. This ' + \
+                      f'form notifies us that you are no longer employed with your current ' + \
+                      f'employer and allows Silver Thatch Pensions to stay in touch with you in ' + \
+                      f'regards to your pension. </p> ' + \
+                      f'<p>Have you had a chance to look at this yet?</p>' + \
+                      f'<p>-----------------------------------------</p>' + \
+                      f'<p>' + APP.config["FRONTEND_URL"] + '/terminationform/' + TokenID + '</p>'
             try:
                 send_email(to_address=email_id, subject=subject, body=msgtext)
                 form.LastNotifiedDate = datetime.utcnow()

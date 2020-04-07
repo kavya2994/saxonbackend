@@ -9,6 +9,7 @@ from ...models.enrollmentform import Enrollmentform
 from ...models.terminationform import Terminationform
 from ...models.token import Token, TOKEN_FORMTYPE_TERMINATION, TOKEN_FORMTYPE_ENROLLMENT
 from ...models.contributionform import Contributionform
+from ...models.documents import Documents
 from ...models.comments import Comments
 from ...models.roles import *
 from ...services.mail import send_email
@@ -114,7 +115,21 @@ class MyForms(Resource):
                     "PendingFrom": contributions.PendingFrom,
                     "FileName": str(contributions.FilePath).replace("/", "\\").split("\\")[len(str(contributions.FilePath).replace("/", "\\").split("\\")) - 1] if contributions.FilePath is not None else ""
                 })
-
+            # documents = Documents.query.order_by(Documents.Date.desc()).all()
+            # for document in documents:
+            #     forms_data.append({
+            #         "FormID": document.FormID,
+            #         "EmployerID": document.EmployerID,
+            #         "EmployerName": document.EmployerName,
+            #         "FormType": "Document",
+            #         "FormStatus": document.Status,
+            #         "LastModifiedDate": document.LastModifiedDate,
+            #         "PendingFrom": document.PendingFrom,
+            #         "FileName": str(document.FilePath).replace("/", "\\").split("\\")[len(
+            #             str(document.FilePath).replace("/", "\\").split(
+            #                 "\\")) - 1] if document.FilePath is not None else ""
+            #     })
+            #     print("form_data", forms_data)
             return {"myforms": forms_data}, 200
         elif args["role"] == roles.ROLES_EMPLOYER:
             employer_id = args["user"]

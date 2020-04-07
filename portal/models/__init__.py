@@ -43,6 +43,7 @@ def init_app(app):
         from .annual_statement import AnnualStatements
         from .monthly_statements import MonthlyStatements
         from .employer_dealing_day_rpt import EmployerDealingDayRPT
+        from .documents import Documents
 
         db.create_all(bind=['writeonly'])
         db.session.commit()
