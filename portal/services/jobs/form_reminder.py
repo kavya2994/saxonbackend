@@ -26,7 +26,7 @@ def send_form_reminder(app):
 
         for tokens, enrollments in enrollment_form_data:
             if enrollments.LastNotifiedDate is None:
-                print("initated", tokens.InitiatedDate)
+
                 if tokens.InitiatedDate is not None and (datetime.utcnow() - tokens.InitiatedDate).days == 3:
                     subject = "Your Silver Thatch Pensions Enrollment Form needs to be completed"
                     msg_text = f'<p>**This is an auto-generated e-mail message.' \

@@ -89,7 +89,8 @@ class ContributionController(Resource):
             return Unauthorized()
 
         contributions = Contributionform.query.filter_by(FormID=FormID).first()
-        comments = Comments.query.filter_by(FormID=FormID, FormType="Contribution").all()
+        comments = Comments.query.filter_by(FormID=FormID, FormType="Contribution")\
+            .order_by(Comments.CommentsID.desc()).all()
         comments_list = []
         if contributions is not None:
             if comments is not None:

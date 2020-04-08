@@ -38,6 +38,7 @@ parser.add_argument('FinalDateOfEmployment', type=inputs.date_from_iso8601, loca
 parser.add_argument('ReasonforTermination', type=str, location='json', required=False)
 parser.add_argument('role', type=str, location='json', required=False)
 parser.add_argument('LastDeduction', type=str, location='json', required=False)
+parser.add_argument('InitiatedDate', type=inputs.date_from_iso8601, location='json', required=False)
 parser.add_argument('Address', type=str, location='json', required=False)
 parser.add_argument('AddressLine2', type=str, location='json', required=False)
 parser.add_argument('District', type=str, location='json', required=False)
@@ -145,12 +146,13 @@ class TerminationInitiationController(Resource):
                     form.Status = status.STATUS_PENDING
                     form.PendingFrom = roles.ROLES_EMPLOYER
                     form.PhoneNumber = args["PhoneNumber"]
-
                     token.FormStatus = status.STATUS_PENDING
                     token.LastModifiedDate = datetime.utcnow()
                     form.LastNotifiedDate = datetime.utcnow()
                     token.PendingFrom = roles.ROLES_EMPLOYER
                     token.TokenStatus = status.STATUS_INACTIVE
+                    if args['InitiatedDate'] is not None and args['InitiatedDate'] != "":
+                        form.InitiatedDate = args['InitiatedDate']
                     if form.Signature is None:
                         form.Signature = args["Signature"]
                         form.SignatureType = args["SignatureType"]
@@ -194,7 +196,6 @@ class TerminationInitiationController(Resource):
                     except smtplib.SMTPException as e:
                         LOG.error("smtp exception at termination", str(e))
                         raise InternalServerError("Cannot send email at the moment")
-
                 elif request_type == RequestType_EmployerSubmission:
                     if decode_token is not None and decode_token["role"] in [roles.ROLES_EMPLOYER, roles.ROLES_HR]:
                         form.EmailAddress = args['EmailAddress']
@@ -209,7 +210,8 @@ class TerminationInitiationController(Resource):
                         form.EstimatedAnnualIncomeRange = args['EstimatedAnnualIncomeRange']
                         form.Status = status.STATUS_PENDING
                         form.PendingFrom = roles.ROLES_REVIEW_MANAGER
-
+                        if args['InitiatedDate'] is not None and args['InitiatedDate'] != "":
+                            form.InitiatedDate = args['InitiatedDate']
                         token.EmployerID = employernumber
                         token.LastModifiedDate = datetime.utcnow()
                         token.PendingFrom = roles.ROLES_REVIEW_MANAGER
