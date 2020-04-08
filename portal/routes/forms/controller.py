@@ -150,7 +150,7 @@ class FormController(Resource):
                       f'<p>Dear ' + name + '</p>' + \
                       f'<p>In an effort to keep you connected with your Silver Thatch Pension ' + \
                       f'after you leave your current position, please click ' \
-                      f'<a href="{APP.config["FRONTEND_URL"]}/enrollment-form/{TokenID}">here</a>' \
+                      f'<a href="{APP.config["FRONTEND_URL"]}/terminationform/{TokenID}">here</a>' \
                       f' or copy the link ' + \
                       f'below into a browser to complete the termination of employment form. This ' + \
                       f'form notifies us that you are no longer employed with your current ' + \
