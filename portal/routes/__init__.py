@@ -20,6 +20,5 @@ def init_app(app):
     from .health import status
     from .forms import forms_with_employees, forms_queue, myforms, controller, search
     from .Contributions import get_contributions, initiate_controller, download_excel, controller
-    from .documents import get_documents, controller, initiate_controller
 
     app.logger.info('Initialized routes')
