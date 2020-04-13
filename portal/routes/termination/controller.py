@@ -72,7 +72,7 @@ class TerminationInitiationController(Resource):
             print(args["request_type"])
             decode_token = token_verify_or_raise(token=args['Authorization'], ip=args['Ipaddress'],
                                                  user=args['username'])
-        print("decode_token------", decode_token)
+        print("Termination Date",args['InitiatedDate'])
         # if decode_token['role'] != ROLES_EMPLOYER:
         #     raise Unauthorized()
         initiation_date = datetime.utcnow()
@@ -107,7 +107,8 @@ class TerminationInitiationController(Resource):
                     # form.Status = args['Status']
                     # form.PendingFrom = args['PendingFrom']
                     form.PhoneNumber = args["PhoneNumber"]
-
+                    if args['InitiatedDate'] is not None and args['InitiatedDate'] != "":
+                        form.InitiatedDate = args['InitiatedDate']
                     # token.FormStatus = status.STATUS_PENDING
                     # token.PendingFrom = args['PendingFrom']
                     if form.Signature is None:

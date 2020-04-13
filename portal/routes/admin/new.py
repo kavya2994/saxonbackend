@@ -61,6 +61,7 @@ class AddUser(Resource):
                                      DisplayName=displayname,
                                      SessionDuration="30",
                                      UserCreatedTime=datetime.utcnow(),
+                                     PhoneNumber=data["phonenumber"],
                                      CreatedBy=args["username"])
                     db.session.add(new_user)
                     db.session.commit()
