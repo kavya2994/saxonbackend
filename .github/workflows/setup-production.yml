@@ -2,6 +2,8 @@ name: Setup Production Server
 
 on:
   push:
+    branches:
+      - master
     paths:
       - 'ops/playbook/inventory/production'
       - 'ops/playbook/inventory/.trigger-setup-production'

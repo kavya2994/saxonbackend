@@ -49,7 +49,7 @@ jobs:
         with:
           playbookName: ./ops/playbook/deploy.yaml
           inventoryFile: ./ops/playbook/inventory/staging
-          keyFile: ./ops/ssh/deploy_private_key
+          keyFile: ./ops/ssh/prod_deploy_private_key
           keyFileVaultPass: ${{ secrets.ANSIBLE_VAULT_SECRET }}
           extraVars: "-e app_env=staging -e git_version=${{ github.sha }} -e git_actor=${{ github.actor }}"
           verbosity: "vv"

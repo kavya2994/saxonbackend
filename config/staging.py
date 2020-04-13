@@ -17,12 +17,14 @@ DIRECTORIES = [
     'contribution', 'batch', 'Annual',
 ]
 
-DBAAS_READONLY_CONNECTION_STRING = "oracle+cx_oracle://system:Sportal_DB#23@152.67.0.98:1521/?service_name=Dev_bom1sn.devpublic.dev.oraclevcn.com"
-DBAAS_WRITEONLY_CONNECTION_STRING = "oracle+cx_oracle://system:Sportal_DB#23@140.238.248.176:1521/?service_name=PDB1.svcsubnetad1.svcvcn.oraclevcn.com"
+DBAAS_READONLY_CONNECTION_STRING = "oracle+cx_oracle://SAXON_PORTAL:SAxon0123$$$@10.147.0.2:1521/?service_name=dtq.app.saxon.oraclevcn.com"
+DBAAS_WRITEONLY_CONNECTION_STRING = "oracle+cx_oracle://system:p89o#KirI7#xCuZ8@portal-db-test.app.primary.oraclevcn.com:1521/?service_name=test.app.primary.oraclevcn.com"
 
 SERVER_ADDRESS = "0.0.0.0"
 SERVER_PORT = 90
 SERVER_WEB_URL = 'https://portal.silverthatch.org.ky/'
+FRONTEND_URL = 'http://portal-uat.silverthatch.org.ky/'
+MAIL_ENROLLMENT_URL = 'https://silverthatch.org.ky/?d=756'
 
 SECRET_KEY = 'f^I7q!(S(O]|"]%<+,Hz&vyQ^"exx9'
 JWT_SECRET = 'H7|=1fq[:`.;MtY02Me]w9_XPRqt^S'
@@ -33,8 +35,6 @@ CORS_HEADERS = [
 ]
 
 CORS_ORIGIN_WHITELIST = [
-    "http://editor.swagger.io",
-    "https://editor.swagger.io",
     "http://generator.swagger.io",
     "https://generator.swagger.io",
 
@@ -65,7 +65,9 @@ CORS_ORIGIN_WHITELIST = [
     "http://192.168.2.132:812",
 
     "http://portal.silverthatch.org.ky",
-    "https://portal.silverthatch.org.ky"
+    "https://portal.silverthatch.org.ky",
+    "http://portal-uat.silverthatch.org.ky",
+    "https://portal-uat.silverthatch.org.ky"
 ]
 
 MAILGUN_API_KEY = "1dcbf1bdff3416543d67867101b08e49-52b6835e-5b18bf8e"
