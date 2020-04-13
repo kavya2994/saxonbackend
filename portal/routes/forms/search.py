@@ -154,12 +154,13 @@ class SearchForms(Resource):
                         "PendingFrom": tokens_data.PendingFrom
                     })
             if token["role"] == ROLES_REVIEW_MANAGER and \
-                    (parameters_dict["FormType"] == TOKEN_FORMTYPE_CONTRIBUTION or parameters_dict["FormType"] == ""):
+                    (parameters_dict["FormType"] == TOKEN_FORMTYPE_CONTRIBUTION or parameters_dict["FormType"] == "") \
+                    and (parameters_dict["Member"] is None or parameters_dict["Member"] == ""):
                 contribution_forms = Contributionform.query \
                     .filter(Contributionform.PendingFrom.ilike("%" + parameters_dict["PendingFrom"] + "%"),
                             Contributionform.Status.ilike("%" + form_status + "%"),
                             or_(Contributionform.EmployerID.ilike("%" + parameters_dict["Employer"] + "%"),
-                            Contributionform.EmployerName.ilike("%" + parameters_dict["Employer"] + "%")),
+                                Contributionform.EmployerName.ilike("%" + parameters_dict["Employer"] + "%")),
                             Contributionform.Status != status.STATUS_DELETE)
                 if submitted_from == submitted_to:
                     contribution_forms = contribution_forms.filter(Contributionform.Date >= submitted_to,
