@@ -9,7 +9,7 @@ cryptography==2.8
 cx-Oracle==7.3.0
 Flask==1.1.1
 Flask-Cors==3.0.8
-flask-restx==0.1.1
+flask-restx==0.5.1
 Flask-SQLAlchemy==2.4.1
 gevent==1.4.0
 greenlet==0.4.15
